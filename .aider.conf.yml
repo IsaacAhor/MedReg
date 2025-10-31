@@ -1,0 +1,38 @@
+# Aider AI Coding Assistant Configuration
+# Automatically reads AGENTS.md for project context
+
+# Context files to always load
+read: 
+  - AGENTS.md
+  - 08_MVP_Build_Strategy.md
+  - 02_NHIE_Integration_Technical_Specifications.md
+
+# Model selection (use GPT-4 or Claude for best results)
+model: gpt-4
+
+# Git integration
+auto-commits: true
+commit-message-template: |
+  {message}
+  
+  Co-authored-by: Aider <aider@aider.chat>
+
+# Editor integration
+editor: code  # VS Code
+
+# Linting/Testing
+lint-cmds:
+  - "mvn checkstyle:check"  # Backend Java linting
+  - "cd frontend && pnpm lint"  # Frontend linting
+
+test-cmds:
+  - "mvn test"  # Backend tests
+  - "cd frontend && pnpm test"  # Frontend tests
+
+# Code style
+auto-lint: true
+auto-test: false  # Don't auto-run tests (slow), run manually
+
+# Message settings
+dark-mode: true
+pretty: true

@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: medreg-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: openmrs
+      MYSQL_USER: openmrs_user
+      MYSQL_PASSWORD: openmrs_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time-zone=+00:00 --sql-mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - medreg-network
+
+  openmrs:
+    image: openmrs/openmrs-reference-application-distro:2.6.0
+    container_name: medreg-openmrs
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_DATABASE: openmrs
+      DB_HOST: mysql
+      DB_USERNAME: openmrs_user
+      DB_PASSWORD: openmrs_password
+      DB_CREATE_TABLES: 'true'
+      DB_AUTO_UPDATE: 'true'
+      MODULE_WEB_ADMIN: 'true'
+    ports:
+      - "8080:8080"
+    volumes:
+      - openmrs_data:/openmrs/data
+      - ./openmrs-modules:/openmrs/distribution/modules
+      - ./openmrs-runtime.properties:/openmrs/openmrs-runtime.properties
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs/"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 300s
+    networks:
+      - medreg-network
+
+volumes:
+  mysql_data:
+    driver: local
+  openmrs_data:
+    driver: local
+
+networks:
+  medreg-network:
+    driver: bridge
