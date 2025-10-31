@@ -2,13 +2,25 @@
 
 **Project:** MedReg - Ghana NHIE-Compliant Electronic Medical Records System  
 **Repository:** https://github.com/IsaacAhor/MedReg  
-**Timeline:** 16-20 weeks to functional MVP  
+**Timeline:** 20 weeks to functional MVP (Option B: Next.js Frontend)  
 **Started:** October 30, 2025  
+**Expected Completion:** March 2026  
 **Last Updated:** October 31, 2025
+
+**Reference:** See [08_MVP_Build_Strategy.md](08_MVP_Build_Strategy.md) for complete plan
 
 ---
 
-## Week 1: Foundation & Setup (October 30-31, 2025)
+## Timeline Overview (20 Weeks - Option B)
+
+- **Phase 1: Foundation** (Week 1-5)
+- **Phase 2: OPD Core Workflow** (Week 6-11)
+- **Phase 3: NHIS + Billing** (Week 12-14)
+- **Phase 4: Reports + Polish** (Week 15-20)
+
+---
+
+## Week 1: Foundation & Setup (October 30 - November 6, 2025)
 
 ### Status: ✅ COMPLETED (71% → 100%)
 
@@ -166,7 +178,8 @@
 ### Next Steps (Week 1 Remaining)
 
 #### Day 3-4: User Roles & Authentication ⏳
-**Status:** NOT STARTED
+**Status:** NOT STARTED  
+**From MVP:** Week 1, Day 3-4 - User roles and privileges configuration + Authentication UI
 
 1. **OpenMRS User Roles (Backend)**
    - [ ] Start Docker: `docker-compose up -d`
@@ -179,7 +192,7 @@
      - Records Officer (register patients, search, print)
      - Cashier (view encounters, billing, receipts)
 
-2. **Authentication UI (Frontend)**
+2. **Authentication UI (Frontend - Option B)**
    - [ ] Complete `src/app/login/page.tsx` (already created, needs testing)
    - [ ] Complete `src/components/auth/login-form.tsx` (already created)
    - [ ] Complete `src/hooks/useAuth.ts` (already created)
@@ -194,9 +207,95 @@
    - [ ] Handle 401 responses (auto-redirect to login)
    - [ ] 30-minute inactivity timeout
 
+#### Day 5: Facility Metadata ✅
+**Status:** COMPLETED
+- ✅ Facility code set: KBTH (Korle Bu Teaching Hospital)
+- ✅ Region code set: GA (Greater Accra)
+- ✅ NHIE sandbox endpoints configured in `openmrs-runtime.properties`
+
 ---
 
-## Week 2: Patient Registration (Planned)
+## Week 2-3: Patient Registration (November 7-20, 2025)
+
+### Status: ⏳ NOT STARTED
+
+**From MVP:** Week 2-3 - Patient Registration Module (Option B: shadcn/ui components, React Hook Form, TanStack Query)
+
+### Planned Tasks
+
+#### Week 2: Patient Registration Backend
+- [ ] OpenMRS module: Ghana patient identifier types (Ghana Card, NHIS, Folder Number)
+- [ ] Ghana Card validator with Luhn checksum algorithm
+- [ ] NHIS number validator (10 digits)
+- [ ] Folder number generator: `[REGION]-[FACILITY]-[YEAR]-[SEQUENCE]`
+- [ ] Thread-safe sequence generation (database lock)
+- [ ] `GhanaPatientService` with Ghana-specific validation
+- [ ] REST API endpoints: 
+  - `POST /api/v1/ghana/patients` (register)
+  - `GET /api/v1/ghana/patients/{uuid}` (fetch by ID)
+  - `GET /api/v1/ghana/patients?q=<search>` (search)
+- [ ] Unit tests (JUnit + Mockito, >70% coverage)
+
+#### Week 3: Patient Registration Frontend (Option B)
+- [ ] Registration form with React Hook Form + Zod validation
+- [ ] shadcn/ui components: Input, Select, DatePicker, Button, Form
+- [ ] Ghana Card input with real-time format validation (`GHA-XXXXXXXXX-X`)
+- [ ] NHIS number input (optional, 10 digits)
+- [ ] Demographic fields:
+  - Given Name, Middle Name, Family Name (required)
+  - Date of Birth (date picker, max today)
+  - Gender (M/F/O dropdown)
+  - Phone (Ghana format: +233XXXXXXXXX)
+  - Address (Region, District, Town, Street)
+- [ ] Photo capture (optional toggle - webcam or file upload)
+- [ ] Form submission via TanStack Query mutation
+- [ ] Success toast notification with folder number
+- [ ] Error handling (duplicate Ghana Card, validation errors)
+- [ ] Patient search page with Ghana Card/NHIS/Name filters
+- [ ] Print folder label (HTML print view)
+
+---
+
+## Week 4-5: NHIE Patient Sync (November 21 - December 4, 2025)
+
+### Status: ⏳ NOT STARTED
+
+**From MVP:** Week 4-5 (Option B) - NHIE Patient Sync + Patient Dashboard UI
+
+### Planned Tasks
+
+#### Week 4: NHIE Patient Sync Backend
+- [ ] FHIR R4 Patient resource mapper (OpenMRS → FHIR)
+  - Map Ghana Card to `identifier.system=http://moh.gov.gh/fhir/identifier/ghana-card`
+  - Map NHIS to `identifier.system=http://moh.gov.gh/fhir/identifier/nhis`
+  - Map Folder Number to `identifier.system=http://moh.gov.gh/fhir/identifier/folder-number`
+- [ ] `NHIEHttpClient` with OAuth 2.0 client credentials flow
+- [ ] Token caching (in-memory, 5-minute proactive refresh)
+- [ ] mTLS configuration (if required by NHIE - feature flag)
+- [ ] Submit patient to NHIE: `POST https://nhie.moh.gov.gh/fhir/Patient`
+- [ ] Handle 409 Conflict (patient exists) - fetch NHIE patient ID
+- [ ] Store NHIE patient ID in OpenMRS (PersonAttribute or PatientIdentifier)
+- [ ] Transaction logging table: `nhie_transaction_log`
+  - Columns: transaction_id, patient_id, resource_type, http_method, endpoint, request_body, response_status, response_body, retry_count, status, created_at, updated_at
+  - Mask PII in logs (Ghana Card, NHIS, names)
+- [ ] Background retry job (exponential backoff: 5s, 30s, 2m, 10m, 1h, 2h, 4h)
+- [ ] Dead-letter queue after 8 failed attempts
+
+#### Week 5: Patient Dashboard UI (Option B)
+- [ ] Patient dashboard page: `src/app/patients/[uuid]/page.tsx`
+- [ ] Display patient demographics with shadcn/ui Card components
+- [ ] NHIE sync status indicator (Badge: SUCCESS=green, PENDING=yellow, FAILED=red)
+- [ ] Recent encounters list (Table component)
+- [ ] Actions: Edit Demographics, View Full History, Print Folder Label
+- [ ] Search results display with pagination (50 per page)
+- [ ] NHIE sync status column in search results
+- [ ] Manual retry button for failed NHIE syncs (admin only)
+
+**Milestone 1:** Register 10 test patients, successfully sync to NHIE sandbox (or mock NHIE if sandbox down)
+
+---
+
+## Week 6-11: OPD Core Workflow (December 5, 2025 - January 15, 2026)
 
 ### Status: ⏳ NOT STARTED
 
@@ -231,189 +330,316 @@
 
 ---
 
-## Week 3-4: OPD Workflow (Planned)
-
-### Status: ⏳ NOT STARTED
+**From MVP:** Week 6-11 (Option B) - Triage, Consultation, Pharmacy, NHIE Encounter Sync
 
 ### Planned Tasks
 
-#### Triage Module
-- [ ] Vitals entry form (BP, temp, pulse, weight, height)
-- [ ] Chief complaint input
-- [ ] Triage queue display
-- [ ] Assign patient to doctor
+#### Week 6: Triage Module
+**Backend:**
+- [ ] Vitals Observation creation (OpenMRS Obs)
+- [ ] Obs concepts: BP Systolic, BP Diastolic, Temperature, Weight, Height, BMI
+- [ ] Triage encounter type
 
-#### Consultation Module
-- [ ] Patient summary view (demographics, vitals, history)
-- [ ] Diagnosis entry with ICD-10 autocomplete (Top 20 Ghana diagnoses)
-- [ ] Prescription module (drug, dosage, frequency, duration)
-- [ ] Clinical notes (SOAP format)
-- [ ] Save encounter to OpenMRS
+**Frontend (Option B):**
+- [ ] Triage form page: `src/app/triage/[patientId]/page.tsx`
+- [ ] shadcn/ui Input components for vitals:
+  - BP (two inputs: systolic/diastolic)
+  - Temperature (Celsius)
+  - Weight (kg)
+  - Height (cm)
+- [ ] BMI auto-calculation (client-side + server validation)
+- [ ] Chief complaint Textarea
+- [ ] Save vitals via TanStack Query mutation
+- [ ] Triage queue page: `src/app/triage/queue/page.tsx`
+- [ ] shadcn/ui Table showing patients waiting for consultation
+- [ ] Assign to doctor button
 
-#### Pharmacy Module
-- [ ] Pending prescriptions queue
-- [ ] Drug dispensing interface
-- [ ] Stock tracking (basic - defer advanced to v2)
-- [ ] Print prescription label
+#### Week 7-8: Consultation Module
+**Backend:**
+- [ ] Encounter creation (OPD encounter type)
+- [ ] Obs for complaints (TEXT)
+- [ ] Obs for diagnosis (CODED - ICD-10 concept)
+- [ ] Drug Order creation (OpenMRS Order API)
+- [ ] Lab Order creation (TestOrder)
 
-#### Billing Module
-- [ ] NHIS vs Cash payment detection
-- [ ] Service fees configuration
-- [ ] Generate receipt
-- [ ] Revenue reports (daily, monthly)
+**Frontend (Option B):**
+- [ ] Consultation page: `src/app/consultation/[encounterId]/page.tsx`
+- [ ] Patient summary Card (demographics, vitals from triage)
+- [ ] Complaints Textarea (shadcn/ui)
+- [ ] Diagnosis search with shadcn/ui Command + Combobox
+  - Top 20 Ghana diagnoses as quick picks (buttons)
+  - ICD-10 full search fallback
+- [ ] Prescription form (shadcn/ui Table with add/remove rows):
+  - Drug search (Ghana Essential Medicines List - 50 drugs)
+  - Dosage Input
+  - Frequency Select (OD, BD, TDS, QDS, PRN)
+  - Duration Input (days)
+  - Instructions Textarea
+- [ ] Lab order checkboxes (top 10 tests: FBC, Malaria RDT, Blood Sugar, Urinalysis, etc.)
+- [ ] Save encounter Button → creates Encounter + Obs + Orders
+- [ ] Success toast → redirect to patient dashboard
+
+#### Week 9: Pharmacy Module
+**Backend:**
+- [ ] Dispense Order API (mark Order as COMPLETED)
+- [ ] Dispensed by (user), dispensed at (timestamp)
+- [ ] Optional: Basic stock deduction (defer full inventory to v2)
+
+**Frontend (Option B):**
+- [ ] Pharmacy queue page: `src/app/pharmacy/queue/page.tsx`
+- [ ] shadcn/ui Table with pending prescriptions
+- [ ] Filters: NHIS vs Cash, Date range
+- [ ] Dispense modal (Dialog component):
+  - Show drug details (name, dosage, frequency, duration)
+  - Instructions
+  - Confirm dispense Button
+- [ ] Mark as dispensed → update Order status
+- [ ] Print prescription label (HTML print view)
+
+#### Week 10-11: NHIE Encounter Sync
+**Backend:**
+- [ ] FHIR R4 Encounter resource mapper (OpenMRS Encounter → FHIR)
+  - Map Encounter type (OPD)
+  - Map period (start/end timestamps)
+  - Map subject (Patient reference with Ghana Card identifier)
+  - Map reasonCode (diagnosis ICD-10 codes)
+- [ ] FHIR R4 Observation resources (vitals from triage)
+- [ ] FHIR R4 Condition resources (diagnoses)
+- [ ] FHIR R4 MedicationRequest resources (prescriptions)
+- [ ] Submit to NHIE: `POST https://nhie.moh.gov.gh/fhir/Encounter`
+- [ ] Background job (every 5 minutes) to retry failed submissions
+- [ ] Link Encounter to NHIE Encounter ID in OpenMRS
+
+**Frontend (Option B - Week 11):**
+- [ ] NHIE sync status dashboard: `src/app/admin/nhie-sync/page.tsx`
+- [ ] shadcn/ui Table with NHIE transaction log
+- [ ] Filters: Status (SUCCESS, PENDING, FAILED, DLQ), Resource Type, Date range
+- [ ] Retry button for FAILED transactions (admin only)
+- [ ] View request/response bodies (masked PII)
+
+**Milestone 2:** Complete 50 end-to-end test encounters (registration → triage → consultation → pharmacy → NHIE sync to sandbox)
 
 ---
 
-## Week 5-6: NHIE Integration (Planned)
+## Week 12-14: NHIS + Billing (January 16 - February 5, 2026)
 
 ### Status: ⏳ NOT STARTED
 
+**From MVP:** Week 12-14 (Option B) - NHIS Eligibility Check, Billing/Cashier, NHIS Claims Export
+
 ### Planned Tasks
 
-#### Patient Sync to NHIE
-- [ ] FHIR R4 Patient resource mapper
-- [ ] POST /fhir/Patient to NHIE
-- [ ] Handle duplicate patients (409 Conflict)
-- [ ] Store NHIE patient ID in OpenMRS
+#### Week 12: NHIS Eligibility Check
+**Backend:**
+- [ ] NHIE Coverage resource query: `GET /fhir/Coverage?beneficiary.identifier=http://moh.gov.gh/fhir/identifier/nhis|{nhisNumber}`
+- [ ] Parse Coverage response (status: active, period: start/end dates)
+- [ ] Cache eligibility in `nhie_coverage_cache` table (TTL: 24 hours)
+- [ ] PersonAttribute for NHIS status (ACTIVE, EXPIRED, NOT_FOUND)
 
-#### Encounter Sync to NHIE
-- [ ] FHIR R4 Encounter resource mapper
-- [ ] Include Observation resources (vitals)
-- [ ] Include Condition resources (diagnoses)
-- [ ] POST /fhir/Encounter to NHIE
-- [ ] Transaction log table (nhie_transaction_log)
+**Frontend (Option B):**
+- [ ] Add NHIS eligibility check to registration form
+- [ ] Button: "Check NHIS Eligibility" (triggers API call)
+- [ ] shadcn/ui Badge component for status:
+  - ACTIVE (green badge): "✓ NHIS Active until [date]"
+  - EXPIRED (red badge): "✗ NHIS Expired since [date]"
+  - NOT FOUND (yellow badge): "⚠ NHIS Number Not Found"
+- [ ] Display eligibility status on patient dashboard
+- [ ] Manual refresh button (admin only, if cached >24 hours)
 
-#### Retry & Queue System
-- [ ] Background job for failed NHIE submissions
-- [ ] Exponential backoff (5s, 30s, 2m, 10m, 1h, 2h, 4h)
-- [ ] Dead-letter queue after 8 attempts
-- [ ] Admin dashboard for failed transactions
-- [ ] Manual retry button
+#### Week 13: Billing/Cashier Module
+**Backend:**
+- [ ] Billing encounter type (separate from consultation)
+- [ ] Service charges configuration (consultation fee, lab fees, procedure fees)
+- [ ] Drug charges calculation (sum of dispensed drugs × unit price)
+- [ ] Payment recording (Obs: payment_type=CASH/NHIS, amount_paid, receipt_number)
+- [ ] Receipt number generation (auto-increment per facility)
+
+**Frontend (Option B):**
+- [ ] Billing page: `src/app/billing/[encounterId]/page.tsx`
+- [ ] shadcn/ui Card showing:
+  - Consultation fee (configurable)
+  - Lab fees (list of ordered tests with tariff)
+  - Drug charges (list of dispensed drugs with unit price)
+  - Total amount
+- [ ] Payment type Radio (CASH vs NHIS)
+- [ ] If NHIS selected:
+  - Check eligibility status (must be ACTIVE)
+  - Show "Bill to NHIS" confirmation
+  - No cash payment required
+- [ ] If CASH selected:
+  - Amount paid Input
+  - Change calculation
+- [ ] Generate receipt Button
+- [ ] Receipt preview modal (Dialog component, printable HTML)
+- [ ] Print receipt (HTML print view with facility logo, patient details, itemized charges)
+
+#### Week 14: NHIS Claims Export
+**Backend:**
+- [ ] Claims batch query (filter encounters where payment_type=NHIS, date range)
+- [ ] Claims CSV/Excel format:
+  - NHIS Number
+  - Folder Number
+  - Patient Name (masked in logs)
+  - Date of Service
+  - Diagnosis (ICD-10 code + description)
+  - Drugs Dispensed (drug name, quantity, unit price, total)
+  - Lab Tests (test name, tariff code, price)
+  - Total Claim Amount
+- [ ] Export to CSV (using Apache Commons CSV or similar)
+- [ ] Optional: Export to Excel (using Apache POI)
+
+**Frontend (Option B):**
+- [ ] Claims export page: `src/app/claims/export/page.tsx`
+- [ ] Date range picker (shadcn/ui Calendar)
+- [ ] Facility selector (if multi-facility in future)
+- [ ] Preview claims count before export
+- [ ] Download CSV Button
+- [ ] Download Excel Button (optional)
+- [ ] Claims submission log Table (track which batches submitted to NHIE)
+
+**Milestone 3:** Generate claims batch for 100 NHIS encounters, validate format with MoH (or mock validation if MoH specs unavailable)
 
 ---
 
-## Week 7-8: NHIS Claims (Planned)
+## Week 15-20: Reports + Polish (February 6 - March 20, 2026)
 
 ### Status: ⏳ NOT STARTED
 
-### Planned Tasks
-
-#### Claims Export
-- [ ] NHIS claims file format (XML/CSV - TBD based on MoH specs)
-- [ ] Filter encounters by NHIS active patients
-- [ ] Include diagnosis codes, procedures, drugs dispensed
-- [ ] Generate monthly claims file
-- [ ] Submit to NHIA (via NHIE or manual upload - TBD)
-
-#### Claims Tracking
-- [ ] Claims submission log
-- [ ] Track claim status (pending, approved, rejected)
-- [ ] Reconciliation report (submitted vs paid)
-- [ ] Revenue by payment type (NHIS vs Cash)
-
----
-
-## Week 9-10: Reports & Dashboard (Planned)
-
-### Status: ⏳ NOT STARTED
+**From MVP:** Week 15-20 (Option B) - Essential Reports, Testing, Training, Pilot Deployment
 
 ### Planned Tasks
 
-#### Reports
-- [ ] OPD register (daily patient list)
-- [ ] Top 10 diagnoses (monthly)
-- [ ] NHIS vs Cash breakdown
-- [ ] Revenue report (daily, weekly, monthly)
-- [ ] Drug dispensing report
-- [ ] Patient demographics summary
+#### Week 15-16: Essential Reports
+**Backend:**
+- [ ] Daily OPD register query (all encounters for date, with diagnosis)
+- [ ] NHIS vs Cash summary query (count by payment type, date range)
+- [ ] Top 10 diagnoses query (group by ICD-10 code, count, date range)
+- [ ] Revenue summary query (sum of cash collected, NHIS claims pending, date range)
 
-#### Admin Dashboard
-- [ ] Active patients count
-- [ ] Today's OPD visits
-- [ ] Pending NHIE sync queue depth
-- [ ] Failed transactions alert
-- [ ] System health indicators
+**Frontend (Option B - Week 15-16):**
+- [ ] Reports dashboard: `src/app/reports/page.tsx`
+- [ ] shadcn/ui Tabs component for report types:
+  - Daily OPD Register
+  - NHIS vs Cash Summary
+  - Top Diagnoses
+  - Revenue Summary
+- [ ] Daily OPD Register Tab:
+  - Date picker
+  - shadcn/ui Table with columns: Patient Name, Folder #, NHIS #, Diagnosis, Doctor, Time
+  - Export to CSV/PDF
+- [ ] NHIS vs Cash Tab:
+  - Date range picker
+  - shadcn/ui Card components showing:
+    - Total Patients
+    - NHIS Patients (count, percentage)
+    - Cash Patients (count, percentage)
+  - Optional: Recharts Bar Chart
+- [ ] Top Diagnoses Tab:
+  - Date range picker (default: past 30 days)
+  - shadcn/ui Table with columns: ICD-10 Code, Diagnosis Name, Count
+  - Optional: Recharts Bar Chart (horizontal)
+- [ ] Revenue Summary Tab:
+  - Date range picker
+  - shadcn/ui Card components:
+    - Cash Collected (total amount)
+    - NHIS Claims Pending (total amount, count)
+    - Top Revenue Sources (consultation, labs, drugs)
+  - Optional: Recharts Line Chart (daily revenue trend)
 
----
+#### Week 17: Testing + Bug Fixes (Option B)
+- [ ] End-to-end testing with Playwright:
+  - Patient registration flow
+  - OPD workflow (triage → consultation → pharmacy → billing)
+  - NHIS eligibility check
+  - NHIE sync (mock if sandbox down)
+  - Claims export
+  - Reports generation
+- [ ] Cross-browser testing (Chrome, Firefox, Safari on Windows/Mac)
+- [ ] Responsive design validation (desktop 1920x1080, laptop 1366x768, tablet 768px)
+- [ ] Performance testing:
+  - 50 concurrent users (JMeter or Locust)
+  - 1000+ patients in database
+  - 5000+ encounters in database
+  - Page load times <3s
+- [ ] Security audit:
+  - SQL injection testing (automated with SQLMap)
+  - XSS testing (automated with OWASP ZAP)
+  - Privilege escalation testing (manual)
+  - PII masking validation (logs, error messages)
+- [ ] Bug fixes from QA testing
 
-## Week 11-12: Testing & Refinement (Planned)
+#### Week 18-19: User Training + Documentation (Option B)
+**Week 18:**
+- [ ] User manual completion (docs/training/user-manual.md)
+  - Registration workflow (10 pages with screenshots)
+  - OPD workflow (20 pages: triage, consultation, pharmacy, billing)
+  - NHIS eligibility checking (5 pages)
+  - Claims export (5 pages)
+  - Reports generation (10 pages)
+  - Troubleshooting (10 pages: common errors, solutions)
+- [ ] Job aids creation (docs/training/job-aids/):
+  - Quick reference cards (1 page per workflow, printable)
+  - Ghana Card validation cheatsheet
+  - ICD-10 top 20 diagnoses poster
+  - Keyboard shortcuts poster
+- [ ] Training video recording (5-10 minutes each):
+  - Patient registration demo
+  - OPD workflow demo
+  - NHIS checking demo
+  - Claims export demo
+  - Reports demo
 
-### Status: ⏳ NOT STARTED
+**Week 19:**
+- [ ] In-app help implementation (Option B):
+  - shadcn/ui Tooltip components on form fields
+  - Help icons with popover explanations
+  - Onboarding tour (using react-joyride or similar)
+  - First-time user wizard for facility setup
+- [ ] Documentation website (optional):
+  - Deploy docs to GitHub Pages or Vercel
+  - Searchable documentation (Docusaurus or similar)
 
-### Planned Tasks
+#### Week 20: Pilot Deployment
+**Backend Deployment:**
+- [ ] Provision Ubuntu 22.04 server (DigitalOcean Droplet or AWS EC2)
+- [ ] Install Docker + Docker Compose
+- [ ] Clone repo to `/opt/ghana-emr`
+- [ ] Configure production `.env` file (NHIE prod endpoints, secrets)
+- [ ] Run database migrations (Liquibase)
+- [ ] Start services: `docker-compose -f docker-compose.prod.yml up -d`
+- [ ] Configure SSL certificate (Let's Encrypt via Certbot)
+- [ ] Configure Nginx reverse proxy (OpenMRS on :80, frontend on :443)
+- [ ] Firewall setup (UFW: allow 22, 80, 443; deny all others)
 
-#### Backend Testing
-- [ ] Unit tests >70% coverage (JUnit + Mockito)
-- [ ] Integration tests (OpenMRS + MySQL)
-- [ ] NHIE integration tests (sandbox)
+**Frontend Deployment (Option B):**
+- [ ] Deploy to Vercel:
+  - Connect GitHub repo to Vercel
+  - Configure build command: `cd frontend && npm run build`
+  - Set environment variables (NEXT_PUBLIC_OPENMRS_API_URL)
+  - Deploy to production
+- [ ] OR deploy to Nginx:
+  - Build frontend: `npm run build`
+  - Copy `.next` folder to server
+  - Configure Nginx to serve Next.js
+  - Setup PM2 for Node.js process management
 
-#### Frontend Testing
-- [ ] Unit tests >70% coverage (Vitest + React Testing Library)
-- [ ] Component tests for forms
-- [ ] E2E tests (Playwright) for critical flows:
-   - Patient registration
-   - OPD workflow (triage → consultation → pharmacy → billing)
-   - NHIS eligibility check
+**On-Site Setup:**
+- [ ] Network configuration (static IP, DNS, printer setup)
+- [ ] Import initial users (6 roles: Admin, Doctor, Nurse, Pharmacist, Records, Cashier)
+- [ ] Configure facility metadata (facility code, region, contact details)
+- [ ] Staff training (2 days):
+  - Day 1: Classroom training (all workflows, hands-on practice)
+  - Day 2: Go-live support (on-site assistance, troubleshooting)
+- [ ] Go-live checklist:
+  - ✅ All services running (OpenMRS, MySQL, frontend)
+  - ✅ SSL certificate valid
+  - ✅ Printer working (receipts, labels)
+  - ✅ 3+ staff trained
+  - ✅ Test patient registered and completed OPD workflow
+  - ✅ NHIE sandbox sync tested (or mock NHIE if unavailable)
+  - ✅ Backup script configured (daily mysqldump to cloud storage)
 
-#### Manual Testing
-- [ ] Test all 6 user roles
-- [ ] Test offline behavior (defer offline mode to v2)
-- [ ] Test error scenarios (network failure, invalid data)
-- [ ] Performance testing (100+ patients, 500+ encounters)
-
----
-
-## Week 13-14: Pilot Deployment Prep (Planned)
-
-### Status: ⏳ NOT STARTED
-
-### Planned Tasks
-
-#### Production Environment
-- [ ] Ubuntu 22.04 server provisioning
-- [ ] Docker + Docker Compose installation
-- [ ] MySQL 8.0 setup (managed instance or same server)
-- [ ] SSL certificate (Let's Encrypt)
-- [ ] Nginx reverse proxy configuration
-- [ ] Firewall configuration (ports 80, 443, 22)
-
-#### Data Migration
-- [ ] Backup strategy (daily mysqldump to S3/Spaces)
-- [ ] Test restore procedure
-- [ ] Disaster recovery plan documented
-
-#### Monitoring
-- [ ] UptimeRobot for uptime monitoring
-- [ ] Log aggregation (Logtail or CloudWatch)
-- [ ] Sentry for error tracking (frontend)
-- [ ] Prometheus + Grafana for metrics (optional)
-
----
-
-## Week 15-16: Pilot Facility Deployment (Planned)
-
-### Status: ⏳ NOT STARTED
-
-### Planned Tasks
-
-#### Training
-- [ ] Train 2-3 staff at pilot facility
-- [ ] Provide user manuals (docs/training/user-manual.md)
-- [ ] Provide job aids (docs/training/job-aids/)
-- [ ] Demo video recordings
-
-#### Go-Live
-- [ ] Deploy to production server
-- [ ] Configure facility metadata (facility code, region)
-- [ ] Import initial users (6 roles)
-- [ ] Test all workflows with pilot staff
-- [ ] Monitor system for 2 weeks
-
-#### Support
-- [ ] WhatsApp support group for pilot staff
-- [ ] Daily check-ins (first week)
-- [ ] Bug fixes and urgent patches
-- [ ] Collect feedback for improvements
+**Milestone 4:** Pilot facility live, 100+ patients registered, 200+ encounters in first week
 
 ---
 
@@ -429,7 +655,7 @@
 - **Build Status:** ✅ Compiling successfully
 - **Dev Server:** ✅ Running on port 3009
 
-### MVP Success Criteria (Week 16)
+### MVP Success Criteria (Week 20 - March 2026)
 - [ ] 50+ patients registered
 - [ ] 200+ OPD encounters recorded
 - [ ] 100% NHIE sync success rate (or <5% in DLQ)
@@ -438,8 +664,11 @@
 - [ ] 3+ pilot facility staff trained
 - [ ] <5 critical bugs in production
 - [ ] 95%+ uptime (UptimeRobot)
+- [ ] All 6 user roles tested and working
+- [ ] Frontend responsive on desktop/laptop/tablet
+- [ ] Page load times <3s (with 1000+ patients)
 
-### MoH EOI Q1 2026 Criteria
+### MoH EOI Q1 2026 Criteria (March-April 2026)
 - [ ] Functional MVP deployed at 1+ pilot facility
 - [ ] NHIE compliance demonstrated
 - [ ] NHIS integration working (eligibility + claims)
@@ -600,7 +829,7 @@
 
 ## Next Session Agenda
 
-### Immediate Tasks (Day 3-4)
+### Immediate Tasks (Week 1, Day 3-4)
 1. **Start OpenMRS Backend**
    ```bash
    cd c:\temp\AI\MedReg
@@ -612,22 +841,26 @@
 
 2. **Configure User Roles**
    - Navigate to: Administration → Manage Roles
-   - Create 6 roles with appropriate privileges
+   - Create 6 roles with appropriate privileges (see Week 1, Day 3-4 tasks)
    - Test role-based access
 
 3. **Test Authentication Flow**
    - Start frontend: `cd frontend; npm run dev`
-   - Test login at: http://localhost:3009/login
+   - Test login at: http://localhost:3009/login (or current port)
    - Verify session management
    - Test protected routes (dashboard)
 
-4. **Begin Patient Registration Module**
+4. **Week 2 Prep: Patient Registration Module**
    - Review specs: docs/specs/registration-form-spec.md
-   - Start backend: Ghana Card validator
-   - Start frontend: Registration form UI
+   - Review validators: docs/specs/validators.md
+   - Review FHIR mapping: docs/mapping/patient-fhir-mapping.md
+   - Plan backend: Ghana Card validator, folder number generator
+   - Plan frontend: Registration form with shadcn/ui components
 
 ---
 
 **End of Week 1 Report** ✅  
+**Timeline:** 20 weeks (Option B: Next.js Frontend) - **5% Complete**  
 **Progress: ON TRACK** 🚀  
-**Next Milestone: User Roles & Authentication (Day 3-4)** ⏳
+**Next Milestone:** User Roles & Authentication (Week 1, Day 3-4) ⏳  
+**Target Completion:** March 20, 2026 (Pilot Deployment)
