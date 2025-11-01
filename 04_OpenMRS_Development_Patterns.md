@@ -198,6 +198,29 @@ public class GhanaFacility extends BaseOpenmrsMetadata {
 
 **Concept**: Central to OpenMRS data model
 - All clinical observations reference Concepts
+
+---
+
+## External References
+
+- UgandaEMR – Guidelines for Customizing: https://mets-programme.gitbook.io/ugandaemr-technical-guide/guidelines-for-customizing-ugandaemr
+  - Feature toggles, permission restrictions, custom modules. Do not modify core; extend via modules/config.
+  - Document only Ghana-specific deltas; link for general patterns.
+
+- UgandaEMR – Metadata Management: https://mets-programme.gitbook.io/ugandaemr-technical-guide/metadata-management
+  - Use packaging/versioning for concepts, identifier types, locations, programs. Avoid ad‑hoc SQL; ship metadata via modules.
+
+- UgandaEMR – Form Management: https://mets-programme.gitbook.io/ugandaemr-technical-guide/form-management
+  - Follow form lifecycle and versioning; reuse framework guidance. Ghana docs should focus on Ghana‑specific forms/validation.
+
+- UgandaEMR – Report Development Guidelines: https://mets-programme.gitbook.io/ugandaemr-technical-guide/report-development-guidelines
+  - Adopt Reporting module patterns (datasets/indicators/parameters). Keep Ghana docs to Ghana reports only.
+
+- UgandaEMR – Creating a Custom Module: https://mets-programme.gitbook.io/ugandaemr-technical-guide/creating-a-custom-module
+  - Scaffold, dependencies, packaging. Apply for Ghana modules.
+
+- UgandaEMR – Releasing: https://mets-programme.gitbook.io/ugandaemr-technical-guide/releasing
+  - Align release/versioning/tagging; add Ghana NHIE/NHIS config where needed.
 - Concepts define: Diagnoses, tests, drugs, questions, answers
 - Concepts have datatype and class
 

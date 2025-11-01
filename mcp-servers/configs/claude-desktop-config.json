@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "ghana-emr-openmrs": {
+      "command": "node",
+      "args": [
+        "c:\\temp\\AI\\MedReg\\mcp-servers\\openmrs\\dist\\index.js"
+      ],
+      "env": {
+        "OPENMRS_BASE_URL": "http://localhost:8080/openmrs/ws/rest/v1",
+        "OPENMRS_USERNAME": "admin",
+        "OPENMRS_PASSWORD": "Admin123",
+        "FACILITY_CODE": "KBTH",
+        "REGION_CODE": "GA"
+      }
+    },
+    "ghana-emr-mysql": {
+      "command": "node",
+      "args": [
+        "c:\\temp\\AI\\MedReg\\mcp-servers\\mysql\\dist\\index.js"
+      ],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3307",
+        "MYSQL_USER": "openmrs_user",
+        "MYSQL_PASSWORD": "openmrs_password",
+        "MYSQL_DATABASE": "openmrs"
+      }
+    }
+  }
+}

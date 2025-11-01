@@ -1,0 +1,27 @@
+{
+  "name": "@medreg/mcp-shared",
+  "version": "1.0.0",
+  "description": "Shared utilities for MedReg MCP servers",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src --ext .ts"
+  },
+  "keywords": ["mcp", "ghana", "emr", "utilities"],
+  "author": "MedReg Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "winston": "^3.11.0"
+  }
+}

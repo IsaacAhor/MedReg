@@ -54,3 +54,10 @@ openmrs/data/
 .cache/
 .temp/
 *.pem
+
+# MCP Servers (build artifacts, never commit secrets)
+mcp-servers/*/node_modules/
+mcp-servers/*/dist/
+mcp-servers/*/.env
+mcp-servers/*/.env.local
+mcp-servers/*/package-lock.json

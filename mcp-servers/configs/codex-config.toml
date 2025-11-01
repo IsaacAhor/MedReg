@@ -1,0 +1,38 @@
+# Codex CLI MCP Server Configuration for Ghana EMR MVP
+# Location: Copy this to ~/.codex/config.toml (merge with existing config)
+# Or: %USERPROFILE%\.codex\config.toml on Windows
+
+# Ghana EMR Project Configuration
+[projects.ghana-emr]
+name = "ghana-emr"
+path = "c:/temp/AI/MedReg"  # Unix-style path (Codex prefers this)
+trust_level = "trusted"
+
+# OpenMRS MCP Server - Patient operations with Ghana Card validation
+[mcp_servers.ghana-emr-openmrs]
+command = "node"
+args = ["c:/temp/AI/MedReg/mcp-servers/openmrs/dist/index.js"]
+
+[mcp_servers.ghana-emr-openmrs.env]
+OPENMRS_BASE_URL = "http://localhost:8080/openmrs/ws/rest/v1"
+OPENMRS_USERNAME = "admin"
+OPENMRS_PASSWORD = "Admin123"
+FACILITY_CODE = "KBTH"
+REGION_CODE = "GA"
+
+# MySQL MCP Server - Database queries with SQL safety validation
+[mcp_servers.ghana-emr-mysql]
+command = "node"
+args = ["c:/temp/AI/MedReg/mcp-servers/mysql/dist/index.js"]
+
+[mcp_servers.ghana-emr-mysql.env]
+MYSQL_HOST = "localhost"
+MYSQL_PORT = "3307"
+MYSQL_USER = "openmrs_user"
+MYSQL_PASSWORD = "openmrs_password"
+MYSQL_DATABASE = "openmrs"
+
+# Optional: Existing context7 server (if you want to keep it)
+# [mcp_servers.context7]
+# command = "npx"
+# args = ["-y", "@upstash/context7-mcp@latest"]

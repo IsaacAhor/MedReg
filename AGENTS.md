@@ -51,6 +51,13 @@ OUT OF SCOPE (Defer to v2):
 - `02_NHIE_Integration_Technical_Specifications.md` - NHIE architecture, OAuth, FHIR profiles
 - `03_Ghana_Health_Domain_Knowledge.md` - Ghana health system, NHIS rules, workflows
 - `07_AI_Agent_Architecture.md` - 17 specialized agents, interaction patterns
+ - External: UgandaEMR Technical Guide (reuse, don’t duplicate):
+   - Guidelines for Customizing: https://mets-programme.gitbook.io/ugandaemr-technical-guide/guidelines-for-customizing-ugandaemr
+   - Metadata Management: https://mets-programme.gitbook.io/ugandaemr-technical-guide/metadata-management
+   - Form Management: https://mets-programme.gitbook.io/ugandaemr-technical-guide/form-management
+   - Report Development Guidelines: https://mets-programme.gitbook.io/ugandaemr-technical-guide/report-development-guidelines
+   - Creating a Custom Module: https://mets-programme.gitbook.io/ugandaemr-technical-guide/creating-a-custom-module
+   - Releasing: https://mets-programme.gitbook.io/ugandaemr-technical-guide/releasing
 
 ---
 
@@ -152,6 +159,18 @@ npm test                                   # Full OPD workflow tests
 ```
 
 ---
+
+## Upstream Reuse & No Duplication
+
+- Defer to UgandaEMR Technical Guide for general OpenMRS practices:
+  - Customization, Metadata Management, Form Management, Report Development, Custom Modules, Releasing.
+- In this repo, document and implement only Ghana-specific deltas:
+  - NHIE routing (no direct NHIA/MPI calls), NHIS eligibility, Ghana Card, folder numbers, Ghana reports.
+- Extension rules:
+  - Do not modify OpenMRS core or stock distributions.
+  - Build via OpenMRS modules (OMOD), configure via metadata packages/bundles.
+  - Follow Reporting/Form framework patterns; link upstream for shared mechanics.
+  - Keep PII handling and NHIE middleware constraints per this AGENTS.md.
 
 ## Ghana Health Domain Rules
 
@@ -1641,3 +1660,4 @@ Contacts
 ---
 
 **Remember:** This file is living documentation. Update it whenever you make architecture decisions, discover new patterns, or encounter edge cases. All AI coding agents will automatically reference the latest version.
+

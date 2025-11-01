@@ -12,6 +12,35 @@
 
 ## Critical Repositories for Ghana EMR
 
+### Customization Guidelines (Do not duplicate)
+**Guide:** https://mets-programme.gitbook.io/ugandaemr-technical-guide/guidelines-for-customizing-ugandaemr  
+**Key Sections to Reuse/Align With:**
+- Feature Toggles – enable/disable features without code changes
+- Permission Restrictions – granular privileges and role-based access
+- Custom Modules – extend via OMODs rather than modifying core/distribution
+
+When documenting OpenMRS customization patterns in this repo, link to the above guide and only capture Ghana-specific deltas (NHIE, NHIS, Ghana Card, folder number) to avoid duplication.
+
+### Metadata Management (Concepts/Locations/Programs)
+**Guide:** https://mets-programme.gitbook.io/ugandaemr-technical-guide/metadata-management  
+**Reuse Principle:** Defer to this guide for metadata packaging, versioning, and deployment (e.g., concept dictionary, identifier types, locations). In Ghana EMR, define only Ghana-specific metadata; package via metadata modules or deployment bundles rather than ad-hoc SQL.
+
+### Form Management
+**Guide:** https://mets-programme.gitbook.io/ugandaemr-technical-guide/form-management  
+**Reuse Principle:** Follow form lifecycle/versioning and deployment patterns (e.g., HTML Form Entry/JSON forms as applicable). In this repo, document only Ghana-specific forms and validations; reference this guide for general form management practices.
+
+### Report Development Guidelines
+**Guide:** https://mets-programme.gitbook.io/ugandaemr-technical-guide/report-development-guidelines  
+**Reuse Principle:** Use the Reporting module patterns (datasets, indicators, parameters). Ghana EMR docs should define only the Ghana-specific reports (OPD register, NHIS vs Cash, top diagnoses, revenue) and link to this guide for framework usage.
+
+### Creating a Custom Module
+**Guide:** https://mets-programme.gitbook.io/ugandaemr-technical-guide/creating-a-custom-module  
+**Reuse Principle:** Extend OpenMRS via modules (OMOD) instead of modifying core or distributions. Apply the same module scaffolding, dependency, and packaging guidance here; only note Ghana-specific services/controllers.
+
+### Releasing
+**Guide:** https://mets-programme.gitbook.io/ugandaemr-technical-guide/releasing  
+**Reuse Principle:** Align with release/versioning, tagging, and distribution packaging practices. Ghana EMR should follow similar release checklists; capture only Ghana NHIE/NHIS configuration specifics here.
+
 ### 1. openmrs-module-ugandaemr-sync ⭐⭐⭐⭐⭐
 **Repository:** https://github.com/METS-Programme/openmrs-module-ugandaemr-sync  
 **Language:** Java  
