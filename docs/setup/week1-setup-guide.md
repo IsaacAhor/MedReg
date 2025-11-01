@@ -295,6 +295,84 @@ Get-Content openmrs-runtime.properties
 
 ---
 
+### ⚠️ IMPORTANT: Hardcoded UUIDs in API Route
+
+The patient registration API route (`frontend/src/app/api/patients/route.ts`) contains **3 hardcoded UUIDs** that were created and verified during Week 2 development:
+
+#### Ghana Metadata UUIDs (DO NOT CHANGE)
+
+```typescript
+// Line 69: NHIS Number Person Attribute Type
+attributeType: 'f56fc097-e14e-4be6-9632-89ca66127784'
+
+// Line 108: Ghana Card Identifier Type  
+identifierType: 'd3132375-e07a-40f6-8912-384c021ed350'
+
+// Line 109: Amani Hospital Location
+location: 'aff27d58-a15c-49a6-9beb-d30dcfc0c66e'
+```
+
+#### How These Were Created
+
+These UUIDs were created via **Codex MCP** during initial setup:
+
+1. **NHIS Number Attribute Type** (`f56fc097-e14e-4be6-9632-89ca66127784`)
+   - Created via: Codex MCP → OpenMRS REST API
+   - Name: "NHIS Number"
+   - Format: text (10 digits)
+   - Used to store patient NHIS number as person attribute
+
+2. **Ghana Card Identifier Type** (`d3132375-e07a-40f6-8912-384c021ed350`)
+   - Created via: Codex MCP → OpenMRS REST API
+   - Name: "Ghana Card"
+   - Format: `^GHA-\d{9}-\d$`
+   - Required: true (set by Codex to make Ghana Card the primary identifier)
+
+3. **Amani Hospital Location** (`aff27d58-a15c-49a6-9beb-d30dcfc0c66e`)
+   - Pre-existing location in OpenMRS
+   - Found via: Codex MCP query
+   - Used as default location for all patients
+
+#### Verification
+
+To verify these UUIDs exist in your OpenMRS instance:
+
+```powershell
+# Using Codex MCP (recommended)
+codex
+# Then ask: "Show me all person attribute types and identifier types with UUIDs"
+
+# Or via OpenMRS UI
+# Navigate to: Admin → Person Attributes → NHIS Number (check UUID)
+# Navigate to: Admin → Patient Identifier Types → Ghana Card (check UUID)
+# Navigate to: Admin → Locations → Amani Hospital (check UUID)
+```
+
+#### If UUIDs Don't Match
+
+If you're setting up on a fresh OpenMRS instance and these UUIDs don't exist:
+
+1. **Use Codex MCP to create metadata** (recommended):
+   ```
+   codex
+   "Create Ghana Card identifier type with format ^GHA-\d{9}-\d$ and make it required"
+   "Create NHIS Number person attribute type"
+   "Find Amani Hospital location UUID"
+   ```
+
+2. **Update API route** with the new UUIDs returned by Codex
+
+3. **Commit changes** to your fork
+
+#### Why Hardcoded?
+
+- OpenMRS generates random UUIDs when creating metadata
+- These specific UUIDs are tied to this OpenMRS instance
+- Different installations will have different UUIDs
+- **Future improvement**: Store UUIDs in environment variables or fetch dynamically
+
+---
+
 ## Week 1 Completion Checklist
 
 ### Backend

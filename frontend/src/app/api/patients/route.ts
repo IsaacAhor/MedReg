@@ -1,13 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateGhanaCard } from '@/lib/validators/ghana-card';
 
-// TODO: Replace with your actual OpenMRS credentials
+// OpenMRS connection config
 const OPENMRS_BASE_URL = process.env.OPENMRS_BASE_URL || 'http://localhost:8080/openmrs/ws/rest/v1';
 const OPENMRS_USERNAME = process.env.OPENMRS_USERNAME || 'admin';
 const OPENMRS_PASSWORD = process.env.OPENMRS_PASSWORD || 'Admin123';
 
 // Base64 encode credentials for Basic Auth
 const authHeader = `Basic ${Buffer.from(`${OPENMRS_USERNAME}:${OPENMRS_PASSWORD}`).toString('base64')}`;
+
+/**
+ * HARDCODED UUIDs - Ghana Metadata
+ * These were created via Codex MCP during initial setup (Nov 1, 2025)
+ * If setting up on a fresh OpenMRS instance, use Codex MCP to create metadata
+ * and update these UUIDs accordingly.
+ * 
+ * See: docs/setup/week1-setup-guide.md for verification instructions
+ */
+const GHANA_CARD_IDENTIFIER_TYPE_UUID = 'd3132375-e07a-40f6-8912-384c021ed350'; // Ghana Card (required)
+const NHIS_ATTRIBUTE_TYPE_UUID = 'f56fc097-e14e-4be6-9632-89ca66127784';        // NHIS Number
+const AMANI_HOSPITAL_LOCATION_UUID = 'aff27d58-a15c-49a6-9beb-d30dcfc0c66e';    // Amani Hospital
+
+// TODO: Move UUIDs to environment variables or fetch dynamically via OpenMRS REST API
 
 export async function POST(request: NextRequest) {
   try {
@@ -64,7 +78,7 @@ export async function POST(request: NextRequest) {
       attributes: nhisNumber
         ? [
             {
-              attributeType: 'f56fc097-e14e-4be6-9632-89ca66127784', // NHIS Number (verified by Codex)
+              attributeType: NHIS_ATTRIBUTE_TYPE_UUID,
               value: nhisNumber,
             },
           ]
@@ -98,15 +112,13 @@ export async function POST(request: NextRequest) {
     const person = await personResponse.json();
 
     // Create patient from person
-    // Note: OpenMRS ID no longer required (Codex set Ghana Card as required instead)
-    // OpenMRS will auto-generate OpenMRS ID if needed via Auto Generation Option
     const patientPayload = {
       person: person.uuid,
       identifiers: [
         {
           identifier: ghanaCard,
-          identifierType: 'd3132375-e07a-40f6-8912-384c021ed350', // Ghana Card (required)
-          location: 'aff27d58-a15c-49a6-9beb-d30dcfc0c66e', // Amani Hospital
+          identifierType: GHANA_CARD_IDENTIFIER_TYPE_UUID,
+          location: AMANI_HOSPITAL_LOCATION_UUID,
           preferred: true,
         },
       ],
