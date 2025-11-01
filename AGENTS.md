@@ -100,10 +100,10 @@ docker-compose up -d openmrs
 
 # Frontend setup (Option B)
 cd frontend
-pnpm install
+npm install
 cp .env.example .env.local
 # Edit .env.local with NEXT_PUBLIC_OPENMRS_API_URL=http://localhost:8080/openmrs/ws/rest/v1
-pnpm dev
+npm run dev
 # Frontend available at http://localhost:3000
 ```
 
@@ -116,12 +116,12 @@ mvn test -Dtest=PatientServiceTest  # Run specific test
 docker-compose logs -f openmrs      # View OpenMRS logs
 
 # Frontend
-pnpm dev                            # Start Next.js dev server
-pnpm build                          # Production build
-pnpm test                           # Run Vitest tests
-pnpm test:watch                     # Watch mode
-pnpm lint                           # ESLint + TypeScript checks
-pnpm format                         # Prettier formatting
+npm run dev                            # Start Next.js dev server
+npm run build                          # Production build
+npm test                           # Run Vitest tests
+npm run test:watch                     # Watch mode
+npm run lint                           # ESLint + TypeScript checks
+npm run format                         # Prettier formatting
 
 # Database
 mysql -h localhost -u openmrs_user -p openmrs  # Connect to MySQL
@@ -141,14 +141,14 @@ mvn verify                                  # Integration tests
 mvn test -Dtest.groups=NHIE                # NHIE integration tests only
 
 # Frontend tests
-pnpm test                                   # All Vitest tests
-pnpm test src/components/PatientForm.test.tsx  # Specific test
-pnpm test:coverage                          # Coverage report (target >70%)
-pnpm test:e2e                               # Playwright E2E tests
+npm test                                   # All Vitest tests
+npm test src/components/PatientForm.test.tsx  # Specific test
+npm run test:coverage                          # Coverage report (target >70%)
+npm run test:e2e                               # Playwright E2E tests
 
 # Integration tests (requires backend + frontend running)
 cd tests/integration
-pnpm test                                   # Full OPD workflow tests
+npm test                                   # Full OPD workflow tests
 ```
 
 ---
@@ -1220,8 +1220,8 @@ Examples:
 
 ### PR Checklist
 Before creating PR, ensure:
-- [ ] All tests pass (`mvn test` for backend, `pnpm test` for frontend)
-- [ ] No lint errors (`mvn checkstyle:check`, `pnpm lint`)
+- [ ] All tests pass (`mvn test` for backend, `npm test` for frontend)
+- [ ] No lint errors (`mvn checkstyle:check`, `npm run lint`)
 - [ ] Code coverage >70% for new code
 - [ ] No commented-out code
 - [ ] No console.log statements (use proper logging)

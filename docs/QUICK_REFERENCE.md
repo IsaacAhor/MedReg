@@ -9,7 +9,7 @@ docker-compose up -d
 
 # Frontend (in new terminal)
 cd frontend
-pnpm dev
+npm run dev
 ```
 
 ### Stop Everything
@@ -63,19 +63,19 @@ docker-compose up -d --build
 cd frontend
 
 # Development
-pnpm dev              # Start dev server
-pnpm build            # Production build
-pnpm start            # Start production server
+npm run dev              # Start dev server
+npm run build            # Production build
+npm start                # Start production server
 
 # Testing
-pnpm test             # Run unit tests
-pnpm test:watch       # Watch mode
-pnpm test:coverage    # Coverage report
-pnpm test:e2e         # E2E tests
+npm test                 # Run unit tests
+npm run test:watch       # Watch mode
+npm run test:coverage    # Coverage report
+npm run test:e2e         # E2E tests
 
 # Code Quality
-pnpm lint             # Run ESLint
-pnpm format           # Run Prettier
+npm run lint             # Run ESLint
+npm run format           # Run Prettier
 ```
 
 ---
@@ -169,8 +169,8 @@ docker-compose up -d
 **Dependencies won't install:**
 ```powershell
 rm -rf node_modules
-rm pnpm-lock.yaml
-pnpm install
+rm package-lock.json
+npm install
 ```
 
 **Port 3000 in use:**
@@ -179,7 +179,7 @@ Edit package.json: `"dev": "next dev -p 3001"`
 **TypeScript errors:**
 ```powershell
 rm -rf .next
-pnpm build
+npm run build
 ```
 
 ---
@@ -257,7 +257,7 @@ Example: `GA-KBTH-2025-000123`
 1. **Use GitHub Copilot** - AGENTS.md has all context
 2. **Check docker-compose logs** before debugging
 3. **Always restart OpenMRS** after config changes
-4. **Use pnpm** instead of npm (faster, better)
+4. **Use npm** (project standard) (faster, better)
 5. **Read AGENTS.md** - It's your single source of truth
 
 ---

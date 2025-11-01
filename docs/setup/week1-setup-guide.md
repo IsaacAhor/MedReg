@@ -43,26 +43,68 @@ docker-compose logs -f openmrs
 
 #### Verify Backend Installation
 
-1. Navigate to http://localhost:8080/openmrs
-2. Login with admin/Admin123
-3. You should see OpenMRS Reference Application dashboard
-4. Check System Administration → Manage Modules (all modules should be started)
+**Important Note**: OpenMRS Platform 2.6.0 has NO built-in UI by design. This is expected and correct for Option B (Next.js frontend).
+
+1. **Verify OpenMRS Platform is running**
+   - Navigate to http://localhost:8080/openmrs
+   - You should see: "OpenMRS Platform 2.6.0-SNAPSHOT.0 Running!"
+   - Message "no user interface module is installed" is NORMAL - we're using Next.js instead
+
+2. **Verify REST API is working** (CRITICAL - this is what we need!)
+   ```powershell
+   # Test unauthenticated session endpoint
+   Invoke-WebRequest -Uri "http://localhost:8080/openmrs/ws/rest/v1/session" -Method Get
+   # Expected: {"sessionId":"...","authenticated":false}
+   
+   # Test authenticated session endpoint
+   $cred = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("admin:Admin123"))
+   Invoke-WebRequest -Uri "http://localhost:8080/openmrs/ws/rest/v1/session" -Headers @{Authorization="Basic $cred"} | Select-Object -ExpandProperty Content
+   # Expected: {"authenticated":true,"user":{"username":"admin",...}}
+   ```
+
+3. **Verify database connection**
+   ```powershell
+   docker exec medreg-mysql mysql -u openmrs_user -popenmrs_password -e "SELECT COUNT(*) FROM openmrs.users;"
+   # Expected: Should return count of users (at least 1 for admin)
+   ```
+
+**Success Criteria:**
+- ✅ OpenMRS platform page shows "Running!"
+- ✅ REST API `/session` endpoint returns JSON
+- ✅ Authentication with admin/Admin123 returns authenticated=true
+- ✅ MySQL queries execute successfully
 
 #### Troubleshooting Backend
 
-```powershell
-# If OpenMRS won't start, check logs
-docker-compose logs openmrs
+**Common Issues:**
 
-# If MySQL connection fails, restart services
+1. **"No user interface module is installed"**
+   - This is NORMAL and EXPECTED for OpenMRS Platform 2.6.0
+   - We're using Next.js frontend (Option B), not OpenMRS UI
+   - REST API still works perfectly (test with `/session` endpoint)
+
+2. **MySQL connection errors with MySQL 8.0**
+   - OpenMRS 2.6.0 requires MySQL 5.7 (not 8.0)
+   - MySQL Connector/J 5.1.x incompatible with MySQL 8.0 storage_engine variable
+   - Solution: Use `mysql:5.7` image in docker-compose.yml (already configured)
+
+3. **REST API returns 404**
+   - Check if using `openmrs-core` image (wrong - no REST module)
+   - Solution: Use `openmrs-reference-application-distro:2.11.0` (already configured)
+   - This image includes webservices.rest module
+
+```powershell
+# View OpenMRS logs
+docker-compose logs -f openmrs
+
+# Check if REST module loaded (look for "webservices.rest")
+docker-compose logs openmrs | Select-String "webservices.rest"
+
+# Restart services
 docker-compose down
 docker-compose up -d
 
-# If ports are in use, modify docker-compose.yml ports
-# MySQL: Change "3306:3306" to "3307:3306"
-# OpenMRS: Change "8080:8080" to "8081:8080"
-
-# Clean slate (removes all data)
+# Clean slate (removes all data - WARNING: deletes database!)
 docker-compose down -v
 docker-compose up -d
 ```
@@ -77,9 +119,9 @@ docker-compose up -d
    - Download from: https://nodejs.org/ (LTS version)
    - Verify: `node --version` (should be 18.x or higher)
 
-2. **Install pnpm** (recommended) or npm
+2. Package manager: npm (standard)
    ```powershell
-   npm install -g pnpm
+   
    ```
 
 #### Frontend Installation Steps
@@ -89,16 +131,17 @@ docker-compose up -d
 cd frontend
 
 # 2. Install dependencies (this may take 3-5 minutes)
-pnpm install
+npm install
 
 # 3. Copy environment variables
-cp .env.example .env.local
+Copy-Item .env.example .env.local -Force
 
 # 4. Edit .env.local (optional, defaults should work)
+# Ensure OPENMRS_BASE_URL=http://localhost:8080/openmrs/ws/rest/v1
 # Ensure NEXT_PUBLIC_OPENMRS_API_URL=http://localhost:8080/openmrs/ws/rest/v1
 
 # 5. Start development server
-pnpm dev
+npm run dev
 
 # Frontend available at http://localhost:3000
 ```
@@ -113,20 +156,20 @@ pnpm dev
 #### Troubleshooting Frontend
 
 ```powershell
-# If pnpm install fails
+# If npm install fails
 rm -rf node_modules
-rm pnpm-lock.yaml
-pnpm install
+rm package-lock.json
+npm install
 
 # If port 3000 is in use
 # Edit package.json: "dev": "next dev -p 3001"
 
 # Check for TypeScript errors
-pnpm build
+npm run build
 
 # Clear Next.js cache
 rm -rf .next
-pnpm dev
+npm run dev
 ```
 
 ---
@@ -200,7 +243,7 @@ pnpm dev
 
 ```powershell
 # 1. Create login page directory
-mkdir -p src/app/login
+New-Item -ItemType Directory -Force -Path src/app/login | Out-Null
 
 # 2. Files to create (see below for content):
 # - src/app/login/page.tsx (login form)
@@ -213,7 +256,7 @@ mkdir -p src/app/login
 
 ```powershell
 # 1. Start frontend (if not running)
-pnpm dev
+npm run dev
 
 # 2. Navigate to http://localhost:3000/login
 # 3. Enter credentials: admin / Admin123
@@ -243,7 +286,7 @@ District: Accra Metro
 
 ```powershell
 # Check openmrs-runtime.properties
-cat openmrs-runtime.properties
+Get-Content openmrs-runtime.properties
 
 # Should see:
 # ghana.facility.code=KBTH
@@ -264,7 +307,7 @@ cat openmrs-runtime.properties
 
 ### Frontend
 - [ ] Node.js 18+ installed
-- [ ] pnpm installed
+- [ ] npm installed
 - [ ] All dependencies installed (package.json)
 - [ ] Development server running (port 3000)
 - [ ] Can view homepage at localhost:3000
@@ -300,14 +343,14 @@ Once Week 1 setup is complete, proceed to:
 - View logs: `docker-compose logs openmrs`
 
 **Issue: Frontend build errors**
-- Run `pnpm install` again
+- Run `npm install` again
 - Delete node_modules and reinstall
 - Check Node.js version (must be 18+)
 
 **Issue: Cannot connect to OpenMRS API**
 - Verify OpenMRS is running: http://localhost:8080/openmrs
-- Check .env.local has correct NEXT_PUBLIC_OPENMRS_API_URL
-- Check CORS settings in next.config.mjs
+- Check .env.local has correct `OPENMRS_BASE_URL`
+- Ensure frontend calls go through Next.js `/api/*` route handlers (BFF). Do not rewrite to OpenMRS directly.
 
 ### Resources
 - OpenMRS Wiki: https://wiki.openmrs.org/

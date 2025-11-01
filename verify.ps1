@@ -49,7 +49,7 @@ if (Test-Path "frontend/node_modules") {
     Write-Host "✅ Frontend dependencies installed" -ForegroundColor Green
 } else {
     Write-Host "❌ Frontend dependencies not installed" -ForegroundColor Red
-    Write-Host "   Run: cd frontend && pnpm install" -ForegroundColor Yellow
+    Write-Host "   Run: cd frontend && npm install" -ForegroundColor Yellow
     $allGood = $false
 }
 
@@ -57,7 +57,7 @@ if (Test-Path "frontend/.env.local") {
     Write-Host "✅ Frontend .env.local file exists" -ForegroundColor Green
 } else {
     Write-Host "❌ Frontend .env.local file missing" -ForegroundColor Red
-    Write-Host "   Run: cd frontend && cp .env.example .env.local" -ForegroundColor Yellow
+    Write-Host "   Run: cd frontend && Copy-Item .env.example .env.local -Force" -ForegroundColor Yellow
     $allGood = $false
 }
 
@@ -98,7 +98,7 @@ if ($allGood) {
     Write-Host ""
     Write-Host "2. Start frontend:" -ForegroundColor Gray
     Write-Host "   cd frontend" -ForegroundColor Gray
-    Write-Host "   pnpm dev" -ForegroundColor Gray
+    Write-Host "   npm run dev" -ForegroundColor Gray
     Write-Host ""
     Write-Host "3. Access frontend: http://localhost:3000" -ForegroundColor Gray
     Write-Host ""
@@ -111,7 +111,7 @@ if ($allGood) {
     Write-Host "Common fixes:" -ForegroundColor Yellow
     Write-Host "- Wait 3-5 minutes for OpenMRS to fully start" -ForegroundColor Gray
     Write-Host "- Run: docker-compose up -d" -ForegroundColor Gray
-    Write-Host "- Run: cd frontend && pnpm install" -ForegroundColor Gray
+    Write-Host "- Run: cd frontend && npm install" -ForegroundColor Gray
     Write-Host "- Check logs: docker-compose logs -f openmrs" -ForegroundColor Gray
 }
 

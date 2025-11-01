@@ -31,9 +31,9 @@ Write-Host "✅ Node.js is installed ($nodeVersion)" -ForegroundColor Green
 # Check pnpm
 $pnpmInstalled = Get-Command pnpm -ErrorAction SilentlyContinue
 if (-not $pnpmInstalled) {
-    Write-Host "⚠️  pnpm is not installed. Installing pnpm..." -ForegroundColor Yellow
-    npm install -g pnpm
-    Write-Host "✅ pnpm installed" -ForegroundColor Green
+    Write-Host "⚠️  pnpm is not installed. Skipping (using npm)..." -ForegroundColor Yellow
+    # skipping pnpm installation (using npm)
+    Write-Host "✅ pnpm check skipped" -ForegroundColor Green
 } else {
     Write-Host "✅ pnpm is installed" -ForegroundColor Green
 }
@@ -72,7 +72,7 @@ if (Test-Path "frontend") {
     # Install dependencies
     Write-Host ""
     Write-Host "Installing frontend dependencies (this may take 3-5 minutes)..." -ForegroundColor Yellow
-    pnpm install
+    npm install
     
     # Copy environment file
     if (-not (Test-Path ".env.local")) {
@@ -102,14 +102,14 @@ Write-Host ""
 Write-Host "✅ Frontend dependencies installed" -ForegroundColor Green
 Write-Host "   To start frontend, run:" -ForegroundColor Gray
 Write-Host "   cd frontend" -ForegroundColor Gray
-Write-Host "   pnpm dev" -ForegroundColor Gray
+Write-Host "   npm run dev" -ForegroundColor Gray
 Write-Host "   Frontend will be available at: http://localhost:3000" -ForegroundColor Gray
 
 Write-Host ""
 Write-Host "📚 Next Steps:" -ForegroundColor Yellow
 Write-Host "   1. Wait for OpenMRS to fully start (check: docker-compose ps)" -ForegroundColor Gray
 Write-Host "   2. Access OpenMRS at http://localhost:8080/openmrs" -ForegroundColor Gray
-Write-Host "   3. Start frontend: cd frontend && pnpm dev" -ForegroundColor Gray
+Write-Host "   3. Start frontend: cd frontend && npm run dev" -ForegroundColor Gray
 Write-Host "   4. Configure user roles in OpenMRS admin panel" -ForegroundColor Gray
 Write-Host "   5. Review docs/setup/week1-setup-guide.md" -ForegroundColor Gray
 

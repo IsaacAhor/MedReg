@@ -1,6 +1,6 @@
 # Week 1 Implementation Summary - MedReg
 
-**Date**: October 30, 2025  
+**Date**: October 30-31, 2025  
 **Status**: Core Infrastructure Complete ✅
 
 ---
@@ -11,15 +11,21 @@
 
 #### 1. Docker and OpenMRS Environment Setup
 **Files Created:**
-- `docker-compose.yml` - Multi-container orchestration for MySQL 8.0 and OpenMRS 2.6.0
+- `docker-compose.yml` - Multi-container orchestration for MySQL 5.7 and OpenMRS 2.11.0
 - `openmrs-runtime.properties` - OpenMRS configuration with NHIE settings
 - `mysql-init/01-init-ghana-emr.sql` - Database initialization script
 
+**Critical Technical Decisions:**
+- **MySQL 5.7** (not 8.0): OpenMRS 2.6.0 MySQL Connector/J incompatible with MySQL 8.0
+- **reference-application-distro:2.11.0**: Includes REST API modules (vs openmrs-core which is platform-only)
+- **No UI needed**: OpenMRS Platform 2.6.0 has no built-in UI by design - perfect for Option B (Next.js frontend)
+
 **Features:**
-- MySQL 8.0 with UTF-8MB4 support and strict mode
-- OpenMRS 2.6.0 Reference Application
+- MySQL 5.7 with UTF-8MB4 support, native password auth, InnoDB storage engine
+- OpenMRS Platform 2.6.0 + Reference Application Distribution 2.11.0
+- **REST API fully functional**: http://localhost:8080/openmrs/ws/rest/v1
 - Health checks for both services
-- Persistent volumes for data
+- Persistent volumes for data (mysql_data, openmrs_data)
 - Network isolation (medreg-network)
 - Custom database tables:
   - `nhie_transaction_log` - NHIE API call logging
@@ -28,10 +34,30 @@
   - `nhis_eligibility_cache` - NHIS eligibility caching
   - `audit_log` - Security audit trail
 
-**Access:**
-- OpenMRS: http://localhost:8080/openmrs
-- MySQL: localhost:3306
+**Modules Loaded (30+):**
+- ✅ webservices.rest-2.24.0 (REST API - CRITICAL)
+- ✅ reporting, calculation, idgen
+- ✅ registration, appointmentscheduling
+- ✅ emrapi, coreapps, appframework
+- ✅ registrationcore, formentryapp, allergyui
+- ✅ attachments, htmlformentryui, referenceapplication
+
+**Access & Verification:**
+- OpenMRS Platform: http://localhost:8080/openmrs (shows "Running!" - no UI expected)
+- REST API: http://localhost:8080/openmrs/ws/rest/v1/session
+- MySQL: localhost:3307 (external), mysql:3306 (internal)
 - Default credentials: admin / Admin123
+
+**REST API Verification:**
+```powershell
+# Unauthenticated session
+curl http://localhost:8080/openmrs/ws/rest/v1/session
+# Response: {"sessionId":"...","authenticated":false}
+
+# Authenticated session
+curl -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session
+# Response: {"authenticated":true,"user":{"username":"admin","roles":["System Developer","Provider"]}}
+```
 
 ---
 
@@ -39,7 +65,7 @@
 **Files Created:**
 - `frontend/package.json` - Dependencies for Next.js 14, TypeScript, shadcn/ui
 - `frontend/tsconfig.json` - TypeScript strict mode configuration
-- `frontend/next.config.mjs` - Next.js config with API rewrites
+- `frontend/next.config.mjs` - Next.js config (BFF, no client-side rewrites)
 - `frontend/tailwind.config.ts` - Tailwind CSS + shadcn/ui theming
 - `frontend/.prettierrc.js` - Code formatting rules
 - `frontend/.env.example` - Environment variable template
@@ -103,7 +129,7 @@ frontend/
 
 **Documentation Highlights:**
 - Quick start guide for backend and frontend
-- Development commands (Docker, pnpm)
+- Development commands (Docker, npm)
 - Troubleshooting section
 - MVP scope definition
 - Week 1 completion checklist
@@ -143,10 +169,10 @@ docker-compose up -d
 cd frontend
 
 # Install dependencies
-pnpm install
+npm install
 
 # Start dev server
-pnpm dev
+npm run dev
 
 # Access at http://localhost:3000
 ```
@@ -257,9 +283,9 @@ NEXT_PUBLIC_ENABLE_PHOTO_CAPTURE=false
 **Run Tests:**
 ```powershell
 cd frontend
-pnpm test                # Unit tests
-pnpm test:coverage      # Coverage report
-pnpm test:e2e           # E2E tests
+npm test                # Unit tests
+npm run test:coverage      # Coverage report
+npm run test:e2e           # E2E tests
 ```
 
 ---
@@ -291,7 +317,7 @@ pnpm test:e2e           # E2E tests
 
 ## 🐛 Known Issues / Notes
 
-1. **TypeScript Errors in IDE**: Errors shown in IDE are expected until dependencies are installed via `pnpm install`. They will resolve automatically.
+1. **TypeScript Errors in IDE**: Errors shown in IDE are expected until dependencies are installed via `npm install`. They will resolve automatically.
 
 2. **Docker Startup Time**: OpenMRS takes 3-5 minutes to start on first run (module initialization). Subsequent starts are faster (~1 minute).
 
@@ -340,7 +366,7 @@ docker-compose ps
 docker-compose down -v
 
 # Frontend build check
-cd frontend && pnpm build
+cd frontend && npm run build
 ```
 
 ### AI Development

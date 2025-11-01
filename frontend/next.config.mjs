@@ -4,14 +4,9 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:8080/openmrs/ws/rest/v1/:path*',
-      },
-    ];
-  },
+  // Important: We intentionally do NOT rewrite `/api/*` to OpenMRS.
+  // All browser calls must go through Next.js route handlers (BFF)
+  // which manage the OpenMRS session and enforce security.
 };
 
 export default nextConfig;

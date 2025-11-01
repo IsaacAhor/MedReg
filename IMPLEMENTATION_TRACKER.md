@@ -36,13 +36,19 @@
    - ✅ Configured .gitignore for Node.js, Docker, OpenMRS
 
 2. **Docker & OpenMRS Backend**
-   - ✅ Created `docker-compose.yml` with MySQL 8.0 + OpenMRS 2.6.0
+   - ✅ Created `docker-compose.yml` with MySQL 5.7 + OpenMRS 2.11.0
+   - ✅ MySQL 5.7 running healthy (port 3307, utf8mb4, persistent volume)
+   - ✅ OpenMRS Platform 2.6.0 + reference-application-distro:2.11.0 running
+   - ✅ **REST API VERIFIED WORKING**: http://localhost:8080/openmrs/ws/rest/v1
+   - ✅ **Authentication tested**: admin/Admin123 credentials working
    - ✅ Configured MySQL database (openmrs_user, openmrs database)
    - ✅ Created `mysql-init/01-init-ghana-emr.sql` for database initialization
    - ✅ Configured `openmrs-runtime.properties` with facility metadata
    - ✅ Set Ghana facility code: KBTH (Korle Bu Teaching Hospital)
    - ✅ Set region code: GA (Greater Accra)
    - ✅ NHIE sandbox endpoints configured
+   - ✅ All required modules loaded: webservices.rest, reporting, idgen, registration, appointments, emrapi, etc.
+   - **Note**: OpenMRS Platform 2.6.0 has no UI by design - perfect for Option B (Next.js frontend)
 
 3. **Frontend Setup (Option B - Next.js)**
    - ✅ Initialized Next.js 14.2.18 project with App Router

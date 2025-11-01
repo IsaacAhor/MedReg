@@ -48,6 +48,8 @@ docker-compose up -d openmrs
 
 ### Frontend Setup (Next.js)
 
+Note: All browser requests go through Next.js route handlers under `/api/*` (BFF). Do not call OpenMRS directly from the browser or via rewrites.
+
 ```powershell
 cd frontend
 
@@ -55,7 +57,7 @@ cd frontend
 npm install
 
 # Copy environment variables
-cp .env.example .env.local
+Copy-Item .env.example .env.local -Force
 
 # Start development server
 npm run dev
@@ -209,4 +211,4 @@ TBD
 
 ---
 
-**Built with ❤️ for Ghana's healthcare system**
+Built for Ghana's healthcare system
