@@ -1,5 +1,19 @@
 # MedReg - Quick Reference Card
 
+**Last Updated**: November 1, 2025  
+**Status**: ✅ Week 1 + Week 2-3 Patient Registration Complete
+
+## 🎯 Current Status
+
+- ✅ **Patient Registration Working**: End-to-end registration functional
+- ✅ **First Patient Registered**: Kwabena Kofi Nyarko (GHA-123456789-7)
+- ✅ **Ghana Card Validation**: Format + Luhn checksum working
+- ✅ **NHIS Storage**: Person attribute persisted
+- ✅ **MCP Tools**: OpenMRS + MySQL MCP servers operational
+- 🚀 **2+ Weeks Ahead of Schedule**
+
+---
+
 ## 🚀 Quick Start
 
 ### Start Everything
@@ -12,6 +26,12 @@ cd frontend
 npm run dev
 ```
 
+### Register a Patient (Quick Test)
+1. Navigate to http://localhost:3000/patients/register
+2. Fill in form with valid Ghana Card (e.g., GHA-123456789-7)
+3. Submit → Patient created in OpenMRS + MySQL
+4. Verify in OpenMRS UI: http://localhost:8080/openmrs
+
 ### Stop Everything
 ```powershell
 docker-compose down
@@ -23,9 +43,11 @@ docker-compose down
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
-| OpenMRS | http://localhost:8080/openmrs | admin / Admin123 |
-| Frontend | http://localhost:3000 | (after auth implemented) |
-| MySQL | localhost:3306 | openmrs_user / openmrs_password |
+| **OpenMRS** | http://localhost:8080/openmrs | admin / Admin123 |
+| **Frontend** | http://localhost:3000 | (no auth yet) |
+| **Patient Registration** | http://localhost:3000/patients/register | ✅ Working |
+| **MySQL** | localhost:3306 | openmrs_user / openmrs_password |
+| **OpenMRS REST API** | http://localhost:8080/openmrs/ws/rest/v1 | admin / Admin123 |
 
 ---
 

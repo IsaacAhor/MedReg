@@ -2,12 +2,30 @@
 
 **Ghana NHIE-Compliant Electronic Medical Records System**
 
-## Project Overview
+[![Project Status](https://img.shields.io/badge/Status-Week%202%20Complete-success)](https://github.com/IsaacAhor/MedReg)
+[![Progress](https://img.shields.io/badge/Progress-2%20Weeks%20Ahead-brightgreen)](https://github.com/IsaacAhor/MedReg)
+[![OpenMRS](https://img.shields.io/badge/OpenMRS-2.6.0-blue)](https://openmrs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-14.x-black)](https://nextjs.org)
+
+## 🎯 Project Overview
 
 MedReg is an Electronic Medical Records (EMR) system designed specifically for Ghana's healthcare system, with full integration to the National Health Information Exchange (NHIE). Built on OpenMRS 2.6.0 with a modern Next.js frontend.
 
 **Timeline**: 20 weeks to functional MVP  
-**Target**: Win MoH pilot facility + position for EOI Q1 2026
+**Target**: Win MoH pilot facility + position for EOI Q1 2026  
+**Current Status**: ✅ Week 1 + Week 2-3 Complete (Nov 1, 2025) - **2+ weeks ahead!**
+
+## 🚀 Recent Achievements (Nov 1, 2025)
+
+- ✅ **Patient Registration Working**: First patient registered (Kwabena Kofi Nyarko)
+- ✅ **Ghana Card Validation**: Format + Luhn checksum validation implemented
+- ✅ **NHIS Integration**: NHIS number capture and storage working
+- ✅ **Next.js Frontend**: Modern UI with shadcn/ui components
+- ✅ **OpenMRS Backend**: Person + Patient creation via REST API
+- ✅ **Database Verified**: Ghana Card identifier + NHIS attribute persisted
+- ✅ **MCP Infrastructure**: 2 MCP servers (OpenMRS + MySQL) with 6 tools operational
+
+**Development Time**: 6-8 hours (traditional estimate: 2-3 weeks) - powered by AI + MCP
 
 ## Tech Stack
 
