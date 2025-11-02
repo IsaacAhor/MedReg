@@ -1706,4 +1706,4 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 
 - BFF enforcement: OPD triage/consult/dispense endpoints now check roles from omrsRole cookie (triage: nurse/records; consult: doctor; dispense: pharmacist; admins override). Dashboard shows live OPD count.
 
-- Reports filtering: Added optional locationUuid filters (uses omrsLocation cookie via BFF). Dashboard includes quick CSV download links for today’s reports.
+- Reports filtering: Added optional locationUuid filters (uses omrsLocation cookie via BFF). Dashboard includes quick CSV download links for todayï¿½s reports.
