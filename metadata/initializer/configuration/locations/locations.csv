@@ -1,0 +1,15 @@
+Uuid,Void/Retire,Name,Description,Parent,Tags,_order:1000
+# Ghana EMR Default Locations
+# Parent Facility
+facility-001,,Ghana EMR Facility,Default facility for Ghana EMR,,Visit Location,
+
+# OPD Service Points (Login Locations + Queue Rooms)
+reception-001,,Reception,Patient registration and records,Ghana EMR Facility,"Login Location|Queue Room|Visit Location",1010
+triage-001,,Triage,Patient assessment and vital signs,Ghana EMR Facility,"Login Location|Queue Room|Visit Location",1020
+opd-room-001,,OPD Room 1,General outpatient consultation,Ghana EMR Facility,"Login Location|Queue Room|Visit Location",1030
+opd-room-002,,OPD Room 2,General outpatient consultation,Ghana EMR Facility,"Login Location|Queue Room|Visit Location",1040
+pharmacy-001,,Pharmacy,Drug dispensing and counseling,Ghana EMR Facility,"Login Location|Queue Room|Visit Location|Main Pharmacy",1050
+cashier-001,,Cashier,Payment and billing,Ghana EMR Facility,"Login Location|Queue Room|Visit Location",1060
+
+# Support Services
+laboratory-001,,Laboratory,Clinical laboratory services,Ghana EMR Facility,"Login Location|Visit Location",1070

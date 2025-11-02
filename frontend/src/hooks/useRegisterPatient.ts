@@ -21,8 +21,8 @@ export function useRegisterPatient() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: RegisterPatientPayload) => {
-      // Call Next.js API route (BFF pattern)
-      const res = await axios.post("/patients", payload);
+      // Call Next.js API route (BFF pattern) which proxies to OpenMRS module endpoint
+      const res = await axios.post("/v1/ghana/patients", payload);
       return res.data;
     },
     onSuccess: (data: any) => {

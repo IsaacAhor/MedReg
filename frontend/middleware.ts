@@ -28,12 +28,23 @@ export function middleware(req: NextRequest) {
   }
 
   const isAuthed = req.cookies.get('omrsAuth')?.value === '1';
+  const role = req.cookies.get('omrsRole')?.value || '';
 
   if (!isAuthed) {
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = '/login';
     loginUrl.searchParams.set('next', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Simple role gating for admin routes
+  if (pathname.startsWith('/admin')) {
+    if (role.toLowerCase() !== 'admin') {
+      const url = req.nextUrl.clone();
+      url.pathname = '/login';
+      url.searchParams.set('next', pathname);
+      return NextResponse.redirect(url);
+    }
   }
 
   return NextResponse.next();
@@ -45,4 +56,3 @@ export const config = {
     '/((?!_next/|favicon|assets).*)',
   ],
 };
-

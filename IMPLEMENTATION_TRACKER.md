@@ -413,7 +413,14 @@
 
 ---
 
-## Week 4-5: NHIE Patient Sync (November 1-21, 2025)
+
+### Update � Nov 2, 2025 (Progress Applied via Codex)
+- Patient registration now triggers NHIE sync via module endpoint (non-blocking).
+- Next.js BFF updated to return nhieSync and nhiePatientId; success page added.
+- NHIERetryJob scaffolded (scheduled tick; backoff/DLQ to be implemented).
+- Minimal NHIS Coverage endpoint exposed; caching to follow per strategy.
+- Registration region list updated to 16 regions per AGENTS.md.
+- README backend DB version corrected to MySQL 5.7.## Week 4-5: NHIE Patient Sync (November 1-21, 2025)
 
 Update (Nov 2, 2025): NHIE Integration Tests + Logger
 - Added NHIEIntegrationService unit tests covering success (201/200), duplicates (409), auth errors (401), validation (422), rate limit (429), server (5xx), and PII masking.
@@ -1644,3 +1651,29 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
 **Progress: ON TRACK** 🚀  
 **Next Milestone:** User Roles & Authentication (Week 1, Day 3-4) ⏳  
 **Target Completion:** March 20, 2026 (Pilot Deployment)
+
+- Dashboard NHIE monitor widget added (via /api/nhie/status) � shows Connected/Degraded state.
+
+- NHIE Metrics endpoint added (DLQ/failedRetryable/success24h). Dashboard shows DLQ count. Coverage UI added on success page with refresh.
+
+- DLQ admin API + UI completed: list and requeue DLQ items at /admin/nhie-queue.
+
+- OPD Triage & Consultation (scaffold): BFF endpoints + UI pages added. Requires env OPD encounter type + concept UUIDs to persist vitals/notes.
+
+- Dashboard KPIs: OPD encounters today and new patients wired via /ws/rest/v1/ghana/opd/metrics and /api/opd/metrics.
+
+- Structured diagnoses (optional): BFF creates Conditions from ICD-10 when OPENMRS_ENABLE_STRUCTURED_DIAGNOSIS=true and concepts resolvable via mapping search.
+
+- OPD Dispense (basic): API and UI added with billing NHIS/Cash flags. Visit linkage enabled. Patient hub page created with quick actions to triage/consult/dispense.
+
+- Reports (scaffold): OPD register, NHIS vs Cash, and Top Diagnoses endpoints + UI added under /reports. Admin route gating added (cookie omrsRole=admin).
+
+- User Management (seed): Liquibase seeding added for 8 core roles (Platform Admin, Facility Admin, Doctor, Nurse, Pharmacist, Records Officer, Cashier, NHIS Officer).
+
+- Privileges: Seeded core privileges and enforced on module endpoints (NHIE view/manage/sync, reports view). Reports support CSV export via BFF proxies.
+
+- Revenue report (counts): Added /ws/rest/v1/ghana/reports/revenue with CSV export; wired via /api/reports/revenue and added download link on /reports.
+
+- Dev convenience: Admin user mapped to all core roles via Liquibase; role-aware menu now shows OPD items and Admin link based on omrsRole cookie.
+
+- Login updates: Fetch OpenMRS user roles and set omrsRole cookie; logout clears it. Layout renders role-aware nav accordingly.

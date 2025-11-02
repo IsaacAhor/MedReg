@@ -1,6 +1,10 @@
 import axios from '@/lib/axios';
 
-export type LoginPayload = { username: string; password: string };
+export type LoginPayload = { 
+  username: string; 
+  password: string;
+  locationUuid: string;
+};
 
 export const authApi = {
   login: async (payload: LoginPayload) => {

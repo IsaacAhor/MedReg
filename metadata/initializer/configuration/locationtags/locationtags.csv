@@ -1,0 +1,5 @@
+Uuid,Void/Retire,Name,Description
+b8bbf83e-645f-451f-8efe-a0db56f09676,,Login Location,When a user logs in and chooses a session location they may only choose one with this tag
+1c783dca-fd54-4ea8-a0fc-2875374e9d42,,Queue Room,Locations where patients can be queued for service
+37dd4458-dc9e-4ae6-a1f1-789c1162d37b,,Visit Location,Visits are only allowed to happen at locations tagged with this tag
+89a80c4d-2899-11ed-bdcb-507b9dea1806,,Main Pharmacy,Main pharmacy location for drug dispensing

@@ -11,6 +11,9 @@ import org.openmrs.module.ghanaemr.dto.GhanaPatientDTO;
 import org.openmrs.module.ghanaemr.exception.DuplicatePatientException;
 import org.openmrs.module.ghanaemr.exception.ValidationException;
 import org.openmrs.module.ghanaemr.service.GhanaPatientService;
+import org.openmrs.module.ghanaemr.api.nhie.NHIEIntegrationService;
+import org.openmrs.module.ghanaemr.api.nhie.NHIEIntegrationService;
+import org.openmrs.module.ghanaemr.exception.NHIEIntegrationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +41,22 @@ public class GhanaPatientController {
             body.put("folderNumber", findIdentifierValue(patient, "Folder Number"));
 
             AuditLogger.log("PATIENT_REGISTER", dto.getGhanaCard(), patient.getUuid(), body);
+
+            // Trigger NHIE sync asynchronously if enabled (non-blocking)
+            try {
+                String nhieEnabled = Context.getAdministrationService()
+                        .getGlobalProperty("ghana.nhie.enabled", "false");
+                if ("true".equalsIgnoreCase(nhieEnabled)) {
+                    NHIEIntegrationService nhieSvc = Context.getRegisteredComponent(
+                            "nhieIntegrationService", NHIEIntegrationService.class);
+                    new Thread(() -> {
+                        try {
+                            nhieSvc.syncPatientToNHIE(patient);
+                        } catch (Throwable ignore) { }
+                    }, "nhie-sync-patient").start();
+                }
+            } catch (Throwable ignore) { }
+
             return ResponseEntity.status(HttpStatus.CREATED).body(body);
         } catch (ValidationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error("VALIDATION_ERROR", e.getMessage()));
@@ -104,6 +123,40 @@ public class GhanaPatientController {
         }
     }
 
+    @PostMapping("/{uuid}/sync-nhie")
+    public ResponseEntity<?> syncPatientToNhie(HttpServletRequest request, @PathVariable("uuid") String uuid) {
+        ensureAuthenticated(request);
+        try {
+            ensurePrivilege("ghanaemr.nhie.sync");
+        } catch (APIAuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error("FORBIDDEN", e.getMessage()));
+        }
+        try {
+            PatientService ps = Context.getPatientService();
+            Patient patient = ps.getPatientByUuid(uuid);
+            if (patient == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error("NOT_FOUND", "Patient not found"));
+            }
+
+            NHIEIntegrationService nhieService = getNhieIntegrationService();
+            String nhieId = nhieService.syncPatientToNHIE(patient);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("uuid", patient.getUuid());
+            body.put("nhiePatientId", nhieId);
+            return ResponseEntity.ok(body);
+        } catch (NHIEIntegrationException e) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("code", "NHIE_SYNC_FAILED");
+            body.put("message", e.getMessage());
+            body.put("retryable", e.isRetryable());
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(body);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(error("SERVER_ERROR", "Failed to sync patient to NHIE"));
+        }
+    }
+
     private GhanaPatientService getGhanaPatientService() {
         // Prefer Spring-managed bean
         try {
@@ -112,6 +165,15 @@ public class GhanaPatientController {
         } catch (Exception e) {
             // Fallback to Context.getService if registered that way
             return Context.getService(GhanaPatientService.class);
+        }
+    }
+
+    private NHIEIntegrationService getNhieIntegrationService() {
+        try {
+            return Context.getRegisteredComponents(NHIEIntegrationService.class).stream().findFirst()
+                    .orElseThrow(IllegalStateException::new);
+        } catch (Exception e) {
+            return Context.getService(NHIEIntegrationService.class);
         }
     }
 
@@ -200,5 +262,10 @@ public class GhanaPatientController {
         if (n == null || n.isEmpty()) return null;
         return n.substring(0, 1) + "***";
     }
-}
 
+    private void ensurePrivilege(String privilege) throws APIAuthenticationException {
+        if (!Context.hasPrivilege(privilege)) {
+            throw new APIAuthenticationException("Required privilege: " + privilege);
+        }
+    }
+}

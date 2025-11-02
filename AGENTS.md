@@ -397,7 +397,11 @@ public class GhanaPatientService {
 ```
 
 ### REST Controller Pattern
-```java
+```
+### Module Endpoints (Current Build)
+- POST /ws/rest/v1/ghana/patients/{uuid}/sync-nhie � triggers NHIE patient sync via NHIEIntegrationService (non-blocking from frontend; used by Next.js BFF after registration).
+- GET /ws/rest/v1/ghana/coverage?nhis={number} � checks NHIS eligibility via NHIE (minimal version; 24h cache layer to be added).
+java
 @RestController
 @RequestMapping("/api/v1/ghana/patients")
 public class GhanaPatientController {
@@ -1043,9 +1047,54 @@ private String maskGhanaCard(String ghanaCard) {
 
 ### Authentication
 - **OpenMRS Session:** Use OpenMRS built-in session management
+- **Location-Based Login:** User must select work location at login (REQUIRED for queue management)
 - **JWT Tokens (frontend):** 1-hour expiry, refresh token pattern
 - **Password Policy:** Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char
 - **Session Timeout:** 30 minutes inactivity
+
+#### Location-Based Login (Implemented Nov 2, 2025)
+**Critical for OPD Workflow (Week 4)**
+
+Users must select their physical work location when logging in. This location is stored in the session and used for:
+1. **Queue Filtering**: Show only patients in user's location
+2. **Patient Routing**: Move patients between service points (Reception → Triage → Consultation)
+3. **Location Metrics**: Track wait times, patient count per location
+4. **Audit Trails**: "Patient registered by Records Officer at Reception at 9:30 AM"
+
+**Login Flow:**
+```tsx
+// User enters: username, password, location
+// Backend stores in cookies:
+// - omrsAuth=1 (authenticated)
+// - omrsLocation={locationUuid} (selected location)
+// - omrsProvider={providerUuid} (user's provider record)
+
+// Session response:
+{
+  "authenticated": true,
+  "user": { "username": "nurse_ama" },
+  "sessionLocation": { 
+    "uuid": "triage-001",
+    "display": "Triage"
+  },
+  "currentProvider": {
+    "uuid": "provider-uuid"
+  }
+}
+```
+
+**Default Locations:**
+- Reception (Registration)
+- Triage (Vital Signs)
+- OPD Room 1 (Consultation)
+- OPD Room 2 (Consultation)
+- Pharmacy (Dispensing)
+- Cashier (Billing)
+- Laboratory (Tests)
+
+**Setup:** Run `.\scripts\setup-locations.ps1` to create location tags and default locations.
+
+**Documentation:** See `docs/setup/location-based-login-guide.md` for full implementation details.
 
 ### Authorization (Role-Based Access Control)
 
@@ -2036,3 +2085,4 @@ Changelog
 | 1.3 | 2025-11-02 | Added NHIE transaction logger abstraction + tests; updated schema alignment and test guidance |
 
 **Remember:** This file is living documentation. Update it whenever you make architecture decisions, discover new patterns, or encounter edge cases. All AI coding agents will automatically reference the latest version.
+\n### Module Endpoints (Reports)\n- `GET /ws/rest/v1/ghana/reports/opd-register?date={YYYY-MM-DD}&encounterTypeUuid={uuid}`\n- `GET /ws/rest/v1/ghana/reports/nhis-vs-cash?date={YYYY-MM-DD}`\n- `GET /ws/rest/v1/ghana/reports/top-diagnoses?from={YYYY-MM-DD}&to={YYYY-MM-DD}&limit=10`\n\n\n### User Management (Seeded Roles)\n- Platform Admin\n- Facility Admin\n- Doctor\n- Nurse\n- Pharmacist\n- Records Officer\n- Cashier\n- NHIS Officer\n\n

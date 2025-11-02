@@ -219,6 +219,15 @@ services:
 
 ## African Regional Context
 
+### KenyaEMR (Palladium Kenya)
+- Org repositories: https://github.com/orgs/palladiumkenya/repositories?type=all
+- IL module: https://github.com/palladiumkenya/openmrs-module-kenyaemrIL
+- Sync orchestration: https://github.com/palladiumkenya/SyncAllEMRs
+- Config packaging: https://github.com/palladiumkenya/openmrs-config-kenyaemr
+- Related org (ecosystem): Savannah Informatics — https://github.com/savannahghi
+
+Internal summary: `docs/KENYA_EMR_REFERENCE.md`
+
 ### Uganda EMR (METS Programme) ⭐ **MOST RELEVANT**
 **Complete documentation:** `docs/UGANDA_EMR_REFERENCE.md` (1000+ lines)
 

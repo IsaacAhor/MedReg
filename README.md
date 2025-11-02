@@ -29,10 +29,10 @@ MedReg is an Electronic Medical Records (EMR) system designed specifically for G
 
 ## Tech Stack
 
-### Backend
+### Backend  
 - OpenMRS Platform 2.6.0
 - Java 8, Spring Framework
-- MySQL 8.0
+- MySQL 5.7
 - HAPI FHIR 5.x
 
 ### Frontend  

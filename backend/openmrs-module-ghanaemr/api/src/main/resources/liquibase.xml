@@ -207,6 +207,87 @@
         <createIndex tableName="ghanaemr_nhie_coverage_cache" indexName="idx_nhie_coverage_expires">
             <column name="expires_at"/>
         </createIndex>
+</changeSet>
+
+    <!-- User Roles Seeding -->
+    <changeSet id="ghanaemr-roles-1" author="ghana-emr">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM role WHERE role IN ('Platform Admin','Facility Admin','Doctor','Nurse','Pharmacist','Records Officer','Cashier','NHIS Officer')
+            </sqlCheck>
+        </preConditions>
+        <comment>Seed core roles for Ghana EMR MVP</comment>
+        <sql>
+            INSERT IGNORE INTO role (role, description, uuid) VALUES
+            ('Platform Admin','Multi-facility oversight, system config','b9b3d4a0-1a30-4a6f-9d3e-100000000001'),
+            ('Facility Admin','Per-facility admin and monitoring','b9b3d4a0-1a30-4a6f-9d3e-100000000002'),
+            ('Doctor','Clinical role: consultation','b9b3d4a0-1a30-4a6f-9d3e-100000000003'),
+            ('Nurse','Clinical role: triage','b9b3d4a0-1a30-4a6f-9d3e-100000000004'),
+            ('Pharmacist','Dispense medications','b9b3d4a0-1a30-4a6f-9d3e-100000000005'),
+            ('Records Officer','Registration and records','b9b3d4a0-1a30-4a6f-9d3e-100000000006'),
+            ('Cashier','Billing and payments','b9b3d4a0-1a30-4a6f-9d3e-100000000007'),
+            ('NHIS Officer','NHIS eligibility and claims','b9b3d4a0-1a30-4a6f-9d3e-100000000008');
+        </sql>
+    </changeSet>
+
+    <!-- Privileges and Role Mappings -->
+    <changeSet id="ghanaemr-privileges-1" author="ghana-emr">
+        <comment>Define core privileges and assign to roles</comment>
+        <sql>
+            INSERT IGNORE INTO privilege (privilege, description, uuid) VALUES
+            ('ghanaemr.nhie.view','View NHIE status and coverage','c1a0e100-0000-0000-0000-000000000001'),
+            ('ghanaemr.nhie.manage','Manage NHIE queue (requeue DLQ)','c1a0e100-0000-0000-0000-000000000002'),
+            ('ghanaemr.nhie.sync','Trigger NHIE sync','c1a0e100-0000-0000-0000-000000000003'),
+            ('ghanaemr.reports.view','View reports','c1a0e100-0000-0000-0000-000000000004'),
+            ('ghanaemr.opd.triage','Record triage','c1a0e100-0000-0000-0000-000000000005'),
+            ('ghanaemr.opd.consult','Record consultation','c1a0e100-0000-0000-0000-000000000006'),
+            ('ghanaemr.opd.dispense','Record dispense','c1a0e100-0000-0000-0000-000000000007');
+
+            INSERT IGNORE INTO role_privilege (role, privilege) VALUES
+            ('Platform Admin','ghanaemr.nhie.view'),
+            ('Platform Admin','ghanaemr.nhie.manage'),
+            ('Platform Admin','ghanaemr.nhie.sync'),
+            ('Platform Admin','ghanaemr.reports.view'),
+            ('Platform Admin','ghanaemr.opd.triage'),
+            ('Platform Admin','ghanaemr.opd.consult'),
+            ('Platform Admin','ghanaemr.opd.dispense'),
+
+            ('Facility Admin','ghanaemr.nhie.view'),
+            ('Facility Admin','ghanaemr.nhie.manage'),
+            ('Facility Admin','ghanaemr.nhie.sync'),
+            ('Facility Admin','ghanaemr.reports.view'),
+
+            ('Doctor','ghanaemr.opd.consult'),
+            ('Doctor','ghanaemr.reports.view'),
+
+            ('Nurse','ghanaemr.opd.triage'),
+
+            ('Pharmacist','ghanaemr.opd.dispense'),
+
+            ('Records Officer','ghanaemr.reports.view'),
+
+            ('Cashier','ghanaemr.reports.view'),
+
+            ('NHIS Officer','ghanaemr.reports.view'),
+            ('NHIS Officer','ghanaemr.nhie.view');
+        </sql>
+    </changeSet>
+
+    <!-- Map default admin user to core roles for local dev convenience -->
+    <changeSet id="ghanaemr-user-role-seed-1" author="ghana-emr">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT COUNT(*) FROM users WHERE username='admin'
+            </sqlCheck>
+        </preConditions>
+        <comment>Assign all core roles to admin user for development</comment>
+        <sql>
+            INSERT IGNORE INTO user_role (user_id, role)
+            SELECT u.user_id, r.role FROM users u JOIN role r ON 1=1
+            WHERE u.username='admin' AND r.role IN (
+                'Platform Admin','Facility Admin','Doctor','Nurse','Pharmacist','Records Officer','Cashier','NHIS Officer'
+            );
+        </sql>
     </changeSet>
 
 </databaseChangeLog>

@@ -51,11 +51,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // For Week 1/2 we do not create Patients directly here.
-    // Registration will be handled by the backend OpenMRS module per AGENTS.md.
-    return NextResponse.json({ message: 'Patient registration via backend service is not yet enabled' }, { status: 501 });
+    const payload = await req.json();
+
+    // Proxy to OpenMRS module endpoint (backend handles validation, folder number, NHIE routing)
+    const upstream = await fetch(`${baseUrl}/ghana/patients`, {
+      method: 'POST',
+      headers: {
+        Cookie: cookie,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await upstream.json().catch(async () => ({ message: await upstream.text().catch(() => 'Unknown upstream error') }));
+    return NextResponse.json(data, { status: upstream.status });
   } catch (e) {
     return NextResponse.json({ message: 'Failed to register patient' }, { status: 500 });
   }
 }
-

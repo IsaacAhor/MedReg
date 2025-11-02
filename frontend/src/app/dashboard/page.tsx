@@ -1,9 +1,31 @@
-"use client";
+﻿﻿﻿"use client";
 import { Button } from '@/components/ui/button';
+import * as React from 'react';
 import { useLogout } from '@/hooks/useAuth';
 
 export default function DashboardPage() {
   const logout = useLogout();
+  const [nhieConnected, setNhieConnected] = React.useState<boolean | null>(null);
+  const [metrics, setMetrics] = React.useState<{ dlqCount?: number } | null>(null);
+  const [opd, setOpd] = React.useState<{ opdEncountersToday?: number, newPatientsToday?: number } | null>(null);
+
+  React.useEffect(() => {
+    let mounted = true;
+    fetch('/api/nhie/status', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(d => { if (mounted) setNhieConnected(!!d?.connected); })
+      .catch(() => { if (mounted) setNhieConnected(false); });
+    fetch('/api/nhie/metrics', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(d => { if (mounted) setMetrics(d || {}); })
+      .catch(() => { if (mounted) setMetrics({}); });
+    fetch('/api/opd/metrics', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(d => { if (mounted) setOpd(d || {}); })
+      .catch(() => { if (mounted) setOpd({}); });
+    return () => { mounted = false; };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200">
@@ -16,22 +38,29 @@ export default function DashboardPage() {
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="text-sm text-gray-500">Today</div>
-            <div className="text-3xl font-bold text-gray-900">OPD Visits</div>
-            <div className="text-2xl text-teal-600 mt-2">—</div>
+            <div className="text-3xl font-bold text-gray-900">OPD Encounters</div>
+            <div className="text-2xl text-teal-600 mt-2">�</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="text-sm text-gray-500">Status</div>
             <div className="text-3xl font-bold text-gray-900">NHIE Sync</div>
-            <div className="text-gray-600 mt-2">Connected (sandbox)</div>
+            <div className="mt-2 inline-flex items-center gap-2">
+              <span className={`h-2 w-2 rounded-full ${nhieConnected == null ? 'bg-gray-300' : nhieConnected ? 'bg-green-500' : 'bg-amber-500'}`} />
+              <span className="text-gray-700">{nhieConnected == null ? 'Checking�' : nhieConnected ? 'Connected' : 'Degraded'}</span>
+            </div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="text-sm text-gray-500">Registration</div>
             <div className="text-3xl font-bold text-gray-900">Patients</div>
             <div className="text-gray-600 mt-2">Start with Ghana Card</div>
           </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="text-sm text-gray-500">NHIE Queue</div>
+            <div className="text-3xl font-bold text-gray-900">DLQ</div>
+            <div className="text-gray-600 mt-2">{metrics?.dlqCount ?? '—'} pending</div>
+          </div>
         </div>
       </main>
     </div>
   );
 }
-

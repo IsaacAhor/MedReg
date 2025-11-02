@@ -27,19 +27,7 @@ function validateGhanaCardChecksum(ghanaCard: string): boolean {
   return checkDigit === Number(digits[9]);
 }
 
-// Regions (code → label)
-const GH_REGIONS: { code: string; name: string }[] = [
-  { code: "AH", name: "Ashanti" },
-  { code: "BA", name: "Brong Ahafo" },
-  { code: "CP", name: "Central" },
-  { code: "EP", name: "Eastern" },
-  { code: "GA", name: "Greater Accra" },
-  { code: "NP", name: "Northern" },
-  { code: "UE", name: "Upper East" },
-  { code: "UW", name: "Upper West" },
-  { code: "VT", name: "Volta" },
-  { code: "WP", name: "Western" },
-];
+// Regions (code ? label) - 16 regions per AGENTS.md\nconst GH_REGIONS: { code: string; name: string }[] = [\n  { code: 'AR', name: 'Ashanti' },\n  { code: 'BER', name: 'Bono East' },\n  { code: 'BR', name: 'Bono' },\n  { code: 'CR', name: 'Central' },\n  { code: 'ER', name: 'Eastern' },\n  { code: 'GAR', name: 'Greater Accra' },\n  { code: 'NER', name: 'North East' },\n  { code: 'NR', name: 'Northern' },\n  { code: 'NWR', name: 'North West' },\n  { code: 'OR', name: 'Oti' },\n  { code: 'SR', name: 'Savannah' },\n  { code: 'UER', name: 'Upper East' },\n  { code: 'UWR', name: 'Upper West' },\n  { code: 'VR', name: 'Volta' },\n  { code: 'WR', name: 'Western' },\n  { code: 'WNR', name: 'Western North' },\n];
 
 // Zod schema
 const formSchema = z
@@ -96,7 +84,7 @@ export default function PatientRegistrationPage() {
       // keep phone prefix to guide user
       phone: "+233",
       gender: undefined as unknown as "M" | "F" | "O",
-      regionCode: "GA",
+      regionCode: "GAR",
       district: "",
       town: "",
       street: "",
@@ -123,8 +111,12 @@ export default function PatientRegistrationPage() {
       onSuccess: (data: any) => {
         const uuid = data?.patient?.uuid || data?.uuid;
         const folder = data?.patient?.folderNumber;
+        const nhieSync = data?.patient?.nhieSync;
         if (uuid) {
-          const qs = folder ? `?folder=${encodeURIComponent(folder)}` : "";
+          const params = new URLSearchParams();
+          if (folder) params.set("folder", folder);
+          if (nhieSync) params.set("nhieSync", nhieSync);
+          const qs = params.toString() ? `?${params.toString()}` : "";
           router.push(`/patients/${uuid}/success${qs}`);
         }
       },

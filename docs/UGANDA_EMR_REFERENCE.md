@@ -193,9 +193,37 @@ public class NHIEAuthService {
         accessToken = (String) response.get("access_token");
         int expiresIn = (int) response.get("expires_in");
         tokenExpiry = new Date(System.currentTimeMillis() + (expiresIn - 300) * 1000);  // Refresh 5 min early
-    }
+}
 }
 
+---
+
+## Regional HIE Patterns (Kenya)
+
+Organization: Palladium Kenya (KenyaEMR)  
+Org Repositories: https://github.com/orgs/palladiumkenya/repositories?type=all
+
+Key repositories to study for middleware mechanics:
+- openmrs-module-kenyaemrIL  
+  https://github.com/palladiumkenya/openmrs-module-kenyaemrIL  
+  Interoperability Layer patterns (routing, queuing, external exchange boundaries).
+
+- SyncAllEMRs  
+  https://github.com/palladiumkenya/SyncAllEMRs  
+  Synchronization orchestration and cross‑site patterns.
+
+- openmrs-config-kenyaemr  
+  https://github.com/palladiumkenya/openmrs-config-kenyaemr  
+  Distribution/metadata packaging approach aligned with modular deployments.
+
+- openmrs-content-kenyahmis  
+  https://github.com/palladiumkenya/openmrs-content-kenyahmis  
+  Content/report assets organization and packaging.
+
+Reuse principle for Ghana:
+- Borrow IL mechanics (retries/backoff, transaction logging, DLQ, module boundaries).  
+- Do not copy Kenya-specific business logic or direct KHIE endpoints.  
+- Strictly adhere to Ghana NHIE rules in AGENTS.md: always route via NHIE; never call NHIA/MPI directly.
 // Ghana: Update sync method to use OAuth
 public List<Map> sendToNHIE(SyncFhirProfile syncFhirProfile) {
     NHIEAuthService authService = Context.getService(NHIEAuthService.class);

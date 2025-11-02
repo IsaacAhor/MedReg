@@ -191,7 +191,30 @@ export async function POST(request: NextRequest) {
 
     const patient = await patientResponse.json();
 
-    // TODO: Submit to NHIE (via middleware only)
+    // Submit to NHIE via OpenMRS module endpoint (middleware path)
+    // Non-blocking for registration success: if sync fails, return success with nhieSync status
+    let nhieSync: 'SUCCESS' | 'FAILED' | 'SKIPPED' = 'SKIPPED';
+    let nhiePatientId: string | undefined;
+    try {
+      const nhieRes = await fetch(
+        `${OPENMRS_ROOT_URL}/ws/rest/v1/ghana/patients/${encodeURIComponent(patient.uuid)}/sync-nhie`,
+        {
+          method: 'POST',
+          headers: { Authorization: authHeader, Accept: 'application/json' },
+        }
+      );
+      if (nhieRes.ok) {
+        const nj = await nhieRes.json().catch(() => ({}));
+        nhiePatientId = nj?.nhiePatientId;
+        nhieSync = 'SUCCESS';
+      } else {
+        nhieSync = 'FAILED';
+        console.warn('NHIE sync failed', nhieRes.status, await nhieRes.text());
+      }
+    } catch (e) {
+      nhieSync = 'FAILED';
+      console.warn('NHIE sync error', e);
+    }
 
     return NextResponse.json({
       success: true,
@@ -199,6 +222,8 @@ export async function POST(request: NextRequest) {
         uuid: patient.uuid,
         ghanaCard: ghanaCard.replace(/(\d{4})\d{4}/, '$1****'), // Mask middle digits
         folderNumber,
+        nhieSync,
+        nhiePatientId,
       },
     });
   } catch (error) {

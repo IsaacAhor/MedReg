@@ -1,29 +1,43 @@
 "use client";
 
 import * as z from 'zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useLogin } from '@/hooks/useAuth';
+import { LocationSelector } from './location-selector';
 
 const schema = z.object({
   username: z.string().min(1, 'Username is required'),
   password: z.string().min(1, 'Password is required'),
+  locationUuid: z.string().min(1, 'Work location is required'),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 export function LoginForm() {
+  const [locationError, setLocationError] = useState<string | undefined>();
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { username: '', password: '' },
+    defaultValues: { 
+      username: '', 
+      password: '',
+      locationUuid: '',
+    },
   });
 
   const login = useLogin();
 
   const onSubmit = async (values: FormValues) => {
+    if (!values.locationUuid) {
+      setLocationError('Please select your work location');
+      return;
+    }
+    setLocationError(undefined);
     await login.mutateAsync(values);
   };
 
@@ -57,6 +71,15 @@ export function LoginForm() {
                 <FormMessage />
               </FormItem>
             )}
+          />
+
+          <LocationSelector 
+            value={form.watch('locationUuid')}
+            onChange={(locationUuid) => {
+              form.setValue('locationUuid', locationUuid);
+              setLocationError(undefined);
+            }}
+            error={locationError || form.formState.errors.locationUuid?.message}
           />
 
           <Button type="submit" className="w-full" disabled={login.isPending}>

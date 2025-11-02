@@ -3,8 +3,11 @@ package org.openmrs.module.ghanaemr.service.impl;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
+import org.openmrs.PersonAttribute;
+import org.openmrs.PersonAttributeType;
 import org.openmrs.PersonName;
 import org.openmrs.api.PatientService;
+import org.openmrs.api.PersonService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.ghanaemr.dto.GhanaPatientDTO;
 import org.openmrs.module.ghanaemr.exception.DuplicatePatientException;
@@ -26,7 +29,7 @@ import java.util.List;
 public class GhanaPatientServiceImpl implements GhanaPatientService {
 
     private static final String IDTYPE_GHANA_CARD = "Ghana Card";
-    private static final String IDTYPE_NHIS_NUMBER = "NHIS Number";
+    private static final String IDTYPE_NHIS_NUMBER = "NHIS Number"; // retained for backward compatibility only
     private static final String IDTYPE_FOLDER_NUMBER = "Folder Number";
 
     private final FolderNumberGenerator folderNumberGenerator;
@@ -85,12 +88,13 @@ public class GhanaPatientServiceImpl implements GhanaPatientService {
         folderId.setIdentifier(folderNumber);
         patient.addIdentifier(folderId);
 
-        // NHIS number (optional as identifier per task instruction)
+        // NHIS number (optional) - store as Person Attribute for FHIR mapping
         if (dto.getNhisNumber() != null && !dto.getNhisNumber().trim().isEmpty()) {
-            PatientIdentifier nhisId = new PatientIdentifier();
-            nhisId.setIdentifierType(getIdentifierType(IDTYPE_NHIS_NUMBER));
-            nhisId.setIdentifier(dto.getNhisNumber().trim());
-            patient.addIdentifier(nhisId);
+            PersonAttributeType nhisAttrType = getPersonAttributeType("NHIS Number");
+            if (nhisAttrType != null) {
+                PersonAttribute nhisAttr = new PersonAttribute(nhisAttrType, dto.getNhisNumber().trim());
+                patient.addAttribute(nhisAttr);
+            }
         }
 
         return patientService.savePatient(patient);
@@ -115,5 +119,15 @@ public class GhanaPatientServiceImpl implements GhanaPatientService {
         }
         return type;
     }
-}
 
+    private PersonAttributeType getPersonAttributeType(String name) {
+        PersonService personService = Context.getPersonService();
+        PersonAttributeType type = personService.getPersonAttributeTypeByName(name);
+        if (type == null) {
+            // Transient placeholder (runtime should provide real metadata)
+            type = new PersonAttributeType();
+            type.setName(name);
+        }
+        return type;
+    }
+}
