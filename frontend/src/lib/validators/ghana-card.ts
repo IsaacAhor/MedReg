@@ -97,13 +97,14 @@ export function generateGhanaCard(baseDigits?: string): string {
 
 /**
  * Examples of valid Ghana Cards (for testing)
+ * Generated using generateGhanaCard() to ensure correct Luhn checksums
  */
 export const VALID_GHANA_CARDS = [
-  'GHA-123456789-7',
-  'GHA-987654321-5',
-  'GHA-111111111-2',
-  'GHA-222222222-4',
-  'GHA-333333333-6',
+  generateGhanaCard('123456789'),
+  generateGhanaCard('987654321'),
+  generateGhanaCard('111111111'),
+  generateGhanaCard('222222222'),
+  generateGhanaCard('333333333'),
 ];
 
 /**

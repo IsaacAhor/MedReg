@@ -439,3 +439,54 @@ Once Week 1 setup is complete, proceed to:
 ---
 
 **Week 1 Target**: By end of week, you should have a working development environment with OpenMRS backend + Next.js frontend, user roles configured, and authentication working.
+
+---
+
+## Week 2 Addendum: Ghana Metadata + Folder Number
+
+This addendum documents the exact metadata created and runtime behavior now that registration is working end‑to‑end.
+
+### Ghana Metadata (UUIDs)
+- Patient Identifier Type — Ghana Card: `d3132375-e07a-40f6-8912-384c021ed350`
+  - Required: true
+  - Regex: `^GHA-\d{9}-\d$`
+  - Validator: none (frontend performs Luhn; server uses regex only)
+- Person Attribute Type — NHIS Number: `f56fc097-e14e-4be6-9632-89ca66127784`
+  - Searchable: true
+  - Stored as person attribute (value = 10 digits)
+- Patient Identifier Type — Folder Number: `c907a639-0890-4885-88f5-9314a55e263e`
+  - Required: false
+  - Regex: `^[A-Z]{2}-[A-Z0-9]{4}-\d{4}-\d{6}$`
+- Location — Amani Hospital: `aff27d58-a15c-49a6-9beb-d30dcfc0c66e`
+
+OpenMRS ID identifier type was set to required=false to unblock Ghana‑Card‑only registration while the IDGEN REST “nextIdentifier” endpoint is unavailable in this stack.
+
+### Folder Number Generation
+- Preferred: Thread‑safe backend module endpoint
+  - Endpoint: `POST /openmrs/ws/ghana/foldernumber/allocate?regionCode=GA&facilityCode=KBTH`
+  - Returns: `{ "folderNumber": "GA-KBTH-2025-000001" }`
+  - Backed by table: `gh_folder_number_sequence(prefix PK, last_seq INT)`
+- Fallback: System setting sequence (best effort, single‑node friendly)
+  - Key format: `ghana.folder.sequence.{REGION}-{FACILITY}-{YEAR}`
+  - Used only if the module endpoint is not available
+
+### API Route Behavior (BFF)
+- File: `frontend/src/app/api/patients/route.ts`
+- Steps during registration:
+  1) Duplicate check: `GET /ws/rest/v1/patient?identifier={ghanaCard}`; returns 409 on match
+  2) Create person: `POST /ws/rest/v1/person` with demographics, address, NHIS attribute
+  3) Generate folder number: calls module endpoint (preferred) or falls back to system setting
+  4) Create patient: `POST /ws/rest/v1/patient` with identifiers [Ghana Card, Folder Number]
+  5) Response includes `patient.uuid`, masked Ghana Card, and `folderNumber`
+
+### Frontend UX Updates
+- On success, user is redirected to `/patients/{uuid}/success?folder={folderNumber}` to clearly show the assigned folder number and actions.
+
+### IDGEN Notes (OpenMRS ID)
+- Autogeneration option exists for OpenMRS ID, but a working REST `nextIdentifier` endpoint is not exposed here.
+- If/when server‑side autogen on save is reliable, you may set OpenMRS ID back to required=true.
+
+### Validator Notes
+- Ghana Card Luhn validation runs on the frontend (Zod refine + checksum).
+- Server currently enforces regex only (no stock Luhn validator due to `GHA-` prefix and hyphens).
+- Future: implement a custom `GhanaCardIdentifierValidator` in an OpenMRS module for server‑side parity.

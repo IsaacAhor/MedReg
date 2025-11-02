@@ -25,8 +25,13 @@ export function useRegisterPatient() {
       const res = await axios.post("/patients", payload);
       return res.data;
     },
-    onSuccess: () => {
-      toast.success("Patient registered successfully");
+    onSuccess: (data: any) => {
+      const folder = data?.patient?.folderNumber;
+      if (folder) {
+        toast.success(`Patient registered. Folder: ${folder}`);
+      } else {
+        toast.success("Patient registered successfully");
+      }
       qc.invalidateQueries({ queryKey: ["patients"] });
     },
     onError: (err: any) => {

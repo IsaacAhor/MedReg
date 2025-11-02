@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateGhanaCard } from '@/lib/validators/ghana-card';
+import { generateFolderNumber, type GhanaRegionCode } from '@/lib/services/folder-number';
 
 // OpenMRS connection config
 const OPENMRS_BASE_URL = process.env.OPENMRS_BASE_URL || 'http://localhost:8080/openmrs/ws/rest/v1';
@@ -8,6 +9,8 @@ const OPENMRS_PASSWORD = process.env.OPENMRS_PASSWORD || 'Admin123';
 
 // Base64 encode credentials for Basic Auth
 const authHeader = `Basic ${Buffer.from(`${OPENMRS_USERNAME}:${OPENMRS_PASSWORD}`).toString('base64')}`;
+// Derive OpenMRS web root (strip /ws/rest/v1) for module endpoints
+const OPENMRS_ROOT_URL = OPENMRS_BASE_URL.replace(/\/ws\/rest\/v1\/?$/, '');
 
 /**
  * HARDCODED UUIDs - Ghana Metadata
@@ -20,6 +23,7 @@ const authHeader = `Basic ${Buffer.from(`${OPENMRS_USERNAME}:${OPENMRS_PASSWORD}
 const GHANA_CARD_IDENTIFIER_TYPE_UUID = 'd3132375-e07a-40f6-8912-384c021ed350'; // Ghana Card (required)
 const NHIS_ATTRIBUTE_TYPE_UUID = 'f56fc097-e14e-4be6-9632-89ca66127784';        // NHIS Number
 const AMANI_HOSPITAL_LOCATION_UUID = 'aff27d58-a15c-49a6-9beb-d30dcfc0c66e';    // Amani Hospital
+const FOLDER_NUMBER_IDENTIFIER_TYPE_UUID = 'c907a639-0890-4885-88f5-9314a55e263e'; // Folder Number
 
 // TODO: Move UUIDs to environment variables or fetch dynamically via OpenMRS REST API
 
@@ -38,6 +42,7 @@ export async function POST(request: NextRequest) {
       gender,
       phone,
       regionCode,
+      facilityCode,
       city,
       address,
     } = body;
@@ -51,8 +56,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Check for duplicate Ghana Card
-    // For now, proceed with creation
+    // Duplicate check: search patient by Ghana Card identifier
+    try {
+      const dupRes = await fetch(
+        `${OPENMRS_BASE_URL}/patient?identifier=${encodeURIComponent(ghanaCard)}`,
+        {
+          method: 'GET',
+          headers: { Authorization: authHeader, Accept: 'application/json' },
+        }
+      );
+      if (dupRes.ok) {
+        const data = await dupRes.json();
+        if (Array.isArray(data?.results) && data.results.length > 0) {
+          return NextResponse.json(
+            { error: 'Ghana Card already registered', code: 'DUPLICATE_GHANA_CARD' },
+            { status: 409 }
+          );
+        }
+      } else {
+        console.warn('Duplicate check failed', dupRes.status, await dupRes.text());
+      }
+    } catch (e) {
+      console.warn('Duplicate check error', e);
+    }
+
+    // Effective codes for folder number generation
+    const effectiveRegionCode = (regionCode || 'GA').toUpperCase();
+    const effectiveFacilityCode = (facilityCode || 'KBTH').toUpperCase();
 
     // Create OpenMRS Person first
     const personPayload = {
@@ -70,7 +100,7 @@ export async function POST(request: NextRequest) {
         {
           address1: address || '',
           cityVillage: city || '',
-          stateProvince: regionCode || '',
+          stateProvince: effectiveRegionCode || '',
           country: 'Ghana',
           preferred: true,
         },
@@ -111,6 +141,17 @@ export async function POST(request: NextRequest) {
 
     const person = await personResponse.json();
 
+    // Generate folder number using service
+    const folderNumber = await generateFolderNumber(
+      effectiveRegionCode as GhanaRegionCode,
+      effectiveFacilityCode,
+      {
+        openmrsBaseUrl: OPENMRS_BASE_URL,
+        openmrsRootUrl: OPENMRS_ROOT_URL,
+        authHeader,
+      }
+    );
+
     // Create patient from person
     const patientPayload = {
       person: person.uuid,
@@ -120,6 +161,12 @@ export async function POST(request: NextRequest) {
           identifierType: GHANA_CARD_IDENTIFIER_TYPE_UUID,
           location: AMANI_HOSPITAL_LOCATION_UUID,
           preferred: true,
+        },
+        {
+          identifier: folderNumber,
+          identifierType: FOLDER_NUMBER_IDENTIFIER_TYPE_UUID,
+          location: AMANI_HOSPITAL_LOCATION_UUID,
+          preferred: false,
         },
       ],
     };
@@ -144,15 +191,14 @@ export async function POST(request: NextRequest) {
 
     const patient = await patientResponse.json();
 
-    // TODO: Generate folder number
-    // TODO: Submit to NHIE
+    // TODO: Submit to NHIE (via middleware only)
 
     return NextResponse.json({
       success: true,
       patient: {
         uuid: patient.uuid,
         ghanaCard: ghanaCard.replace(/(\d{4})\d{4}/, '$1****'), // Mask middle digits
-        folderNumber: 'GA-KBTH-2025-000001', // TODO: Generate actual folder number
+        folderNumber,
       },
     });
   } catch (error) {

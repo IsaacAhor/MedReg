@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="ghanaemrfoldernumber.FolderNumberDao" class="org.openmrs.module.ghanaemrfoldernumber.db.hibernate.HibernateFolderNumberDao">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+
+    <bean id="ghanaemrfoldernumber.FolderNumberService" class="org.openmrs.module.ghanaemrfoldernumber.FolderNumberServiceImpl">
+        <property name="folderNumberDao" ref="ghanaemrfoldernumber.FolderNumberDao" />
+    </bean>
+
+    <!-- Liquibase mapping -->
+    <bean parent="liquibaseModuleActivator">
+        <property name="changeLog" value="classpath:/liquibase.xml" />
+    </bean>
+</beans>
+

@@ -121,8 +121,12 @@ export default function PatientRegistrationPage() {
       address: [values.street, values.district, values.town].filter(Boolean).join(", "),
     }, {
       onSuccess: (data: any) => {
-        const uuid = data?.uuid || data?.patient?.uuid;
-        if (uuid) router.push(`/patients/${uuid}`);
+        const uuid = data?.patient?.uuid || data?.uuid;
+        const folder = data?.patient?.folderNumber;
+        if (uuid) {
+          const qs = folder ? `?folder=${encodeURIComponent(folder)}` : "";
+          router.push(`/patients/${uuid}/success${qs}`);
+        }
       },
     });
   };

@@ -17,11 +17,15 @@ Frontend (Next.js)
 - Page: `frontend/src/app/patients/register/page.tsx`
 - Libraries: React Hook Form + Zod, shadcn/ui Form components, TanStack Query.
 - Fields: Ghana Card, NHIS (optional), Given/Family/Middle names, DOB (date input), Gender (M/F/O), Phone, Address (Region dropdown, District, Town, Street).
-- On success: redirect to patient dashboard `/patients/{uuid}`.
+- On success: redirect to success page `/patients/{uuid}/success?folder={folderNumber}`.
 
-Backend (OpenMRS)
-- Endpoint: `POST /ws/rest/v1/ghana/patients` (register)
-- Endpoint: `GET /ws/rest/v1/ghana/patients/search?q={query}` (search, 50/page)
-- Auth: OpenMRS `Context`-based (session or Basic auth header)
-- Response (register): `{ uuid, ghanaCard (masked), folderNumber }`
-- PII: Mask identifiers and names in responses and audit logs.
+Backend (BFF + OpenMRS)
+- BFF Route: `POST /api/patients` (Next.js route handler)
+  - Duplicate check: `GET /openmrs/ws/rest/v1/patient?identifier={ghanaCard}` (409 if exists)
+  - Person create: `POST /openmrs/ws/rest/v1/person`
+  - Folder number: `POST /openmrs/ws/ghana/foldernumber/allocate` (preferred) or systemsetting fallback
+  - Patient create: `POST /openmrs/ws/rest/v1/patient` with identifiers [Ghana Card, Folder Number]
+  - Response: `{ success, patient: { uuid, ghanaCard(masked), folderNumber } }`
+- Search (placeholder): `GET /api/patients?q={query}` → proxies to OpenMRS
+- Auth: OpenMRS Basic (dev) managed by BFF; browser never calls OpenMRS directly in prod.
+- PII: Mask identifiers in responses and logs.

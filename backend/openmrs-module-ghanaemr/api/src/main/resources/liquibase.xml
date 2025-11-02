@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- 
+        NHIE Transaction Logging Table
+        Purpose: Track all NHIE API interactions for audit, retry logic, and debugging
+        Reference: AGENTS.md lines 763-783, docs/specs/queue-retry-policy.md
+    -->
+    <changeSet id="ghanaemr-nhie-transaction-log-1" author="ghana-emr">
+        <comment>Create NHIE transaction log table for tracking all NHIE API calls</comment>
+        
+        <createTable tableName="ghanaemr_nhie_transaction_log">
+            <!-- Primary Key -->
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            
+            <!-- Transaction Identification -->
+            <column name="transaction_id" type="VARCHAR(36)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            
+            <!-- Patient Reference (FK to patient table) -->
+            <column name="patient_id" type="INT">
+                <constraints nullable="true" 
+                             foreignKeyName="fk_nhie_txn_patient"
+                             referencedTableName="patient"
+                             referencedColumnNames="patient_id"/>
+            </column>
+            
+            <!-- Encounter Reference (FK to encounter table) - optional for patient-only submissions -->
+            <column name="encounter_id" type="INT">
+                <constraints nullable="true"
+                             foreignKeyName="fk_nhie_txn_encounter"
+                             referencedTableName="encounter"
+                             referencedColumnNames="encounter_id"/>
+            </column>
+            
+            <!-- FHIR Resource Type -->
+            <column name="resource_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- HTTP Method -->
+            <column name="http_method" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- NHIE Endpoint URL -->
+            <column name="endpoint" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- Request/Response Data (masked for PII) -->
+            <column name="request_body" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            
+            <column name="response_status" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            
+            <column name="response_body" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            
+            <!-- Retry Logic -->
+            <column name="retry_count" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- Transaction Status -->
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- Error Details -->
+            <column name="error_message" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            
+            <!-- NHIE Patient/Encounter ID (returned from NHIE) -->
+            <column name="nhie_resource_id" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            
+            <!-- Timestamps -->
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- Next Retry Time (for retry scheduler) -->
+            <column name="next_retry_at" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+            
+            <!-- User who initiated the transaction -->
+            <column name="creator" type="INT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_nhie_txn_creator"
+                             referencedTableName="users"
+                             referencedColumnNames="user_id"/>
+            </column>
+        </createTable>
+        
+        <!-- Indexes for Performance -->
+        <createIndex tableName="ghanaemr_nhie_transaction_log" indexName="idx_nhie_txn_patient_id">
+            <column name="patient_id"/>
+        </createIndex>
+        
+        <createIndex tableName="ghanaemr_nhie_transaction_log" indexName="idx_nhie_txn_encounter_id">
+            <column name="encounter_id"/>
+        </createIndex>
+        
+        <createIndex tableName="ghanaemr_nhie_transaction_log" indexName="idx_nhie_txn_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="ghanaemr_nhie_transaction_log" indexName="idx_nhie_txn_created_at">
+            <column name="created_at"/>
+        </createIndex>
+        
+        <!-- Composite index for retry queue queries -->
+        <createIndex tableName="ghanaemr_nhie_transaction_log" indexName="idx_nhie_txn_retry_queue">
+            <column name="status"/>
+            <column name="next_retry_at"/>
+            <column name="retry_count"/>
+        </createIndex>
+        
+        <!-- Index for transaction lookup -->
+        <createIndex tableName="ghanaemr_nhie_transaction_log" indexName="idx_nhie_txn_transaction_id">
+            <column name="transaction_id"/>
+        </createIndex>
+    </changeSet>
+    
+    <!--
+        NHIE Coverage Cache Table
+        Purpose: Cache NHIS eligibility check results to reduce NHIE API calls
+        TTL: 24 hours
+        Reference: AGENTS.md lines 657-662
+    -->
+    <changeSet id="ghanaemr-nhie-coverage-cache-1" author="ghana-emr">
+        <comment>Create NHIE coverage cache table for NHIS eligibility caching</comment>
+        
+        <createTable tableName="ghanaemr_nhie_coverage_cache">
+            <!-- Primary Key -->
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            
+            <!-- NHIS Number (unique - one cache entry per NHIS number) -->
+            <column name="nhis_number" type="VARCHAR(10)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            
+            <!-- Coverage Status -->
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- Coverage Period -->
+            <column name="valid_from" type="DATE">
+                <constraints nullable="true"/>
+            </column>
+            
+            <column name="valid_to" type="DATE">
+                <constraints nullable="true"/>
+            </column>
+            
+            <!-- FHIR Coverage Resource (full response for reference) -->
+            <column name="coverage_json" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            
+            <!-- Cache Metadata -->
+            <column name="cached_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="expires_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            
+            <!-- User who triggered the eligibility check -->
+            <column name="creator" type="INT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_nhie_coverage_creator"
+                             referencedTableName="users"
+                             referencedColumnNames="user_id"/>
+            </column>
+        </createTable>
+        
+        <!-- Index for NHIS number lookup -->
+        <createIndex tableName="ghanaemr_nhie_coverage_cache" indexName="idx_nhie_coverage_nhis">
+            <column name="nhis_number"/>
+        </createIndex>
+        
+        <!-- Index for expiry cleanup job -->
+        <createIndex tableName="ghanaemr_nhie_coverage_cache" indexName="idx_nhie_coverage_expires">
+            <column name="expires_at"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

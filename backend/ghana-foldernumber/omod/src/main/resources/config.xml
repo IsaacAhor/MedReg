@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module configVersion="2.0">
+    <id>ghana-foldernumber</id>
+    <name>Ghana Folder Number</name>
+    <version>0.1.0-SNAPSHOT</version>
+    <package>org.openmrs.module.ghanaemrfoldernumber</package>
+    <author>Ghana EMR Team</author>
+    <description>Thread-safe folder number generator for Ghana EMR</description>
+    <updateURL>https://example.org/modules/ghana-foldernumber/update</updateURL>
+    <activator>org.openmrs.module.ghanaemrfoldernumber.GhanaFolderNumberActivator</activator>
+    <require_version>2.6.0</require_version>
+</module>
+

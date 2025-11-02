@@ -15,8 +15,8 @@ Folder Number
 
 Identifier Types (OpenMRS)
 - `Ghana Card` (preferred)
-- `NHIS Number`
+- `NHIS Number` (person attribute)
 - `Folder Number`
 
 MVP Storage Decision
-- NHIS is stored as a Patient Identifier (not a Person Attribute) to align with search and interoperability needs in MVP.
+- NHIS is stored as a Person Attribute (searchable) in MVP to simplify identifier management; value is 10 digits. We can migrate to a patient identifier later if search scenarios require it.

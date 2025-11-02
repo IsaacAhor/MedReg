@@ -8,6 +8,11 @@ Ghana Card
 - Examples: valid `GHA-123456789-7`, `GHA-987654321-7`; invalid `GHA-123456789-0` (checksum).
 - Errors: clear messages for format vs checksum failures; reject on checksum fail.
 
+Server vs Frontend Enforcement
+- Frontend: enforces both regex and Luhn (real‑time form validation).
+- Server (OpenMRS): enforces regex only for now (stock Luhn validator is incompatible with `GHA-` prefix + hyphens).
+- Future: add a custom `GhanaCardIdentifierValidator` to server that strips non‑digits and applies Luhn to the first 9 digits.
+
 NHIS Number
 - Format: 10 digits (no hyphens, no letters). Regex: `^\d{10}$`.
 - Optional at registration; required for eligibility check and claims.

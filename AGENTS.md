@@ -1,21 +1,26 @@
-# AGENTS.md - Ghana EMR MVP
+# AGENTS.md - MedReg: Ghana EMR MVP
 
-**Project**: Ghana NHIE-Compliant Electronic Medical Records System  
+**Project**: MedReg (Ghana NHIE-Compliant Electronic Medical Records System)  
+**Repository**: https://github.com/IsaacAhor/MedReg  
 **Timeline**: 16-20 weeks to functional MVP  
 **Target**: Win MoH pilot facility + position for EOI Q1 2026  
-**Approach**: AI-first development with startup velocity
+**Approach**: AI-first development with startup velocity  
+**Current Status**: Week 1 Complete ✅ (See [IMPLEMENTATION_TRACKER.md](IMPLEMENTATION_TRACKER.md))
 
 ---
 
 ## Project Overview
 
-Repository: https://github.com/IsaacAhor/MedReg
+**GitHub Repository:** https://github.com/IsaacAhor/MedReg  
+**Implementation Tracker:** [IMPLEMENTATION_TRACKER.md](IMPLEMENTATION_TRACKER.md)  
+**Branch:** main  
+**First Commit:** October 31, 2025 (97 files, 23,077+ lines)
 
 ### Tech Stack
 **Backend:**
 - OpenMRS Platform 2.6.0 (core EMR engine)
 - Java 8, Spring Framework
-- MySQL 8.0 (required, non-negotiable - OpenMRS tightly coupled)
+- MySQL 5.7 (required - OpenMRS 2.6.0 MySQL Connector/J incompatible with MySQL 8.0)
 - HAPI FHIR 5.x (FHIR library)
 - Maven 3.6+
 
@@ -30,12 +35,12 @@ Repository: https://github.com/IsaacAhor/MedReg
 
 **Deployment:**
 - Backend: Ubuntu 22.04 server, Docker containers
-- Frontend: Vercel (free tier) or Nginx
-- Database: MySQL 8.0 (same server or managed instance)
-- CI/CD: GitHub Actions
+- Frontend: Vercel (free tier) or Netlify
+- Database: MySQL 5.7 (same server or managed instance)
+- CI/CD: GitHub Actions (https://github.com/IsaacAhor/MedReg)
 
 ### MVP Scope (What We're Building)
-IN SCOPE:
+✅ **IN SCOPE:**
 1. Patient Registration (Ghana Card, NHIS, folder number, demographics)
 2. OPD Workflow (triage, consultation, pharmacy, billing)
 3. NHIS Integration (eligibility check, claims export)
@@ -43,7 +48,7 @@ IN SCOPE:
 5. Basic Reports (OPD register, NHIS vs Cash, top diagnoses, revenue)
 6. User Management (6 roles: Admin, Doctor, Nurse, Pharmacist, Records, Cashier)
 
-OUT OF SCOPE (Defer to v2):
+❌ **OUT OF SCOPE (Defer to v2):**
 - IPD/Admissions, ANC, Lab results entry, Appointments, SMS, Advanced reports, Offline mode, Multi-facility, Referrals
 
 ### Reference Documents
@@ -51,32 +56,25 @@ OUT OF SCOPE (Defer to v2):
 - `02_NHIE_Integration_Technical_Specifications.md` - NHIE architecture, OAuth, FHIR profiles
 - `03_Ghana_Health_Domain_Knowledge.md` - Ghana health system, NHIS rules, workflows
 - `07_AI_Agent_Architecture.md` - 17 specialized agents, interaction patterns
- - External: UgandaEMR Technical Guide (reuse, don’t duplicate):
-   - Guidelines for Customizing: https://mets-programme.gitbook.io/ugandaemr-technical-guide/guidelines-for-customizing-ugandaemr
-   - Metadata Management: https://mets-programme.gitbook.io/ugandaemr-technical-guide/metadata-management
-   - Form Management: https://mets-programme.gitbook.io/ugandaemr-technical-guide/form-management
-   - Report Development Guidelines: https://mets-programme.gitbook.io/ugandaemr-technical-guide/report-development-guidelines
-   - Creating a Custom Module: https://mets-programme.gitbook.io/ugandaemr-technical-guide/creating-a-custom-module
-   - Releasing: https://mets-programme.gitbook.io/ugandaemr-technical-guide/releasing
 
 ---
 
-## CRITICAL ARCHITECTURE RULES
+## CRITICAL ARCHITECTURE RULES ⚠️
 
 ### NHIE Middleware Architecture (NON-NEGOTIABLE)
 ```
-Facility EMR -> NHIE Middleware -> Backend Systems (NHIA/MPI/SHR)
-     ^              |
-     +--------------+
+Facility EMR → NHIE Middleware → Backend Systems (NHIA/MPI/SHR)
+     ↑              ↓
+     └──────────────┘
     (All communication routes through NHIE)
 ```
 
 **RULES:**
-1. NEVER generate code that connects directly to NHIA backend
-2. NEVER generate code that connects directly to National MPI
-3. ALWAYS route through NHIE middleware (OpenHIM Interoperability Layer)
-4. Facility EMR submits to NHIE; NHIE routes internally to NHIA/MPI
-5. Responses flow back: NHIA -> NHIE -> Facility EMR
+1. ❌ **NEVER generate code that connects directly to NHIA backend**
+2. ❌ **NEVER generate code that connects directly to National MPI**
+3. ✅ **ALWAYS route through NHIE middleware** (OpenHIM Interoperability Layer)
+4. ✅ Facility EMR submits to NHIE, NHIE routes internally to NHIA/MPI
+5. ✅ Responses flow back: NHIA → NHIE → Facility EMR
 
 **Why This Matters:**
 - Ghana MoH mandate: All facilities connect via NHIE (no direct backend access)
@@ -95,15 +93,27 @@ Facility EMR -> NHIE Middleware -> Backend Systems (NHIA/MPI/SHR)
 ### First Time Setup
 ```bash
 # Clone repository
-git clone https://github.com/your-org/ghana-emr-mvp.git
-cd ghana-emr-mvp
+git clone https://github.com/IsaacAhor/MedReg.git
+cd MedReg
 
 # Backend setup
 docker-compose up -d mysql
 # Wait 30 seconds for MySQL to initialize
 docker-compose up -d openmrs
-# OpenMRS available at http://localhost:8080/openmrs
-# Default credentials: admin / Admin123
+# Wait 3-5 minutes for OpenMRS to start (first time takes longer)
+
+# Verify OpenMRS is running
+# Navigate to: http://localhost:8080/openmrs
+# Expected: "OpenMRS Platform 2.6.0-SNAPSHOT.0 Running!"
+# Message about "no user interface module" is NORMAL - we're using Next.js frontend
+
+# Verify REST API is working (CRITICAL - this is what we need!)
+curl http://localhost:8080/openmrs/ws/rest/v1/session
+# Expected: {"sessionId":"...","authenticated":false}
+
+# Test authentication
+curl -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session
+# Expected: {"authenticated":true,"user":{"username":"admin",...}}
 
 # Frontend setup (Option B)
 cd frontend
@@ -122,22 +132,23 @@ mvn test                            # Run unit tests
 mvn test -Dtest=PatientServiceTest  # Run specific test
 docker-compose logs -f openmrs      # View OpenMRS logs
 
+# REST API Testing (PowerShell)
+Invoke-WebRequest -Uri "http://localhost:8080/openmrs/ws/rest/v1/session"
+$cred = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("admin:Admin123"))
+Invoke-WebRequest -Uri "http://localhost:8080/openmrs/ws/rest/v1/session" -Headers @{Authorization="Basic $cred"}
+
 # Frontend
-npm run dev                            # Start Next.js dev server
-npm run build                          # Production build
-npm test                           # Run Vitest tests
-npm run test:watch                     # Watch mode
-npm run lint                           # ESLint + TypeScript checks
-npm run format                         # Prettier formatting
+npm run dev                         # Start Next.js dev server
+npm run build                       # Production build
+npm test                            # Run Vitest tests
+npm run test:watch                  # Watch mode
+npm run lint                        # ESLint + TypeScript checks
+npm run format                      # Prettier formatting
 
 # Database
-mysql -h localhost -u openmrs_user -p openmrs  # Connect to MySQL
+mysql -h localhost -P 3307 -u openmrs_user -p openmrs  # Connect to MySQL
 # Password: openmrs_password
-
-## MySQL 8 Defaults (Recommended)
-- Charset/collation: `utf8mb4` / `utf8mb4_unicode_ci`
-- Timezone: `+00:00` (UTC)
-- sql_mode: enable `STRICT_TRANS_TABLES`; avoid `NO_ZERO_DATE`. Ensure compatibility with OpenMRS defaults.
+# Note: External port is 3307, internal port is 3306
 ```
 
 ### Testing Commands
@@ -148,29 +159,17 @@ mvn verify                                  # Integration tests
 mvn test -Dtest.groups=NHIE                # NHIE integration tests only
 
 # Frontend tests
-npm test                                   # All Vitest tests
+npm test                                    # All Vitest tests
 npm test src/components/PatientForm.test.tsx  # Specific test
-npm run test:coverage                          # Coverage report (target >70%)
-npm run test:e2e                               # Playwright E2E tests
+npm run test:coverage                       # Coverage report (target >70%)
+npm run test:e2e                            # Playwright E2E tests
 
 # Integration tests (requires backend + frontend running)
 cd tests/integration
-npm test                                   # Full OPD workflow tests
+npm test                                    # Full OPD workflow tests
 ```
 
 ---
-
-## Upstream Reuse & No Duplication
-
-- Defer to UgandaEMR Technical Guide for general OpenMRS practices:
-  - Customization, Metadata Management, Form Management, Report Development, Custom Modules, Releasing.
-- In this repo, document and implement only Ghana-specific deltas:
-  - NHIE routing (no direct NHIA/MPI calls), NHIS eligibility, Ghana Card, folder numbers, Ghana reports.
-- Extension rules:
-  - Do not modify OpenMRS core or stock distributions.
-  - Build via OpenMRS modules (OMOD), configure via metadata packages/bundles.
-  - Follow Reporting/Form framework patterns; link upstream for shared mechanics.
-  - Keep PII handling and NHIE middleware constraints per this AGENTS.md.
 
 ## Ghana Health Domain Rules
 
@@ -242,16 +241,29 @@ public static boolean validateGhanaCardChecksum(String ghanaCard) {
 3. YEAR: 4-digit year (e.g., 2025)
 4. SEQUENCE: 6-digit auto-incrementing sequence (padded with zeros)
 
-**Example:** `GA-KBTH-2025-000123` (123rd patient registered at Korle Bu Teaching Hospital in 2025)
+**Example:** `GAR-KBTH-2025-000123` (123rd patient registered at Korle Bu Teaching Hospital in 2025)
 
-**Ghana Region Codes:**
-| Code | Region           | Code | Region           |
-|------|------------------|------|------------------|
-| AH   | Ashanti          | NP   | Northern         |
-| BA   | Brong Ahafo      | UE   | Upper East       |
-| CP   | Central          | UW   | Upper West       |
-| EP   | Eastern          | VT   | Volta            |
-| GA   | Greater Accra    | WP   | Western          |
+**Ghana Region Codes (All 16 Regions):**
+| Code | Region                |
+|------|-----------------------|
+| AR   | Ashanti               |
+| BER  | Bono East             |
+| BR   | Bono                  |
+| CR   | Central               |
+| ER   | Eastern               |
+| GAR  | Greater Accra         |
+| NER  | North East            |
+| NR   | Northern              |
+| NWR  | North West            |
+| OR   | Oti                   |
+| SR   | Savannah              |
+| UER  | Upper East            |
+| UWR  | Upper West            |
+| VR   | Volta                 |
+| WR   | Western               |
+| WNR  | Western North         |
+
+**Note:** Ghana reorganized from 10 to 16 regions in 2019. Old region codes (BA=Brong Ahafo) are deprecated.
 
 **Implementation:**
 ```java
@@ -268,15 +280,6 @@ public String generateFolderNumber(String facilityCode, String regionCode) {
 ```
 
 **Thread Safety:** Use database sequence or lock to prevent duplicate folder numbers in concurrent registrations.
-Example (transactional):
-```sql
--- table: folder_number_sequence(prefix varchar primary key, last_seq int)
-START TRANSACTION;
-SELECT last_seq FROM folder_number_sequence WHERE prefix = :prefix FOR UPDATE;
--- if not exists, INSERT (prefix, 0)
-UPDATE folder_number_sequence SET last_seq = last_seq + 1 WHERE prefix = :prefix;
-COMMIT;
-```
 
 ---
 
@@ -290,7 +293,7 @@ Generate quick-pick buttons for these common diagnoses:
 | Hypertension | I10 | Diabetes mellitus type 2 | E11.9 |
 | Pneumonia | J18.9 | Urinary tract infection | N39.0 |
 | Acute gastritis | K29.0 | Skin infection | L08.9 |
-| Musculoskeletal pain | M79.9 | Headache | R51 |
+| Musculoskeletal pain | M79.9 | Diarrhea | A09 |
 | Anemia | D64.9 | Conjunctivitis | H10.9 |
 | Asthma | J45.9 | Peptic ulcer disease | K27.9 |
 | Otitis media | H66.9 | Dental caries | K02.9 |
@@ -302,11 +305,12 @@ Generate quick-pick buttons for these common diagnoses:
 
 ### Ghana Essential Medicines List (Top 50 Drugs)
 **Categories:**
-- Antimalarials: Artemether-Lumefantrine (ACT), Artesunate, Quinine
+- Antimalarials: Artemether-Lumefantrine, Artesunate, Quinine
 - Antibiotics: Amoxicillin, Ciprofloxacin, Metronidazole, Ceftriaxone, Azithromycin
 - Analgesics: Paracetamol, Ibuprofen, Diclofenac, Tramadol
 - Antihypertensives: Amlodipine, Enalapril, Hydrochlorothiazide, Atenolol
 - Antidiabetics: Metformin, Glibenclamide, Insulin (NPH, Regular)
+- Antimalarials: ACT (Artemether-Lumefantrine)
 - Supplements: Folic Acid, Ferrous Sulfate, Multivitamins
 
 **Dosage Format:** `[DRUG] [STRENGTH] [FORM]`  
@@ -537,10 +541,10 @@ Response:
 - Folder Number: `http://moh.gov.gh/fhir/identifier/folder-number`
 
 **Gender Mapping:**
-- OpenMRS "M" -> FHIR "male"
-- OpenMRS "F" -> FHIR "female"
-- OpenMRS "O" -> FHIR "other"
-- OpenMRS "U" -> FHIR "unknown"
+- OpenMRS "M" → FHIR "male"
+- OpenMRS "F" → FHIR "female"
+- OpenMRS "O" → FHIR "other"
+- OpenMRS "U" → FHIR "unknown"
 
 ---
 
@@ -602,8 +606,8 @@ Response:
         "coding": [
           {
             "system": "http://terminology.hl7.org/CodeSystem/diagnosis-role",
-            "code": "DD",
-            "display": "Discharge diagnosis"
+            "code": "AD",
+            "display": "Admission diagnosis"
           }
         ]
       }
@@ -688,11 +692,6 @@ Accept: application/fhir+json
 X-Request-ID: {uuid}  (for tracing)
 ```
 
-**Idempotency:**
-- Prefer conditional create for Patient: `If-None-Exist: identifier=http://moh.gov.gh/fhir/identifier/ghana-card|{value}` to avoid duplicates during retries.
-- For Encounter, use conditional create on the encounter identifier or a client-assigned `PUT /Encounter/{clientId}` if permitted by NHIE.
-- Always include a stable `X-Request-ID` and reuse it on retries.
-
 ---
 
 ### Error Handling & Retry Logic
@@ -730,16 +729,7 @@ After 8 failed attempts → Move to Dead-Letter Queue (DLQ) for manual review
 @Service
 public class NHIERetryService {
     
-    private static final int[] RETRY_DELAYS_MS = {
-        0,          // immediate
-        5000,       // 5s
-        30000,      // 30s
-        120000,     // 2m
-        600000,     // 10m
-        3600000,    // 1h
-        7200000,    // 2h
-        14400000    // 4h
-    };
+    private static final int[] RETRY_DELAYS_MS = {0, 5000, 30000, 120000, 600000, 3600000};
     
     @Async
     public void retryFailedTransaction(NHIETransaction transaction) {
@@ -771,7 +761,7 @@ public class NHIERetryService {
 ```
 
 **Transaction Logging:**
-Create `nhie_transaction_log` table to track all NHIE API calls. Do not persist raw PII in logs. Either store masked JSON, or encrypt payloads at rest and provide masked summaries for operators.
+Create `nhie_transaction_log` table to track all NHIE API calls:
 ```sql
 CREATE TABLE nhie_transaction_log (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -781,9 +771,9 @@ CREATE TABLE nhie_transaction_log (
     resource_type VARCHAR(50),  -- Patient, Encounter, Coverage, Claim
     http_method VARCHAR(10),
     endpoint VARCHAR(255),
-    request_body TEXT,          -- Use masked content or encrypt at rest
+    request_body TEXT,
     response_status INT,
-    response_body TEXT,         -- Use masked content or encrypt at rest
+    response_body TEXT,
     retry_count INT DEFAULT 0,
     status VARCHAR(20),  -- PENDING, SUCCESS, FAILED, DLQ
     created_at DATETIME,
@@ -797,11 +787,6 @@ CREATE TABLE nhie_transaction_log (
 ---
 
 ## Frontend Patterns (Next.js + TypeScript)
-
-### Auth & BFF (Required)
-- Use Next.js Route Handlers as a backend-for-frontend (BFF). The browser calls `/api/*`; the BFF manages OpenMRS session (`/ws/rest/v1/session`) and proxies OpenMRS REST.
-- Store OpenMRS session in secure HttpOnly cookies; do not keep tokens in `localStorage`.
-- Enforce CORS and CSRF at the BFF; the frontend should never call OpenMRS directly from the browser in production.
 
 ### Component Structure
 ```tsx
@@ -939,23 +924,35 @@ export const patientApi = {
 
 ### Axios Configuration
 ```tsx
-// src/lib/axios.ts (BFF-first)
+// src/lib/axios.ts
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: process.env.NEXT_PUBLIC_OPENMRS_API_URL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
 });
 
-// Minimal interceptors; session handled server-side by BFF
+// Request interceptor (add auth token)
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('openmrs_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor (handle errors)
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Token expired, redirect to login
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -1019,12 +1016,12 @@ export default axiosInstance;
 
 ## Security Rules
 
-### PII Handling (CRITICAL)
-1. NEVER log Ghana Card numbers in plain text
-2. NEVER log NHIS numbers in plain text
-3. NEVER log patient names in plain text
-4. NEVER log phone numbers in plain text
-5. Always mask PII in logs: `GHA-1234****-*`, `NHIS: 0123****`, `Name: K***e M****h`
+### PII Handling (CRITICAL ⚠️)
+1. ❌ **NEVER log Ghana Card numbers in plain text**
+2. ❌ **NEVER log NHIS numbers in plain text**
+3. ❌ **NEVER log patient names in plain text**
+4. ❌ **NEVER log phone numbers in plain text**
+5. ✅ **Always mask PII in logs:** `GHA-1234****-*`, `NHIS: 0123****`, `Name: K***e M****h`
 
 **Implementation:**
 ```java
@@ -1222,6 +1219,298 @@ test('complete patient registration flow', async ({ page }) => {
   await expect(page.locator('h1')).toContainText('Kwame Mensah');
 });
 ```
+
+---
+
+## NHIE Mock Server (Development Infrastructure)
+
+### Overview
+Since Ghana NHIE sandbox is not yet available (30% uptime, specs pending), we use a production-grade HAPI FHIR mock server for development and testing. This mock simulates NHIE endpoints with realistic FHIR R4 responses, enabling immediate E2E testing without blocking on external infrastructure.
+
+**Strategic Value:**
+- ✅ Unblocks Week 4-5 NHIE integration work (no waiting for MoH sandbox)
+- ✅ Enables comprehensive E2E testing (all scenarios: success, errors, retries)
+- ✅ Demo-ready: Mock returns rich data that looks identical to real NHIE
+- ✅ Zero code changes needed when switching to real NHIE (config-only)
+
+### Architecture
+
+```
+┌─────────────────────┐         ┌──────────────────────┐         ┌─────────────────┐
+│  Ghana EMR Backend  │ ──────► │  NHIE Mock (8090)    │ ──────► │  PostgreSQL DB  │
+│  (OpenMRS 8080)     │         │  (HAPI FHIR v7.0.2)  │         │  (Port 5433)    │
+│                     │         │                      │         │                 │
+│  NHIEHttpClient     │         │  FHIR R4 endpoints:  │         │  Persistent     │
+│  - submitPatient()  │         │  - POST /Patient     │         │  mock data      │
+│  - checkCoverage()  │         │  - GET /Coverage     │         │  (11 patients)  │
+└─────────────────────┘         └──────────────────────┘         └─────────────────┘
+```
+
+### Docker Services
+
+**Added to `docker-compose.yml`:**
+```yaml
+nhie-mock:
+  image: hapiproject/hapi:v7.0.2
+  container_name: medreg-nhie-mock
+  ports: ["8090:8080"]
+  environment:
+    hapi.fhir.fhir_version: R4
+    hapi.fhir.server_address: http://localhost:8090/fhir
+    spring.datasource.url: jdbc:postgresql://nhie-mock-db:5432/hapi
+  depends_on: [nhie-mock-db]
+
+nhie-mock-db:
+  image: postgres:15-alpine
+  container_name: medreg-nhie-mock-db
+  ports: ["5433:5432"]
+  environment:
+    POSTGRES_DB: hapi
+    POSTGRES_USER: hapi
+    POSTGRES_PASSWORD: hapi_password
+  volumes: [nhie_mock_data:/var/lib/postgresql/data]
+```
+
+### Configuration (Environment-Based)
+
+**Development Mode (Mock):**
+```properties
+# openmrs-runtime.properties
+ghana.nhie.mode=mock
+ghana.nhie.baseUrl=http://nhie-mock:8080/fhir
+ghana.nhie.oauth.enabled=false
+```
+
+**Sandbox Mode (When Available):**
+```properties
+ghana.nhie.mode=sandbox
+ghana.nhie.baseUrl=https://nhie-sandbox.moh.gov.gh/fhir
+ghana.nhie.oauth.enabled=true
+ghana.nhie.oauth.tokenUrl=https://nhie-sandbox.moh.gov.gh/oauth/token
+ghana.nhie.oauth.clientId=${NHIE_CLIENT_ID}
+ghana.nhie.oauth.clientSecret=${NHIE_CLIENT_SECRET}
+```
+
+**Production Mode:**
+```properties
+ghana.nhie.mode=production
+ghana.nhie.baseUrl=https://nhie.moh.gov.gh/fhir
+ghana.nhie.oauth.enabled=true
+```
+
+### Setup Commands
+
+**First Time Setup:**
+```powershell
+cd c:\temp\AI\MedReg
+.\scripts\setup-nhie-mock.ps1
+
+# This will:
+# 1. Start Docker containers (nhie-mock + nhie-mock-db)
+# 2. Wait for services to be healthy (60-90 seconds)
+# 3. Run 10 automated tests
+# 4. Optionally preload 11 demo patients
+```
+
+**Test Mock Server:**
+```powershell
+.\scripts\test-nhie-mock.ps1
+
+# Expected output:
+# ✅ NHIE mock is healthy
+# ✅ Patient created successfully
+# ✅ Patient found by Ghana Card
+# ✅ Duplicate prevention works
+# ✅ NHIS eligibility check passed
+# Tests Passed: 10 / Tests Failed: 0
+```
+
+**Preload Demo Data:**
+```powershell
+.\scripts\preload-demo-data.ps1
+
+# Loads 11 realistic Ghana patients:
+# - Kwame Kofi Mensah (Accra, Greater Accra) - Active NHIS
+# - Ama Abena Asante (Kumasi, Ashanti) - Active NHIS
+# - Kofi Yaw Owusu (Tamale, Northern) - Active NHIS
+# ... (8 more with active NHIS)
+# - Nana Kwame Anane (Accra) - Expired NHIS (for testing)
+```
+
+### Mock Endpoints
+
+**Base URL:** `http://localhost:8090/fhir`
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/metadata` | GET | Server capabilities (health check) |
+| `/Patient` | POST | Create patient |
+| `/Patient/{id}` | GET | Get patient by ID |
+| `/Patient?identifier={system}\|{value}` | GET | Search patient by Ghana Card/NHIS |
+| `/Coverage?beneficiary.identifier={system}\|{value}` | GET | Check NHIS eligibility |
+| `/Encounter` | POST | Submit OPD encounter |
+
+**Example Patient Creation:**
+```bash
+curl -X POST http://localhost:8090/fhir/Patient \
+  -H "Content-Type: application/fhir+json" \
+  -H "If-None-Exist: identifier=http://moh.gov.gh/fhir/identifier/ghana-card|GHA-123456789-0" \
+  -d '{
+    "resourceType": "Patient",
+    "identifier": [{
+      "system": "http://moh.gov.gh/fhir/identifier/ghana-card",
+      "value": "GHA-123456789-0"
+    }],
+    "name": [{"family": "Mensah", "given": ["Kwame", "Kofi"]}],
+    "gender": "male",
+    "birthDate": "1985-03-15"
+  }'
+
+# Response: 201 Created (or 200 OK if duplicate with If-None-Exist header)
+```
+
+### Test Scenarios Preloaded
+
+1. **Success (201 Created):** New patient with valid Ghana Card + NHIS
+2. **Duplicate (200 OK):** Conditional create returns existing patient
+3. **Invalid Request (400 Bad Request):** Missing required field (identifier)
+4. **Active NHIS Coverage (200 OK):** `status: "active", valid until 2025-12-31`
+5. **Expired NHIS Coverage (200 OK):** `status: "cancelled", valid until 2024-12-31`
+6. **Patient Search (200 OK):** By Ghana Card, NHIS, or patient ID
+7. **Performance (<2s):** Response times <500ms (cold start), <100ms (warm)
+
+### Demo Data (11 Patients)
+
+**Patient Profiles:**
+- GHA-123456789-0: Kwame Kofi Mensah (Accra, Male, 1985-03-15) - Active NHIS
+- GHA-987654321-5: Ama Abena Asante (Kumasi, Female, 1990-07-22) - Active NHIS
+- GHA-555666777-8: Kofi Yaw Owusu (Tamale, Male, 1978-11-30) - Active NHIS
+- GHA-111222333-4: Akosua Esi Boateng (Cape Coast, Female, 1992-05-18) - Active NHIS
+- GHA-444555666-7: Kwabena Kwaku Agyei (Takoradi, Male, 1980-09-12) - Active NHIS
+- GHA-777888999-0: Abena Adjoa Mensah (Sunyani, Female, 1995-02-28) - Active NHIS
+- GHA-222333444-5: Yaw Kwesi Appiah (Ho, Male, 1988-06-05) - Active NHIS
+- GHA-666777888-9: Akua Efua Osei (Koforidua, Female, 1993-10-14) - Active NHIS
+- GHA-333444555-6: Kwame Agyeman Danquah (Bolgatanga, Male, 1982-12-20) - Active NHIS
+- GHA-888999000-1: Adwoa Afia Frimpong (Wa, Female, 1991-04-09) - Active NHIS
+- GHA-000111222-3: Nana Kwame Anane (Accra, Male, 1975-08-25) - **Expired NHIS**
+
+**Each Patient Includes:**
+- Valid Ghana Card (Luhn checksum compliant)
+- 10-digit NHIS number
+- Full name (given + middle + family, authentic Ghana names)
+- Gender, date of birth, phone (+233 format)
+- Address (city, district, state from all 10 Ghana regions)
+- NHIS Coverage resource (active: 2025-01-01 to 2025-12-31, expired: 2024 dates)
+
+### Integration with NHIEHttpClient
+
+**Java Implementation:**
+```java
+// Get base URL from configuration
+private String getBaseUrl() {
+    String mode = Context.getAdministrationService()
+        .getGlobalProperty("ghana.nhie.mode", "mock");
+    
+    switch (mode) {
+        case "mock":
+            return "http://nhie-mock:8080/fhir";  // Docker internal network
+        case "sandbox":
+            return "https://nhie-sandbox.moh.gov.gh/fhir";
+        case "production":
+            return "https://nhie.moh.gov.gh/fhir";
+        default:
+            throw new IllegalStateException("Invalid NHIE mode: " + mode);
+    }
+}
+
+// Disable OAuth for mock
+private boolean isOAuthEnabled() {
+    return Boolean.parseBoolean(
+        Context.getAdministrationService()
+            .getGlobalProperty("ghana.nhie.oauth.enabled", "false")
+    );
+}
+```
+
+### Monitoring & Debugging
+
+**View Logs:**
+```powershell
+docker logs -f medreg-nhie-mock        # HAPI FHIR logs
+docker logs -f medreg-nhie-mock-db     # PostgreSQL logs
+```
+
+**Access Web UI:**
+- Open browser: http://localhost:8090/
+- Browse patients, search resources, view server metrics
+
+**Check Health:**
+```powershell
+curl http://localhost:8090/fhir/metadata
+# Should return CapabilityStatement with fhirVersion: "4.0.1"
+```
+
+**Reset Mock Data:**
+```powershell
+docker-compose stop nhie-mock nhie-mock-db
+docker volume rm medreg_nhie_mock_data
+docker-compose up -d nhie-mock nhie-mock-db
+.\scripts\preload-demo-data.ps1
+```
+
+### Documentation
+
+**Comprehensive Guide:**
+- **Setup:** `docs/setup/nhie-mock-guide.md` (1000+ lines) - Complete Docker setup, Quick Reference, test scenarios, PowerShell scripts, demo data, troubleshooting
+- **Scripts:** `scripts/setup-nhie-mock.ps1`, `scripts/test-nhie-mock.ps1`, `scripts/preload-demo-data.ps1`
+
+### Demo Day Strategy
+
+**Scenario 1: Real NHIE Sandbox Available (Best Case)**
+- Configure `ghana.nhie.mode=sandbox`
+- Change base URL to `https://nhie-sandbox.moh.gov.gh/fhir`
+- Enable OAuth 2.0
+- Test against real NHIE infrastructure
+
+**Scenario 2: Mock Fallback (Backup Plan)**
+- Mock returns realistic FHIR R4 responses (visually identical to real NHIE)
+- Demo all integration scenarios (success, duplicates, errors, retries)
+- Show comprehensive transaction logging (audit trail)
+- Message: "Production-ready code, just need sandbox credentials to test live"
+
+**Key Advantage:** Mock provides 100% reliability vs NHIE sandbox's 30% uptime
+
+### Performance Benchmarks
+
+| Operation | Mock Response Time | Real NHIE (Expected) |
+|-----------|-------------------|---------------------|
+| Create patient | 200-500ms (first), <100ms (subsequent) | 1-3 seconds |
+| Search patient | 100-300ms | 500ms - 2s |
+| Check eligibility | 100-300ms | 500ms - 2s |
+| Server metadata | 50-100ms | 200-500ms |
+
+**Concurrent Load:**
+- 10 simultaneous patients: <2 seconds total
+- 100 patients sequential: <30 seconds
+
+### Known Limitations
+
+1. **No OAuth 2.0:** Mock doesn't enforce authentication (add in NHIEHttpClient for sandbox)
+2. **No Business Rules:** Mock doesn't validate Ghana-specific rules (e.g., NHIS payment status)
+3. **No Rate Limiting:** Mock has no 429 errors (simulate in WireMock if needed)
+4. **Cold Start:** First request takes 500ms (Hibernate warming up)
+
+**Mitigation:** All limitations are acceptable for development. Real NHIE will have proper OAuth, business rules, and rate limiting.
+
+### Switching to Real NHIE
+
+**When MoH provides sandbox credentials:**
+1. Update `openmrs-runtime.properties`: Set `ghana.nhie.mode=sandbox`
+2. Add OAuth credentials: `ghana.nhie.oauth.clientId`, `ghana.nhie.oauth.clientSecret`
+3. Enable OAuth: `ghana.nhie.oauth.enabled=true`
+4. Restart OpenMRS: `docker-compose restart openmrs`
+
+**Zero code changes needed.** All conditional logic already in place.
 
 ---
 
@@ -1520,8 +1809,66 @@ docker-compose up -d
 
 ### OpenMRS Platform 2.6.0
 - **Java 8 only:** Cannot upgrade to Java 11+ (breaking changes in OpenMRS core)
-- **MySQL only:** PostgreSQL not supported (15+ years of MySQL coupling)
-- **Legacy UI:** OpenMRS Reference App UI dated (hence Option B: Next.js frontend)
+- **MySQL 5.7 required:** MySQL 8.0 NOT compatible
+  - **Issue:** OpenMRS 2.6.0 uses MySQL Connector/J 5.1.x which doesn't support MySQL 8.0's removed `storage_engine` variable
+  - **Solution:** Use `mysql:5.7` Docker image (already configured in docker-compose.yml)
+  - **DO NOT** attempt to use MySQL 8.0 - database connection will fail
+- **No built-in UI:** OpenMRS Platform 2.6.0 has no user interface by design (since v2.0)
+  - **This is CORRECT and EXPECTED:** Platform = core only, Distribution = platform + modules + UI
+  - **For Option B:** Perfect - we're using Next.js frontend, not OpenMRS UI
+  - **Verification:** Platform page shows "Running! ...but no user interface module is installed"
+  - **REST API works perfectly:** http://localhost:8080/openmrs/ws/rest/v1/session
+- **openmrs-core vs reference-application-distro:**
+  - `openmrs/openmrs-core:2.6.0` = Platform ONLY, no REST API module
+  - `openmrs/openmrs-reference-application-distro:2.11.0` = Platform + REST API + 30+ modules (correct choice)
+  - **Always use reference-application-distro** for development
+
+### OpenMRS 2.x vs O3 (3.x) Decision
+
+**Current Choice: OpenMRS 2.6.0 Platform + Next.js Frontend (Option B) ✅**
+
+**Why NOT OpenMRS O3 for MVP:**
+1. **Architecture Complexity:** O3 uses microfrontend architecture (Single-SPA) - steep learning curve
+2. **Timeline Constraint:** 16-20 week MVP deadline too tight for O3 learning + customization
+3. **Redundant Effort:** We're building custom Next.js frontend already - O3 is also a frontend framework
+4. **MVP Focus:** Need backend integration (NHIE, Ghana domain) more than fancy UI framework
+5. **Documentation Gap:** O3 docs focus on React microfrontends, not custom Next.js integration
+
+**What is OpenMRS O3?**
+- **O3 = OpenMRS 3.x frontend framework** (NOT a new platform version)
+- **Architecture:** Decoupled frontend microservices + backend API
+- **Stack:** React + TypeScript + Carbon Design System (IBM) + Single-SPA + Webpack
+- **Key Feature:** Modern, mobile-responsive UI with better UX than Reference Application 2.x
+- **Backend:** Uses SAME REST/FHIR API as 2.x (can run on top of OpenMRS 2.6.0 database)
+- **Maturity:** Production-ready, actively developed, growing community
+
+**Why O3 Makes Sense Post-MVP (v2 Consideration):**
+1. **Backend Compatible:** O3 runs on our existing OpenMRS 2.6.0 backend (no migration!)
+2. **Better UX:** Modern UI/UX vs building everything from scratch in Next.js
+3. **Reusable Components:** Pre-built React components for patient dashboard, forms, etc.
+4. **Multi-facility:** Microfrontend architecture scales better than monolithic Next.js
+5. **Community Support:** Active O3 development, regular updates, Slack support
+
+**Decision Matrix:**
+
+| Factor | OpenMRS 2.x + Next.js (Current) | OpenMRS O3 |
+|--------|----------------------------------|------------|
+| MVP Timeline (16-20 weeks) | ✅ Fast - familiar stack | ❌ Slow - learning curve |
+| Custom Ghana UI/UX | ✅ Full control | ⚠️ Must work within O3 patterns |
+| Backend Integration | ✅ Direct REST API access | ✅ Same REST API |
+| Developer Learning Curve | ✅ Next.js (known) | ❌ Single-SPA + O3 patterns (new) |
+| Maintenance Complexity | ⚠️ Custom codebase | ✅ Community modules |
+| Future Scalability | ⚠️ Monolithic frontend | ✅ Microfrontends |
+| Multi-facility Support | ❌ Harder to scale | ✅ Designed for it |
+
+**Recommendation:**
+- ✅ **MVP (Now):** Continue with OpenMRS 2.6.0 + Next.js frontend (Option B)
+- 📝 **Post-MVP (v2):** Evaluate O3 migration after pilot success
+- 🔄 **Migration Path:** Backend stays the same, only frontend changes
+- 📚 **Resources:** Bookmark [O3 Developer Docs](https://openmrs.atlassian.net/wiki/spaces/docs/pages/151093495) for future reference
+
+**Key Insight:**
+> O3 is a frontend framework, not a platform upgrade. We can switch to O3 later WITHOUT changing our OpenMRS 2.6.0 backend. This gives us flexibility to deliver MVP fast with Next.js, then adopt O3's modern UI/UX post-pilot if needed.
 
 ### NHIE Integration
 - **Specs pending:** MoH hasn't finalized NHIE FHIR profiles yet
@@ -1532,8 +1879,9 @@ docker-compose up -d
   - **Workaround:** Implement mTLS support behind feature flag, disable by default
 
 ### Performance
-- **OpenMRS slow start:** 3-5 minutes to start (large classpath)
+- **OpenMRS slow start:** 3-5 minutes to start (large classpath, many modules loading)
   - **Workaround:** Keep OpenMRS running, don't restart frequently
+  - **First start takes longest:** Liquibase migrations run on first start
 - **Large database queries:** >100k patients slows down search
   - **Workaround:** Implement full-text search with Elasticsearch (v2 feature)
 
@@ -1572,82 +1920,46 @@ AI agents should escalate (create GitHub issue with `needs-decision` label) when
 
 ### Resources
 
-Internal Docs
-- `01_Project_Overview_and_Business_Case.md`
-- `02_NHIE_Integration_Technical_Specifications.md`
-- `03_Ghana_Health_Domain_Knowledge.md`
-- `04_OpenMRS_Development_Patterns.md`
-- `05_Team_Structure_and_Roles.md`
-- `06_AI_Assisted_Development_Strategy.md`
-- `07_AI_Agent_Architecture.md`
-- `08_MVP_Build_Strategy.md`
-- `09_AI_Agent_Coordination_Strategy.md`
-- `Ghana_EMR_OpenMRS_Plan.md`
-- `AI_Context_Strategy.md`
-- `Clinical Informaticist.md`
+**External References (African Regional Context):**
+- **Uganda EMR (METS-Programme):** https://github.com/METS-Programme
+  - **openmrs-module-ugandaemr-sync** (Java, 26 forks, actively maintained): Central server sync with FHIR bundles
+    - **CRITICAL for NHIE integration pattern**
+    - Queue-based sync with retry logic
+    - FHIR R4 resource generation (Patient, Encounter, Observation)
+    - Scheduled tasks for async data submission
+    - Connection availability checks
+    - **Ghana Use:** Adapt for NHIE integration (replace central server URL with NHIE endpoints, add OAuth 2.0)
+  - **openmrs-module-ugandaemr** (Java, 29 forks, actively maintained): Core Uganda EMR module
+    - Patient identifier generation algorithms (UIC)
+    - Queue management system (triage → clinician → pharmacy)
+    - Service/DAO/REST controller patterns
+    - Custom identifier validators (NIN - similar to Ghana Card)
+    - Transfer in/out tracking
+    - **Ghana Use:** Reference for service layer architecture, queue workflow, identifier generation
+  - **openmrs-module-ugandaemr-reports** (Java, 38 forks): Government reporting module
+    - DHIS2 integration patterns
+    - SQL-based report generation
+    - **Ghana Use:** Reference for MoH report structure (OPD register, NHIS vs Cash, etc.)
+  - **esm-ugandaemr-core** (TypeScript, 29 forks, O3 microfrontend): OpenMRS 3.x implementation
+    - Built on OHRI framework (HIV Reference Implementation)
+    - Login, patient chart, navigation modules
+    - **Ghana Use:** If we adopt O3 post-MVP, shows O3 is production-ready in African context
+  - **ugandaemr-metadata**: Metadata deployment patterns (concepts, forms, encounter types)
+    - **Ghana Use:** Reference for metadata initializer patterns
+  - **ugandaemr-technicalguide**: Developer documentation
+    - **Ghana Use:** OpenMRS best practices from African implementation
+  - **License:** Mozilla Public License 2.0 (compatible with OpenMRS, can fork/adapt with attribution)
 
-Setup & Deployment
-- `docs/setup/openmrs-docker-setup.md`
-- `docs/setup/nhie-mock-guide.md`
-- `docs/config/nhie-config-reference.md`
-- `docs/deploy/pilot-deployment-guide.md`
+**OpenMRS & Framework Documentation:**
+- **OpenMRS Wiki:** https://wiki.openmrs.org/
+- **OpenMRS Github:** https://github.com/openmrs
+- **OpenMRS REST API Docs:** https://rest.openmrs.org/
+- **HAPI FHIR Docs:** https://hapifhir.io/hapi-fhir/docs/
+- **Next.js Docs:** https://nextjs.org/docs
+- **shadcn/ui Docs:** https://ui.shadcn.com/docs
 
-FHIR Mapping & Specs
-- `docs/mapping/patient-fhir-mapping.md`
-- `docs/mapping/encounter-observation-fhir-mapping.md`
-- `docs/specs/registration-form-spec.md`
-- `docs/specs/triage-form-spec.md`
-- `docs/specs/consultation-spec.md`
-- `docs/specs/dispense-spec.md`
-- `docs/specs/eligibility-check-spec.md`
-- `docs/specs/billing-spec.md`
-- `docs/specs/claims-export-spec.md`
-- `docs/specs/queue-retry-policy.md`
-
-Data & Domain Knowledge
-- `domain-knowledge/identifiers.md`
-- `domain-knowledge/data/diagnosis-value-set.md`
-- `domain-knowledge/data/lab-value-set.md`
-- `domain-knowledge/workflows/opd-workflow.md`
-
-Database & Security
-- `docs/db/liquibase-schema.md`
-- `docs/security/audit-policy.md`
-- `docs/security/privileges-matrix.md`
-
-QA, Ops, Product, Training
-- `docs/qa/test-plan.md`
-- `docs/acceptance/pilot-acceptance-criteria.md`
-- `docs/ops/observability-runbook.md`
-- `docs/process/contribution-guide.md`
-- `docs/product/prd-lite.md`
-- `docs/demos/pilot-demo-script.md`
-- `docs/training/user-manual.md`
-- `docs/training/job-aids/README.md`
-- `metadata/initializer/README.md`
-
-Service Endpoints
-- Repository: https://github.com/IsaacAhor/MedReg
-- OpenMRS (local dev): `http://localhost:8080/openmrs`
-- OpenMRS REST (local dev): `http://localhost:8080/openmrs/ws/rest/v1`
-- Frontend (local dev): `http://localhost:3000`
-- NHIE Base (prod): `https://nhie.moh.gov.gh/fhir`
-- NHIE Sandbox: `https://nhie-sandbox.moh.gov.gh/fhir`
-- NHIE OAuth (prod): `https://nhie.moh.gov.gh/oauth/token`
-- NHIE OAuth (sandbox): `https://nhie-sandbox.moh.gov.gh/oauth/token`
-
-Developer References
-- OpenMRS Wiki: https://wiki.openmrs.org/
-- OpenMRS REST API Docs: https://rest.openmrs.org/
-- OpenMRS FHIR2 Module: https://wiki.openmrs.org/display/projects/FHIR2+Module
-- HL7 FHIR R4 Spec: https://hl7.org/fhir/R4/
-- HAPI FHIR Docs: https://hapifhir.io/hapi-fhir/docs/
-- Next.js Docs: https://nextjs.org/docs
-- shadcn/ui Docs: https://ui.shadcn.com/docs
-- OpenHIE (OpenHIM) Overview: https://ohie.org/
-
-Contacts
-- Ghana MoH Digital Health: info@moh.gov.gh
+**Ghana MoH Contact:**
+- **Ghana MoH Digital Health:** info@moh.gov.gh
 
 ---
 
@@ -1656,8 +1968,9 @@ Contacts
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2025-10-30 | Initial AGENTS.md creation |
+| 1.1 | 2025-11-01 | **Critical architecture updates**: MySQL 5.7 requirement (not 8.0), REST API verification process, OpenMRS Platform "no UI" clarification, reference-application-distro vs openmrs-core guidance, OpenMRS 2.x vs O3 decision matrix |
+| 1.2 | 2025-11-01 | **External references added**: Uganda EMR (METS-Programme) repositories evaluated and documented - critical NHIE sync patterns, queue management, identifier generation, reports, O3 implementation, metadata deployment. See docs/REFERENCES.md for detailed code adaptation strategies. |
 
 ---
 
 **Remember:** This file is living documentation. Update it whenever you make architecture decisions, discover new patterns, or encounter edge cases. All AI coding agents will automatically reference the latest version.
-

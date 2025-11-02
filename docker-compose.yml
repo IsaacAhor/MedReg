@@ -57,10 +57,80 @@ services:
     networks:
       - medreg-network
 
+  # NHIE Mock Server (HAPI FHIR JPA Starter)
+  # Purpose: Simulate Ghana NHIE endpoints for development and testing
+  nhie-mock:
+    image: hapiproject/hapi:v7.0.2
+    container_name: medreg-nhie-mock
+    restart: unless-stopped
+    depends_on:
+      nhie-mock-db:
+        condition: service_healthy
+    environment:
+      # FHIR Version
+      hapi.fhir.fhir_version: R4
+      
+      # Server Configuration
+      hapi.fhir.server_address: http://localhost:8090/fhir
+      hapi.fhir.allow_external_references: "true"
+      hapi.fhir.allow_placeholder_references: "true"
+      
+      # Enable CORS for local development
+      hapi.fhir.cors.enabled: "true"
+      hapi.fhir.cors.allowed_origin: "*"
+      
+      # Database (PostgreSQL for persistence)
+      spring.datasource.url: jdbc:postgresql://nhie-mock-db:5432/hapi
+      spring.datasource.username: hapi
+      spring.datasource.password: hapi_password
+      spring.datasource.driverClassName: org.postgresql.Driver
+      spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      
+      # Performance tuning
+      hapi.fhir.max_page_size: 50
+      hapi.fhir.reuse_cached_search_results_millis: 60000
+      
+      # Subscription support (optional)
+      hapi.fhir.subscription.resthook_enabled: "false"
+      hapi.fhir.subscription.websocket_enabled: "false"
+    ports:
+      - "8090:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/fhir/metadata"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    networks:
+      - medreg-network
+
+  # PostgreSQL for NHIE Mock
+  nhie-mock-db:
+    image: postgres:15-alpine
+    container_name: medreg-nhie-mock-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hapi
+      POSTGRES_USER: hapi
+      POSTGRES_PASSWORD: hapi_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - nhie_mock_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hapi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - medreg-network
+
 volumes:
   mysql_data:
     driver: local
   openmrs_data:
+    driver: local
+  nhie_mock_data:
     driver: local
 
 networks:
