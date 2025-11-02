@@ -1,20 +1,20 @@
-# MedReg - Quick Reference Card
+﻿# MedReg - Quick Reference Card
 
 **Last Updated**: November 1, 2025  
-**Status**: ✅ Week 1 + Week 2-3 Patient Registration Complete
+**Status**: âœ… Week 1 + Week 2-3 Patient Registration Complete
 
-## 🎯 Current Status
+## ðŸŽ¯ Current Status
 
-- ✅ **Patient Registration Working**: End-to-end registration functional
-- ✅ **First Patient Registered**: Kwabena Kofi Nyarko (GHA-123456789-7)
-- ✅ **Ghana Card Validation**: Format + Luhn checksum working
-- ✅ **NHIS Storage**: Person attribute persisted
-- ✅ **MCP Tools**: OpenMRS + MySQL MCP servers operational
-- 🚀 **2+ Weeks Ahead of Schedule**
+- âœ… **Patient Registration Working**: End-to-end registration functional
+- âœ… **First Patient Registered**: Kwabena Kofi Nyarko (GHA-123456789-7)
+- âœ… **Ghana Card Validation**: Format + Luhn checksum working
+- âœ… **NHIS Storage**: Person attribute persisted
+- âœ… **MCP Tools**: OpenMRS + MySQL MCP servers operational
+- ðŸš€ **2+ Weeks Ahead of Schedule**
 
 ---
 
-## 🚀 Quick Start
+## ðŸš€ Quick Start
 
 ### Start Everything
 ```powershell
@@ -29,7 +29,7 @@ npm run dev
 ### Register a Patient (Quick Test)
 1. Navigate to http://localhost:3000/patients/register
 2. Fill in form with valid Ghana Card (e.g., GHA-123456789-7)
-3. Submit → Patient created in OpenMRS + MySQL
+3. Submit â†’ Patient created in OpenMRS + MySQL
 4. Verify in OpenMRS UI: http://localhost:8080/openmrs
 
 ### Stop Everything
@@ -39,19 +39,19 @@ docker-compose down
 
 ---
 
-## 🔗 Access URLs
+## ðŸ”— Access URLs
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
 | **OpenMRS** | http://localhost:8080/openmrs | admin / Admin123 |
 | **Frontend** | http://localhost:3000 | (no auth yet) |
-| **Patient Registration** | http://localhost:3000/patients/register | ✅ Working |
+| **Patient Registration** | http://localhost:3000/patients/register | âœ… Working |
 | **MySQL** | localhost:3306 | openmrs_user / openmrs_password |
 | **OpenMRS REST API** | http://localhost:8080/openmrs/ws/rest/v1 | admin / Admin123 |
 
 ---
 
-## 🐳 Docker Commands
+## ðŸ³ Docker Commands
 
 ```powershell
 # View all logs
@@ -79,7 +79,7 @@ docker-compose up -d --build
 
 ---
 
-## 💻 Frontend Commands
+## ðŸ’» Frontend Commands
 
 ```powershell
 cd frontend
@@ -102,7 +102,7 @@ npm run format           # Run Prettier
 
 ---
 
-## 🗄️ Database Commands
+## ðŸ—„ï¸ Database Commands
 
 ```powershell
 # Connect to MySQL
@@ -118,28 +118,28 @@ docker exec -i medreg-mysql mysql -u openmrs_user -popenmrs_password openmrs < b
 
 ---
 
-## 📂 Project Structure
+## ðŸ“‚ Project Structure
 
 ```
 MedReg/
-├── docker-compose.yml           # Docker orchestration
-├── openmrs-runtime.properties   # OpenMRS config
-├── mysql-init/                  # DB init scripts
-├── frontend/                    # Next.js app
-│   ├── src/app/                # App router pages
-│   ├── src/components/         # React components
-│   ├── src/lib/                # Utils & API clients
-│   └── src/hooks/              # Custom hooks
-├── docs/                        # Documentation
-│   ├── setup/                  # Setup guides
-│   ├── specs/                  # Feature specs
-│   └── mapping/                # FHIR mappings
-└── domain-knowledge/            # Ghana domain specs
+â”œâ”€â”€ docker-compose.yml           # Docker orchestration
+â”œâ”€â”€ openmrs-runtime.properties   # OpenMRS config
+â”œâ”€â”€ mysql-init/                  # DB init scripts
+â”œâ”€â”€ frontend/                    # Next.js app
+â”‚   â”œâ”€â”€ src/app/                # App router pages
+â”‚   â”œâ”€â”€ src/components/         # React components
+â”‚   â”œâ”€â”€ src/lib/                # Utils & API clients
+â”‚   â””â”€â”€ src/hooks/              # Custom hooks
+â”œâ”€â”€ docs/                        # Documentation
+â”‚   â”œâ”€â”€ setup/                  # Setup guides
+â”‚   â”œâ”€â”€ specs/                  # Feature specs
+â”‚   â””â”€â”€ mapping/                # FHIR mappings
+â””â”€â”€ domain-knowledge/            # Ghana domain specs
 ```
 
 ---
 
-## 🎯 Week 1 Checklist
+## ðŸŽ¯ Week 1 Checklist
 
 - [x] Docker + OpenMRS setup
 - [x] Next.js frontend setup
@@ -150,7 +150,7 @@ MedReg/
 
 ---
 
-## 🔧 Configuration Files
+## ðŸ”§ Configuration Files
 
 ### Backend
 - `openmrs-runtime.properties` - OpenMRS settings
@@ -165,7 +165,7 @@ MedReg/
 
 ---
 
-## 🐛 Troubleshooting
+## ðŸ› Troubleshooting
 
 ### Backend Issues
 
@@ -206,7 +206,7 @@ npm run build
 
 ---
 
-## 📚 Key Documents
+## ðŸ“š Key Documents
 
 | Document | Purpose |
 |----------|---------|
@@ -218,7 +218,7 @@ npm run build
 
 ---
 
-## 🔐 Security Notes
+## ðŸ” Security Notes
 
 - **Never commit** `.env.local` or secrets
 - **Always mask** PII in logs (Ghana Card, NHIS numbers)
@@ -228,7 +228,7 @@ npm run build
 
 ---
 
-## 🎓 Ghana-Specific Rules
+## ðŸŽ“ Ghana-Specific Rules
 
 ### Ghana Card Format
 ```
@@ -252,7 +252,23 @@ Example: `GA-KBTH-2025-000123`
 
 ---
 
-## 🌐 NHIE Integration
+## ðŸŒ NHIE Integration
+
+### Transaction Logging & Tests (Nov 2, 2025)
+
+- Use NHIETransactionLogger (default writes to ghanaemr_nhie_transaction_log and sets creator).
+- Service masks PII before logging via maskPII(String) and maskIdentifier(String).
+- Files:
+  - Logger API: backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/NHIETransactionLogger.java
+  - Default Logger: backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/DefaultNHIETransactionLogger.java
+  - Service usage: backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/impl/NHIEIntegrationServiceImpl.java
+- Docs:
+  - Spec: backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/README-TRANSACTION-LOGGING.md
+  - Schema: docs/db/liquibase-schema.md
+  - Agent guidance: AGENTS.md (NHIE Transaction Logging note)
+- Run tests:
+  - mvn -q -pl backend/openmrs-module-ghanaemr -am clean test
+  - Coverage target: >90% for NHIEIntegrationService paths
 
 ### Endpoints
 - **Base URL**: `https://nhie-sandbox.moh.gov.gh/fhir`
@@ -260,12 +276,12 @@ Example: `GA-KBTH-2025-000123`
 
 ### Retry Policy
 - Max attempts: 8
-- Delays: 5s → 30s → 2m → 10m → 1h
+- Delays: 5s â†’ 30s â†’ 2m â†’ 10m â†’ 1h
 - DLQ after 8 failures
 
 ---
 
-## 📞 Support
+## ðŸ“ž Support
 
 - **Repository**: https://github.com/IsaacAhor/MedReg
 - **OpenMRS Wiki**: https://wiki.openmrs.org/
@@ -274,7 +290,7 @@ Example: `GA-KBTH-2025-000123`
 
 ---
 
-## ⚡ Pro Tips
+## âš¡ Pro Tips
 
 1. **Use GitHub Copilot** - AGENTS.md has all context
 2. **Check docker-compose logs** before debugging
@@ -284,4 +300,5 @@ Example: `GA-KBTH-2025-000123`
 
 ---
 
-**Print this card and keep it handy! 📄**
+**Print this card and keep it handy! ðŸ“„**
+

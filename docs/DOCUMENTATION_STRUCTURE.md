@@ -1,4 +1,4 @@
-# Documentation Structure - MedReg Project
+﻿# Documentation Structure - MedReg Project
 
 **Last Updated:** November 2, 2025
 
@@ -7,10 +7,10 @@
 ## Documentation Philosophy
 
 **Single Source of Truth:** `IMPLEMENTATION_TRACKER.md` is the authoritative record for:
-- ✅ What was built (components, files, features)
-- ✅ When it was completed (dates, milestones)
-- ✅ Progress metrics (% complete, timeline status)
-- ✅ Architecture decisions (what connects to what, why we chose X)
+- âœ… What was built (components, files, features)
+- âœ… When it was completed (dates, milestones)
+- âœ… Progress metrics (% complete, timeline status)
+- âœ… Architecture decisions (what connects to what, why we chose X)
 
 **Supporting Documentation:** Detailed technical references for HOW components work
 
@@ -34,6 +34,18 @@ MedReg/
 ├── README.md (Project overview, quick start)
 │
 └── docs/
+    ├── EXTERNAL_RESOURCES.md 🔗 (ALL external links consolidated - NEW!)
+    │   ├── OpenMRS Documentation (REST API, FHIR, O3, Docker)
+    │   ├── FHIR & HL7 Resources (R4 specs, HAPI FHIR, ICD-10, LOINC)
+    │   ├── Ghana Health System (NHIA, GHS, MoH, Ghana Card, 16 regions)
+    │   ├── African Regional Context (Uganda EMR, Kenya HIE, Rwanda)
+    │   ├── Development Tools & Libraries (Next.js, React, shadcn/ui, TanStack Query)
+    │   ├── Community & Support (OpenMRS Talk, Slack, GitHub)
+    │   └── Quick Bookmarks (12 daily-use links + local endpoints)
+    │
+    ├── UGANDA_EMR_REFERENCE.md (Uganda EMR code adaptation - 1000+ lines)
+    ├── QUICK_REFERENCE.md (Commands and code snippets)
+    │
     ├── setup/ (Setup and operational guides)
     │   ├── week1-setup-guide.md (Initial environment setup)
     │   ├── nhie-mock-guide.md (NHIE mock server guide - 1000+ lines)
@@ -58,6 +70,46 @@ MedReg/
     └── ... (Other doc categories)
 ```
 
+```
+MedReg/
+â”œâ”€â”€ IMPLEMENTATION_TRACKER.md â­ SOURCE OF TRUTH
+â”‚   â”œâ”€â”€ Week 1: Foundation âœ…
+â”‚   â”œâ”€â”€ Week 2-3: Patient Registration âœ…
+â”‚   â”œâ”€â”€ Week 4-5: NHIE Patient Sync ðŸ”„ 75%
+â”‚   â”‚   â”œâ”€â”€ Quick Dashboard (embedded)
+â”‚   â”‚   â”œâ”€â”€ Code Statistics (embedded)
+â”‚   â”‚   â”œâ”€â”€ Next Tasks (embedded)
+â”‚   â”‚   â””â”€â”€ Links to detailed docs â†“
+â”‚   â””â”€â”€ Week 6-11: OPD Workflow â³
+â”‚
+â”œâ”€â”€ AGENTS.md (Ghana domain rules, NHIE architecture, code patterns)
+â”œâ”€â”€ README.md (Project overview, quick start)
+â”‚
+â””â”€â”€ docs/
+    â”œâ”€â”€ setup/ (Setup and operational guides)
+    â”‚   â”œâ”€â”€ week1-setup-guide.md (Initial environment setup)
+    â”‚   â”œâ”€â”€ nhie-mock-guide.md (NHIE mock server guide - 1000+ lines)
+    â”‚   â”œâ”€â”€ openmrs-docker-setup.md (OpenMRS configuration)
+    â”‚   â”œâ”€â”€ week1-implementation-summary.md (Week 1 deep dive)
+    â”‚   â””â”€â”€ TASK8_COMPLETION_SUMMARY.md (NHIEIntegrationService technical reference)
+    â”‚
+    â”œâ”€â”€ specs/ (Feature specifications)
+    â”‚   â”œâ”€â”€ registration-form-spec.md
+    â”‚   â”œâ”€â”€ triage-form-spec.md
+    â”‚   â”œâ”€â”€ consultation-spec.md
+    â”‚   â””â”€â”€ ... (8 total spec files)
+    â”‚
+    â”œâ”€â”€ mapping/ (FHIR mapping guides)
+    â”‚   â”œâ”€â”€ patient-fhir-mapping.md
+    â”‚   â””â”€â”€ encounter-observation-fhir-mapping.md
+    â”‚
+    â”œâ”€â”€ security/ (Security policies)
+    â”‚   â”œâ”€â”€ audit-policy.md
+    â”‚   â””â”€â”€ privileges-matrix.md
+    â”‚
+    â””â”€â”€ ... (Other doc categories)
+```
+
 ---
 
 ## Document Types and When to Use
@@ -65,15 +117,15 @@ MedReg/
 ### 1. IMPLEMENTATION_TRACKER.md (SOURCE OF TRUTH)
 
 **Update when:**
-- ✅ Completing a task or milestone
-- 📊 Progress % changes significantly
-- 🚀 Timeline changes (ahead/behind schedule)
-- 🏗️ Architecture decisions made
-- 📝 Weekly status update needed
+- âœ… Completing a task or milestone
+- ðŸ“Š Progress % changes significantly
+- ðŸš€ Timeline changes (ahead/behind schedule)
+- ðŸ—ï¸ Architecture decisions made
+- ðŸ“ Weekly status update needed
 
 **Contains:**
 - Week-by-week progress tracking
-- Completion status (✅ ⏳ ❌)
+- Completion status (âœ… â³ âŒ)
 - Quick dashboards (embedded in each week section)
 - Code statistics (lines, test coverage)
 - Next tasks (priority order)
@@ -84,12 +136,12 @@ MedReg/
 ```markdown
 ## Week 4-5: NHIE Patient Sync
 
-### Status: 🔄 IN PROGRESS (75% Complete - Nov 2, 2025)
+### Status: ðŸ”„ IN PROGRESS (75% Complete - Nov 2, 2025)
 
 **Quick Dashboard:**
-- ✅ NHIE Mock: 100%
-- ✅ HTTP Client: 100%
-- ⏳ Integration Tests: 0%
+- âœ… NHIE Mock: 100%
+- âœ… HTTP Client: 100%
+- â³ Integration Tests: 0%
 
 **Code Statistics:** 5,024 lines total
 
@@ -106,11 +158,11 @@ MedReg/
 ### 2. Task Completion Summaries (DETAILED TECHNICAL DOCS)
 
 **Create when:**
-- 📝 Complex implementation needs explanation
-- 🧪 Testing strategy is non-trivial
-- 🔗 Integration points are complex
-- ⚠️ Known issues need tracking
-- 📚 Other developers need usage guide
+- ðŸ“ Complex implementation needs explanation
+- ðŸ§ª Testing strategy is non-trivial
+- ðŸ”— Integration points are complex
+- âš ï¸ Known issues need tracking
+- ðŸ“š Other developers need usage guide
 
 **Examples:**
 - `docs/setup/TASK8_COMPLETION_SUMMARY.md` (500+ lines)
@@ -134,10 +186,10 @@ MedReg/
 ### 3. Setup Guides (HOW-TO DOCS)
 
 **Create when:**
-- 🔧 New infrastructure component added (Docker, database, etc.)
-- 🚀 Deployment process established
-- ⚙️ Configuration is non-trivial
-- 🧪 Testing infrastructure needs documentation
+- ðŸ”§ New infrastructure component added (Docker, database, etc.)
+- ðŸš€ Deployment process established
+- âš™ï¸ Configuration is non-trivial
+- ðŸ§ª Testing infrastructure needs documentation
 
 **Examples:**
 - `docs/setup/week1-setup-guide.md` (First-time environment setup)
@@ -156,10 +208,10 @@ MedReg/
 ### 4. Specifications (REQUIREMENTS DOCS)
 
 **Create when:**
-- 📋 Defining feature requirements (before implementation)
-- 🎨 UI/UX design needs documentation
-- 📊 Data models need specification
-- ✅ Acceptance criteria for testing
+- ðŸ“‹ Defining feature requirements (before implementation)
+- ðŸŽ¨ UI/UX design needs documentation
+- ðŸ“Š Data models need specification
+- âœ… Acceptance criteria for testing
 
 **Examples:**
 - `docs/specs/registration-form-spec.md`
@@ -175,14 +227,51 @@ MedReg/
 
 ---
 
+### 5. External Resources (CENTRALIZED LINKS)
+
+**Purpose:** Single source for ALL external documentation, APIs, and resources
+
+**File:** `docs/EXTERNAL_RESOURCES.md` 🔗
+
+**Use when:**
+- 🔗 Need OpenMRS REST API documentation
+- 🌐 Looking for FHIR R4 specifications
+- 🇬🇭 Ghana health system information (NHIA, GHS, Ghana Card)
+- 🌍 African regional context (Uganda EMR, Kenya HIE)
+- 📚 Development tools documentation (Next.js, shadcn/ui, TanStack Query)
+- 💬 Community support channels (OpenMRS Talk, Slack)
+
+**Contains:**
+- OpenMRS Documentation (Wiki, REST API, FHIR, O3, Docker)
+- FHIR & HL7 Resources (R4 specs, HAPI FHIR, ICD-10, LOINC, SNOMED)
+- Ghana Health System (NHIA, GHS, MoH, Ghana Card format, 16 regions)
+- African Regional Context (Uganda EMR, Kenya HIE, Rwanda EMR)
+- Development Tools & Libraries (Frontend, Backend, Database, DevOps)
+- Community & Support (OpenMRS Talk, Slack, IRC, GitHub)
+- Quick Bookmarks (12 daily-use links + local endpoints)
+
+**Benefits:**
+- ✅ No more searching for "that OpenMRS REST API link"
+- ✅ Eliminates duplicate links across 50+ files
+- ✅ Single place to update when URLs change
+- ✅ Organized by category (OpenMRS, FHIR, Ghana, Tools)
+- ✅ Quick reference card for bookmarks
+
+**Related Documents:**
+- **UGANDA_EMR_REFERENCE.md:** Uganda EMR code adaptation (detailed code examples)
+- **QUICK_REFERENCE.md:** Commands and code snippets (how-to)
+- **AGENTS.md:** Architecture patterns and domain rules (internal)
+
+---
+
 ## What We DON'T Create (Anti-Patterns)
 
-### ❌ Weekly Progress Files (REDUNDANT)
+### âŒ Weekly Progress Files (REDUNDANT)
 **Don't create:**
-- `WEEK4-5_PROGRESS.md` ❌
-- `WEEK6-11_PROGRESS.md` ❌
-- `SPRINT_DASHBOARD.md` ❌
-- `CURRENT_STATUS.md` ❌
+- `WEEK4-5_PROGRESS.md` âŒ
+- `WEEK6-11_PROGRESS.md` âŒ
+- `SPRINT_DASHBOARD.md` âŒ
+- `CURRENT_STATUS.md` âŒ
 
 **Why?** Information duplicates what's already in IMPLEMENTATION_TRACKER.md. Becomes stale quickly. Hard to keep synchronized.
 
@@ -190,7 +279,7 @@ MedReg/
 
 ---
 
-### ❌ Change Logs (USE GIT COMMITS)
+### âŒ Change Logs (USE GIT COMMITS)
 **Don't create:**
 - `CHANGELOG.md` for code changes (use git log)
 - `UPDATES.md` for daily changes (use git commits)
@@ -201,7 +290,7 @@ MedReg/
 
 ---
 
-### ❌ Status Reports (USE TRACKER)
+### âŒ Status Reports (USE TRACKER)
 **Don't create:**
 - `STATUS_REPORT_2025-11-02.md` (date-stamped status files)
 - `PROGRESS_UPDATE.md` (generic status updates)
@@ -216,21 +305,21 @@ MedReg/
 
 ### 1. Update IMPLEMENTATION_TRACKER.md First
 When completing any task:
-1. ✅ Mark task complete in tracker
-2. 📊 Update progress % if significant milestone
-3. 📝 Add quick summary of what was built
-4. 🔗 Link to detailed technical doc (if complex)
+1. âœ… Mark task complete in tracker
+2. ðŸ“Š Update progress % if significant milestone
+3. ðŸ“ Add quick summary of what was built
+4. ðŸ”— Link to detailed technical doc (if complex)
 
 ### 2. Create Detailed Docs Only When Needed
 Ask yourself:
-- 🤔 Is this complex enough to need deep dive? (Yes → Create detailed doc)
-- 🤔 Will other developers integrate with this? (Yes → Create integration guide)
-- 🤔 Is this just status update? (No → Update tracker only, don't create new file)
+- ðŸ¤” Is this complex enough to need deep dive? (Yes â†’ Create detailed doc)
+- ðŸ¤” Will other developers integrate with this? (Yes â†’ Create integration guide)
+- ðŸ¤” Is this just status update? (No â†’ Update tracker only, don't create new file)
 
 ### 3. Link, Don't Duplicate
-- ✅ IMPLEMENTATION_TRACKER.md has summary + link to detailed doc
-- ❌ Don't copy/paste content between files
-- ✅ Each piece of information lives in ONE place
+- âœ… IMPLEMENTATION_TRACKER.md has summary + link to detailed doc
+- âŒ Don't copy/paste content between files
+- âœ… Each piece of information lives in ONE place
 
 ### 4. Archive, Don't Delete
 If doc becomes obsolete:
@@ -244,18 +333,18 @@ If doc becomes obsolete:
 
 | Information Type | Location | Example |
 |------------------|----------|---------|
-| Task completion status | IMPLEMENTATION_TRACKER.md | "✅ Task #8 complete - Nov 2, 2025" |
+| Task completion status | IMPLEMENTATION_TRACKER.md | "âœ… Task #8 complete - Nov 2, 2025" |
 | Progress % update | IMPLEMENTATION_TRACKER.md | "Week 4-5: 75% complete" |
 | Code statistics | IMPLEMENTATION_TRACKER.md | "710 lines production code" |
-| Design patterns used | Task completion doc | "TASK8_COMPLETION_SUMMARY.md → Design Patterns section" |
-| Testing strategy | Task completion doc | "TASK8_COMPLETION_SUMMARY.md → Testing Strategy section" |
-| Integration guide | Task completion doc | "TASK8_COMPLETION_SUMMARY.md → Integration Points section" |
-| Setup instructions | Setup guide | "nhie-mock-guide.md → Setup Commands section" |
-| Troubleshooting | Setup guide or task doc | "nhie-mock-guide.md → Troubleshooting section" |
+| Design patterns used | Task completion doc | "TASK8_COMPLETION_SUMMARY.md â†’ Design Patterns section" |
+| Testing strategy | Task completion doc | "TASK8_COMPLETION_SUMMARY.md â†’ Testing Strategy section" |
+| Integration guide | Task completion doc | "TASK8_COMPLETION_SUMMARY.md â†’ Integration Points section" |
+| Setup instructions | Setup guide | "nhie-mock-guide.md â†’ Setup Commands section" |
+| Troubleshooting | Setup guide or task doc | "nhie-mock-guide.md â†’ Troubleshooting section" |
 | Feature requirements | Specification doc | "registration-form-spec.md" |
-| Acceptance criteria | Specification doc | "registration-form-spec.md → Acceptance Criteria" |
-| Architecture decisions | AGENTS.md or tracker | "AGENTS.md → CRITICAL ARCHITECTURE RULES" |
-| Domain rules | AGENTS.md | "AGENTS.md → Ghana Health Domain Rules" |
+| Acceptance criteria | Specification doc | "registration-form-spec.md â†’ Acceptance Criteria" |
+| Architecture decisions | AGENTS.md or tracker | "AGENTS.md â†’ CRITICAL ARCHITECTURE RULES" |
+| Domain rules | AGENTS.md | "AGENTS.md â†’ Ghana Health Domain Rules" |
 
 ---
 
@@ -263,29 +352,29 @@ If doc becomes obsolete:
 
 ```
 1. PLAN
-   └─> Create specification doc (docs/specs/)
+   â””â”€> Create specification doc (docs/specs/)
        Example: registration-form-spec.md
 
 2. BUILD
-   └─> Update IMPLEMENTATION_TRACKER.md with progress
-       Example: "✅ Registration form: 50% complete"
+   â””â”€> Update IMPLEMENTATION_TRACKER.md with progress
+       Example: "âœ… Registration form: 50% complete"
 
 3. COMPLETE (Simple Task)
-   └─> Update IMPLEMENTATION_TRACKER.md only
-       Example: "✅ Validator complete - Nov 2, 2025"
+   â””â”€> Update IMPLEMENTATION_TRACKER.md only
+       Example: "âœ… Validator complete - Nov 2, 2025"
 
 4. COMPLETE (Complex Task)
-   ├─> Update IMPLEMENTATION_TRACKER.md with summary
-   │   Example: "✅ NHIEIntegrationService complete - 710 lines"
-   └─> Create detailed technical doc (docs/setup/)
+   â”œâ”€> Update IMPLEMENTATION_TRACKER.md with summary
+   â”‚   Example: "âœ… NHIEIntegrationService complete - 710 lines"
+   â””â”€> Create detailed technical doc (docs/setup/)
        Example: TASK8_COMPLETION_SUMMARY.md
 
 5. DEPLOY
-   └─> Create/update setup guide (docs/setup/)
+   â””â”€> Create/update setup guide (docs/setup/)
        Example: openmrs-docker-setup.md
 
 6. MAINTAIN
-   └─> Update docs when architecture/requirements change
+   â””â”€> Update docs when architecture/requirements change
        Single source of truth prevents drift
 ```
 
@@ -293,16 +382,37 @@ If doc becomes obsolete:
 
 ## Benefits of This Structure
 
-✅ **Single Source of Truth** - IMPLEMENTATION_TRACKER.md tells you what exists  
-✅ **No Duplication** - Each fact lives in one place  
-✅ **Easy Maintenance** - Update one file, not five  
-✅ **Clear Hierarchy** - Tracker → Detailed docs → Supporting guides  
-✅ **Scalable** - Works for 20-week project or 2-year project  
-✅ **AI-Friendly** - Agents query tracker, then dive into specific docs  
-✅ **Team-Friendly** - New developers know where to look  
+âœ… **Single Source of Truth** - IMPLEMENTATION_TRACKER.md tells you what exists  
+âœ… **No Duplication** - Each fact lives in one place  
+âœ… **Easy Maintenance** - Update one file, not five  
+âœ… **Clear Hierarchy** - Tracker â†’ Detailed docs â†’ Supporting guides  
+âœ… **Scalable** - Works for 20-week project or 2-year project  
+âœ… **AI-Friendly** - Agents query tracker, then dive into specific docs  
+âœ… **Team-Friendly** - New developers know where to look  
+
 
 ---
 
+## Update — Nov 2, 2025: New/Updated Documentation Entries
+
+- Added: NHIE transaction logging reference
+  - Path: ackend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/README-TRANSACTION-LOGGING.md
+  - Purpose: Canonical spec for ghanaemr_nhie_transaction_log and logger usage
+
+- Updated: Schema reference
+  - Path: docs/db/liquibase-schema.md
+  - Purpose: Align canonical NHIE tables (transaction log, coverage cache) and note logger alignment
+
+- Updated: QA test plan
+  - Path: docs/qa/test-plan.md
+  - Purpose: Document NHIEIntegrationService test suite, coverage target, run commands
+
+- Updated: AGENTS.md
+  - New section: “NHIE Transaction Logging (Implementation Note — Nov 2, 2025)”
+  - Purpose: Team guidance for using NHIETransactionLogger, table name, PII masking expectations
+
+- Tracker: IMPLEMENTATION_TRACKER.md
+  - Week 4–5 update block summarizing tests + logger abstraction
 ## Related Documents
 
 - [IMPLEMENTATION_TRACKER.md](../../IMPLEMENTATION_TRACKER.md) - Single source of truth
@@ -314,3 +424,4 @@ If doc becomes obsolete:
 ---
 
 **Questions?** Check IMPLEMENTATION_TRACKER.md first. If you need deeper technical details, follow the links to task completion summaries.
+

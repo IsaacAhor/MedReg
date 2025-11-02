@@ -1171,8 +1171,9 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
 - [ ] Receipt preview modal (Dialog component, printable HTML)
 - [ ] Print receipt (HTML print view with facility logo, patient details, itemized charges)
 
-#### Week 14: NHIS Claims Export
-**Backend:**
+#### Week 14: NHIS Claims Export + Admin Dashboard (MVP White-Label Phase 1)
+
+**Backend - Claims Export:**
 - [ ] Claims batch query (filter encounters where payment_type=NHIS, date range)
 - [ ] Claims CSV/Excel format:
   - NHIS Number
@@ -1186,7 +1187,20 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
 - [ ] Export to CSV (using Apache Commons CSV or similar)
 - [ ] Optional: Export to Excel (using Apache POI)
 
-**Frontend (Option B):**
+**Backend - Admin Dashboard APIs (NEW - CRITICAL FOR DEMO DAY):**
+- [ ] **StatsController.java** (`/api/v1/ghana/stats`):
+  - GET /stats → System KPIs (today's registrations, encounters, revenue, NHIE sync status)
+  - Real-time queries: COUNT(*) with date filters
+- [ ] **ReportsController.java** (`/api/v1/ghana/reports`):
+  - GET /opd-register → OPD register with filters (date range, payment type, pagination)
+  - GET /nhis-vs-cash → NHIS vs Cash summary (aggregation by payment type)
+  - GET /top-diagnoses → Top 10 diagnoses (GROUP BY diagnosis, ORDER BY count DESC)
+- [ ] **NHIETransactionController.java** (`/api/v1/ghana/nhie`):
+  - GET /transactions?status=PENDING,FAILED → Pending/failed NHIE transactions
+  - POST /retry/{id} → Retry failed transaction (update status to PENDING, schedule retry job)
+  - GET /stats → NHIE stats (pending count, success 24h, failed count, success rate)
+
+**Frontend - Claims Export (Option B):**
 - [ ] Claims export page: `src/app/claims/export/page.tsx`
 - [ ] Date range picker (shadcn/ui Calendar)
 - [ ] Facility selector (if multi-facility in future)
@@ -1195,7 +1209,39 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
 - [ ] Download Excel Button (optional)
 - [ ] Claims submission log Table (track which batches submitted to NHIE)
 
-**Milestone 3:** Generate claims batch for 100 NHIS encounters, validate format with MoH (or mock validation if MoH specs unavailable)
+**Frontend - Admin Dashboard (Option B - NEW):**
+- [ ] Admin Dashboard page: `src/app/admin/dashboard/page.tsx`
+  - 4 KPI cards: Today's Registrations, OPD Visits (Today), NHIE Sync Status, Revenue (Today)
+  - Quick links: OPD Register, NHIS vs Cash, NHIE Sync Monitor
+  - shadcn/ui Card components
+  - TanStack Query with 10-second refetch interval (real-time updates)
+- [ ] NHIE Sync Monitor page: `src/app/admin/nhie-sync/page.tsx`
+  - 4 status cards: Pending, Success (24h), Failed, Sync Rate
+  - Pending/failed transactions Table with "Retry Now" button
+  - 10-second polling for live updates
+  - Color-coded badges (pending=orange, success=green, failed=red)
+- [ ] Admin layout: `src/app/admin/layout.tsx`
+  - Sidebar navigation (Dashboard, OPD Register, NHIS vs Cash, NHIE Sync, Users, Settings)
+  - Role check: Only Platform Admin + Facility Admin can access
+
+**Role Expansion (Backend - NEW):**
+- [ ] Create **Platform Admin** role (Super Admin):
+  - Privileges: All operations, multi-facility access, system configuration
+  - Use case: MedReg platform administrators managing multiple hospitals
+- [ ] Create **Facility Admin** role (replaces generic "Admin"):
+  - Privileges: User management (facility-specific), reports, NHIE monitoring, facility settings
+  - Use case: Hospital IT managers, medical directors
+- [ ] Update GhanaMetadataInitializer.java to create 8 roles:
+  - Platform Admin, Facility Admin, Doctor, Nurse, Pharmacist, Records Officer, Cashier, NHIS Officer
+- [ ] Update privileges matrix in docs/security/privileges-matrix.md
+
+**Estimated Effort:** 4 days
+- Day 1: Backend APIs (Stats, Reports, NHIE Transaction endpoints)
+- Day 2: Admin Dashboard UI (KPI cards, quick links)
+- Day 3: NHIE Sync Monitor UI (status cards, transaction table, retry button)
+- Day 4: Role expansion (Platform Admin, Facility Admin metadata, claims export UI)
+
+**Milestone 3:** Generate claims batch for 100 NHIS encounters, validate format with MoH. **NEW: Demo admin dashboard showing real-time NHIE sync (98% success rate) to prove reliability.**
 
 ---
 
@@ -1207,14 +1253,14 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
 
 ### Planned Tasks
 
-#### Week 15-16: Essential Reports
-**Backend:**
+#### Week 15-16: Essential Reports + Admin Dashboard Polish
+**Backend - Reports:**
 - [ ] Daily OPD register query (all encounters for date, with diagnosis)
 - [ ] NHIS vs Cash summary query (count by payment type, date range)
 - [ ] Top 10 diagnoses query (group by ICD-10 code, count, date range)
 - [ ] Revenue summary query (sum of cash collected, NHIS claims pending, date range)
 
-**Frontend (Option B - Week 15-16):**
+**Frontend - Reports (Option B - Week 15-16):**
 - [ ] Reports dashboard: `src/app/reports/page.tsx`
 - [ ] shadcn/ui Tabs component for report types:
   - Daily OPD Register
@@ -1232,6 +1278,42 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
     - NHIS Patients (count, percentage)
     - Cash Patients (count, percentage)
   - Optional: Recharts Bar Chart
+
+**Frontend - Admin Dashboard Polish (Option B - NEW):**
+- [ ] User Management UI: `src/app/admin/users/page.tsx`
+  - User list Table (username, name, roles, status)
+  - "Create User" button → modal with React Hook Form
+  - Create user form: username, password, person name, select roles (multi-select)
+  - "Disable User" button (mark as retired)
+  - Role assignment: checkboxes for 8 roles (Platform Admin, Facility Admin, Doctor, Nurse, Pharmacist, Records, Cashier, NHIS Officer)
+- [ ] Facility Settings UI: `src/app/admin/settings/page.tsx`
+  - Facility code (text input, max 4 chars)
+  - Region (select from 16 Ghana regions)
+  - NHIE mode (select: mock/sandbox/production)
+  - NHIE base URL (text input, validated URL format)
+  - Save button → POST /api/v1/ghana/settings
+- [ ] Audit Log Viewer: `src/app/admin/audit-log/page.tsx`
+  - Audit log Table (timestamp, user, action, patient Ghana Card masked, result)
+  - Date range filter
+  - User filter (dropdown)
+  - Action filter (dropdown: Register Patient, Create Encounter, Dispense Drug, etc.)
+  - Pagination (50 records per page)
+  - **Note:** All PII masked (Ghana Card: `GHA-1234****-*`, names: `K***e M****h`)
+
+**Role-Based Access Control (RBAC) Enforcement:**
+- [ ] Backend: Add @PreAuthorize checks on all admin endpoints
+  - Platform Admin: All facilities, all operations
+  - Facility Admin: Single facility, user management, reports, NHIE monitoring
+  - Clinical roles: No admin access (block /admin/* routes)
+- [ ] Frontend: Hide admin UI for non-admin roles
+  - Check user.role === 'Platform Admin' || user.role === 'Facility Admin'
+  - Redirect to /dashboard if unauthorized access attempt
+
+**Estimated Effort:** 5 days
+- Day 1-2: Reports UI (4 report types with charts)
+- Day 3: User Management UI (create/disable users, assign roles)
+- Day 4: Facility Settings + Audit Log UI
+- Day 5: RBAC enforcement + testing (verify role checks on backend + frontend)
 - [ ] Top Diagnoses Tab:
   - Date range picker (default: past 30 days)
   - shadcn/ui Table with columns: ICD-10 Code, Diagnosis Name, Count

@@ -46,10 +46,14 @@
 3. NHIS Integration (eligibility check, claims export)
 4. NHIE Sync (patient + encounter submission to national HIE)
 5. Basic Reports (OPD register, NHIS vs Cash, top diagnoses, revenue)
-6. User Management (6 roles: Admin, Doctor, Nurse, Pharmacist, Records, Cashier)
+6. **Admin Dashboard** (System KPIs, NHIE sync monitor, user management) - **CRITICAL FOR DEMO DAY**
+7. **User Management (8 roles - White-Label Multi-Tenant Ready):**
+   - **Platform Admin** (Super Admin): Multi-facility oversight, system config, cross-facility analytics
+   - **Facility Admin**: Per-facility user management, reports, NHIE monitoring
+   - **Clinical Roles**: Doctor, Nurse, Pharmacist, Records Officer, Cashier, NHIS Officer
 
 ❌ **OUT OF SCOPE (Defer to v2):**
-- IPD/Admissions, ANC, Lab results entry, Appointments, SMS, Advanced reports, Offline mode, Multi-facility, Referrals
+- IPD/Admissions, ANC, Lab results entry, Appointments, SMS, Advanced reports, Offline mode, Multi-facility deployment (single-facility MVP first), Referrals
 
 ### Reference Documents
 - `08_MVP_Build_Strategy.md` - 16-20 week build timeline, team structure, budget
@@ -1044,19 +1048,56 @@ private String maskGhanaCard(String ghanaCard) {
 - **Session Timeout:** 30 minutes inactivity
 
 ### Authorization (Role-Based Access Control)
-| Role | Permissions |
-|------|-------------|
-| Admin | All operations, user management, system config |
-| Doctor | View patients, create encounters, prescribe drugs, view reports |
-| Nurse | View patients, triage, vitals entry, view encounters |
-| Pharmacist | View patients, dispense drugs, view prescriptions |
-| Records Officer | Register patients, search patients, print records |
-| Cashier | View encounters, billing, receipts, revenue reports |
+
+**8 Roles (White-Label Multi-Tenant Architecture):**
+
+| Role | Permissions | Scope | Notes |
+|------|-------------|-------|-------|
+| **Platform Admin** | All operations, multi-facility oversight, system configuration, cross-facility analytics, branding management | **All facilities** | Super admin for MedReg platform deployment |
+| **Facility Admin** | User management, reports, NHIE monitoring, facility settings, audit logs | **Single facility** | Per-facility operations manager |
+| **Doctor** | View patients, create encounters, prescribe drugs, view reports | **Single facility** | Clinical role |
+| **Nurse** | View patients, triage, vitals entry, view encounters | **Single facility** | Clinical role |
+| **Pharmacist** | View patients, dispense drugs, view prescriptions | **Single facility** | Clinical role |
+| **Records Officer** | Register patients, search patients, print records | **Single facility** | Clinical role |
+| **Cashier** | View encounters, billing, receipts, revenue reports | **Single facility** | Clinical role |
+| **NHIS Officer** | NHIS eligibility checks, claims export, NHIS-specific reports | **Single facility** | Optional role (can be combined with Records Officer) |
+
+**Privilege Matrix:**
+
+| Privilege | Platform Admin | Facility Admin | Doctor | Nurse | Pharmacist | Records | Cashier | NHIS Officer |
+|-----------|----------------|----------------|--------|-------|------------|---------|---------|--------------|
+| **Multi-Facility Access** | ✅ All | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **System Configuration** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Manage Users** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **View Admin Dashboard** | ✅ | ✅ | ⚠️ Reports only | ❌ | ❌ | ❌ | ❌ | ⚠️ NHIS reports |
+| **NHIE Sync Monitor** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Facility Settings** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Audit Logs** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Register Patients** | ✅ | ✅ | ⚠️ Emergency | ⚠️ Emergency | ❌ | ✅ | ❌ | ✅ |
+| **View Patients** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Edit Patient Demographics** | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
+| **Create Encounters** | ✅ | ✅ | ✅ | ⚠️ Triage only | ❌ | ❌ | ❌ | ❌ |
+| **View Encounters** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Prescribe Drugs** | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Dispense Drugs** | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| **Billing** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| **NHIS Eligibility Check** | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| **NHIS Claims Export** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **View Reports** | ✅ | ✅ | ✅ | ⚠️ Limited | ❌ | ❌ | ✅ | ✅ |
+
+**Legend:** ✅ Full access | ⚠️ Partial access | ❌ No access
 
 **Enforcement:**
-- Backend: Check `Context.hasPrivilege("Privilege Name")` before operations
-- Frontend: Hide UI elements based on user role (not security, just UX)
-- Database: OpenMRS `user_role` and `privilege` tables
+- **Backend**: Check `Context.hasPrivilege("Privilege Name")` before operations
+- **Facility Scope**: Check `user.getFacility().equals(patient.getFacility())` (multi-tenant isolation)
+- **Frontend**: Hide UI elements based on user role (not security, just UX)
+- **Database**: OpenMRS `user_role` and `privilege` tables + custom `user_facility` mapping table
+
+**White-Label Isolation (Multi-Tenant):**
+- Platform Admin can switch between facilities (dropdown in header)
+- Facility Admin/Clinical users see ONLY their assigned facility data
+- Database queries auto-filter by `facility_id` (row-level security)
+- NHIE transactions tagged with `facility_code` for multi-facility deployments
 
 ### NHIE Authentication
 - **OAuth 2.0 Client Credentials:** Store `client_id` and `client_secret` in environment variables
@@ -1920,43 +1961,40 @@ AI agents should escalate (create GitHub issue with `needs-decision` label) when
 
 ### Resources
 
-**External References (African Regional Context):**
-- **Uganda EMR (METS-Programme):** https://github.com/METS-Programme
-  - **openmrs-module-ugandaemr-sync** (Java, 26 forks, actively maintained): Central server sync with FHIR bundles
-    - **CRITICAL for NHIE integration pattern**
-    - Queue-based sync with retry logic
-    - FHIR R4 resource generation (Patient, Encounter, Observation)
-    - Scheduled tasks for async data submission
-    - Connection availability checks
-    - **Ghana Use:** Adapt for NHIE integration (replace central server URL with NHIE endpoints, add OAuth 2.0)
-  - **openmrs-module-ugandaemr** (Java, 29 forks, actively maintained): Core Uganda EMR module
-    - Patient identifier generation algorithms (UIC)
-    - Queue management system (triage → clinician → pharmacy)
-    - Service/DAO/REST controller patterns
-    - Custom identifier validators (NIN - similar to Ghana Card)
-    - Transfer in/out tracking
-    - **Ghana Use:** Reference for service layer architecture, queue workflow, identifier generation
-  - **openmrs-module-ugandaemr-reports** (Java, 38 forks): Government reporting module
-    - DHIS2 integration patterns
-    - SQL-based report generation
-    - **Ghana Use:** Reference for MoH report structure (OPD register, NHIS vs Cash, etc.)
-  - **esm-ugandaemr-core** (TypeScript, 29 forks, O3 microfrontend): OpenMRS 3.x implementation
-    - Built on OHRI framework (HIV Reference Implementation)
-    - Login, patient chart, navigation modules
-    - **Ghana Use:** If we adopt O3 post-MVP, shows O3 is production-ready in African context
-  - **ugandaemr-metadata**: Metadata deployment patterns (concepts, forms, encounter types)
-    - **Ghana Use:** Reference for metadata initializer patterns
-  - **ugandaemr-technicalguide**: Developer documentation
-    - **Ghana Use:** OpenMRS best practices from African implementation
-  - **License:** Mozilla Public License 2.0 (compatible with OpenMRS, can fork/adapt with attribution)
+**📚 Comprehensive External Resources:**
+- **docs/EXTERNAL_RESOURCES.md** - Centralized index of ALL external links and documentation
+  - OpenMRS Documentation (Wiki, REST API, FHIR, O3, Docker)
+  - FHIR & HL7 Resources (R4 specs, HAPI FHIR, ICD-10, LOINC)
+  - Ghana Health System (NHIA, GHS, MoH, Ghana Card, 16 regions)
+  - African Regional Context (Uganda EMR, Kenya HIE, Rwanda)
+  - Development Tools & Libraries (Next.js, React, shadcn/ui, Spring, MySQL)
+  - Community & Support (OpenMRS Talk, Slack)
+  - Quick Bookmarks (12 daily-use links + local endpoints)
 
-**OpenMRS & Framework Documentation:**
+**🌍 African Regional Context (Detailed Code Patterns):**
+- **docs/UGANDA_EMR_REFERENCE.md** - Uganda EMR code adaptation strategies (1000+ lines)
+  - NHIE integration patterns (queue + retry + FHIR sync)
+  - Patient identifier generation (UIC → Ghana folder number)
+  - Queue management (triage → consultation → pharmacy)
+  - Government reporting (MoH OPD register, NHIS vs Cash)
+  - Metadata deployment patterns
+  - OpenMRS best practices from African implementation
+
+**Key Uganda EMR Repositories:**
+- **GitHub Organization:** https://github.com/METS-Programme
+- **openmrs-module-ugandaemr-sync** ⭐ CRITICAL for NHIE integration
+- **openmrs-module-ugandaemr** - Core module architecture
+- **openmrs-module-ugandaemr-reports** - Government reporting
+- **esm-ugandaemr-core** - OpenMRS 3.x implementation
+- **License:** Mozilla Public License 2.0 (can fork/adapt with attribution)
+
+**Quick Links (Most Used):**
+- **OpenMRS REST API:** https://rest.openmrs.org/
+- **FHIR R4 Spec:** http://hl7.org/fhir/R4/
 - **OpenMRS Wiki:** https://wiki.openmrs.org/
-- **OpenMRS Github:** https://github.com/openmrs
-- **OpenMRS REST API Docs:** https://rest.openmrs.org/
-- **HAPI FHIR Docs:** https://hapifhir.io/hapi-fhir/docs/
-- **Next.js Docs:** https://nextjs.org/docs
 - **shadcn/ui Docs:** https://ui.shadcn.com/docs
+- **Next.js Docs:** https://nextjs.org/docs
+- **HAPI FHIR Docs:** https://hapifhir.io/hapi-fhir/docs/
 
 **Ghana MoH Contact:**
 - **Ghana MoH Digital Health:** info@moh.gov.gh
@@ -1969,8 +2007,32 @@ AI agents should escalate (create GitHub issue with `needs-decision` label) when
 |---------|------|---------|
 | 1.0 | 2025-10-30 | Initial AGENTS.md creation |
 | 1.1 | 2025-11-01 | **Critical architecture updates**: MySQL 5.7 requirement (not 8.0), REST API verification process, OpenMRS Platform "no UI" clarification, reference-application-distro vs openmrs-core guidance, OpenMRS 2.x vs O3 decision matrix |
-| 1.2 | 2025-11-01 | **External references added**: Uganda EMR (METS-Programme) repositories evaluated and documented - critical NHIE sync patterns, queue management, identifier generation, reports, O3 implementation, metadata deployment. See docs/REFERENCES.md for detailed code adaptation strategies. |
+| 1.2 | 2025-11-01 | **External references added**: Uganda EMR (METS-Programme) repositories evaluated and documented - critical NHIE sync patterns, queue management, identifier generation, reports, O3 implementation, metadata deployment. See docs/UGANDA_EMR_REFERENCE.md for detailed code adaptation strategies. |
+| 1.3 | 2025-11-02 | **Documentation consolidation**: Created EXTERNAL_RESOURCES.md (centralized index of all external links), renamed REFERENCES.md to UGANDA_EMR_REFERENCE.md (clearer purpose), updated Resources section to reference both comprehensive docs. All external OpenMRS/FHIR/Ghana/Tools links now in single source of truth. |
 
 ---
+
+## NHIE Transaction Logging (Implementation Note — Nov 2, 2025)
+
+- Always log NHIE API activity via `NHIETransactionLogger`; do not write JDBC in services.
+- Default implementation `DefaultNHIETransactionLogger` writes to `ghanaemr_nhie_transaction_log` and populates `creator` (authenticated user id or 1).
+- Always mask PII before logging. `NHIEIntegrationServiceImpl` applies `maskPII(String)` and `maskIdentifier(String)` to request/response bodies.
+- Files:
+  - Logger API: `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/NHIETransactionLogger.java`
+  - Default Logger: `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/DefaultNHIETransactionLogger.java`
+  - Service usage: `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/impl/NHIEIntegrationServiceImpl.java`
+- Schema reference: `backend/openmrs-module-ghanaemr/api/src/main/resources/liquibase.xml` (table: `ghanaemr_nhie_transaction_log`)
+- Tests (run `mvn -q -pl backend/openmrs-module-ghanaemr -am clean test`):
+  - `NHIEIntegrationServiceTest.java` — success, duplicate, errors, PII masking
+  - `NHIEIntegrationServiceLoggingTest.java` — verifies PENDING→SUCCESS/FAILED logs with masked payloads
+  - `NHIEIntegrationServiceEdgeCasesTest.java` — edge cases and identifier masking
+
+---
+
+Changelog
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.3 | 2025-11-02 | Added NHIE transaction logger abstraction + tests; updated schema alignment and test guidance |
 
 **Remember:** This file is living documentation. Update it whenever you make architecture decisions, discover new patterns, or encounter edge cases. All AI coding agents will automatically reference the latest version.

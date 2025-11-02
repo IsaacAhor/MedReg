@@ -55,7 +55,21 @@
     *   **Zero vendor lock-in.**
     *   We will help you build a local ecosystem of Ghanaian experts to manage your system.
 
-### Slide 6: The Roadmap to Success
+### Slide 6: Why Open Source? The Strategic Choice for Sovereignty
+
+*   **Headline:** Open Source is the Direct Solution to Vendor Lock-In
+*   **Visual:** A two-column comparison table.
+
+| Feature | Proprietary Model (The Past) | Open Source Model (The Future) |
+| :--- | :--- | :--- |
+| **Control** | Vendor controls code & data | **Ghana controls code & data** |
+| **Security** | "Black Box" - Trust the vendor | **Transparent & Auditable by Ghana** |
+| **Cost** | High licensing fees | **No licensing fees - Invest in local talent** |
+| **Future** | Dependent on one company | **Sustainable, supported by a global community** |
+
+*   **Key Message:** Open source isn't a risk; it's the cure. It provides the freedom of ownership, and with our partnership, you get the professional accountability and support you require.
+
+### Slide 7: The Roadmap to Success
 
 *   **Headline:** A Phased Approach to National Scale
 *   **Visual:** A simplified version of the Product Roadmap.
@@ -69,7 +83,7 @@
     *   Build a self-sustaining Ghanaian support system.
     *   Introduce advanced features like decision support and patient portals.
 
-### Slide 7: Why MedReg? Why Now?
+### Slide 8: Why MedReg? Why Now?
 
 *   **Headline:** The Right Partner at the Right Time
 *   **We are not a large, inflexible corporation.** We are an agile, expert team dedicated to this mission.
@@ -77,7 +91,7 @@
 *   **We are committed to your independence.** Our success is measured by how quickly Ghana can manage its own system without us.
 *   **We can deliver a working pilot in months, not years.**
 
-### Slide 8: The Ask: A Pilot Partnership
+### Slide 9: The Ask: A Pilot Partnership
 
 *   **Headline:** Let's Build the Future, Together
 *   **We are asking for a partnership, not just a contract.**
@@ -90,7 +104,7 @@
     2.  We will demonstrate a clear path to national scale.
     3.  We will operate with full transparency.
 
-### Slide 9: Thank You & Discussion
+### Slide 10: Thank You & Discussion
 
 *   **Title:** Q&A
 *   **Contact Information:**

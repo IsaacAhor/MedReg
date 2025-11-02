@@ -45,9 +45,29 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
 - Revenue summary (daily/weekly/monthly)
 
 **5. User Management (Week 1-2, parallel to registration)**
-- Roles: Admin, Doctor, Nurse, Pharmacist, Records Officer, Cashier
-- Basic privileges (view patients, edit encounters, dispense drugs, generate reports)
-- Facility setup (facility code, region, contact details)
+- **Roles (8 total - White-Label Multi-Tenant Ready):**
+  - **Platform Admin** (Super Admin): Multi-facility oversight, system configuration, cross-facility analytics, branding management
+  - **Facility Admin**: Single-facility user management, reports, NHIE monitoring, facility settings (replaces generic "Admin")
+  - **Doctor**: View patients, create encounters, prescribe drugs, view reports
+  - **Nurse**: View patients, triage, vitals entry, view encounters
+  - **Pharmacist**: View patients, dispense drugs, view prescriptions
+  - **Records Officer**: Register patients, search patients, print records
+  - **Cashier**: View encounters, billing, receipts, revenue reports
+  - **NHIS Officer** (optional): NHIS eligibility checks, claims export, NHIS-specific reports
+- **Privileges:**
+  - Platform Admin: All privileges across all facilities
+  - Facility Admin: All privileges within assigned facility only
+  - Clinical roles: Specific privileges (view patients, edit encounters, dispense drugs, generate reports)
+  - **RBAC Enforcement:** Backend checks `hasPrivilege()` + facility scope, Frontend hides UI elements based on role
+- **Facility Setup:**
+  - Facility code (e.g., KBTH, KATH, TTHQ)
+  - Region (16 Ghana regions)
+  - Contact details (phone, email, address)
+  - **White-Label Settings:**
+    - Facility name (displayed in UI)
+    - Logo upload (future: v2)
+    - Primary color (future: v2)
+    - NHIE endpoint (mock/sandbox/production)
 
 ### What Goes OUT of MVP (Defer to v2+)
 
@@ -167,15 +187,37 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
 - Receipt generation (printable HTML) — PDF deferred to v2
 - NHIS flag: "Bill to NHIS" checkbox if patient ACTIVE
 
-**Week 12 (Option A) / Week 14 (Option B): NHIS Claims Export**
-- **Backend**: Claims batch query, CSV/Excel generation
-- Monthly claims batch: Filter encounters where "Bill to NHIS" = true
-- Export to CSV/Excel with fields: NHIS number, date, diagnosis, drugs, lab tests, tariff codes, amount
-- **Option B**: Claims export UI with date range selector, download button
-- Manual submission to NHIE (upload file via NHIE portal)
-- **Note**: Automated claims adjudication deferred to v2
+**Week 12 (Option A) / Week 14 (Option B): NHIS Claims Export + Admin Dashboard (MVP White-Label Phase 1)**
+- **Backend**: Claims batch query, CSV/Excel generation, Admin Dashboard APIs
+- **Claims Export:**
+  - Monthly claims batch: Filter encounters where "Bill to NHIS" = true
+  - Export to CSV/Excel with fields: NHIS number, date, diagnosis, drugs, lab tests, tariff codes, amount
+  - **Option B**: Claims export UI with date range selector, download button
+  - Manual submission to NHIE (upload file via NHIE portal)
+  - **Note**: Automated claims adjudication deferred to v2
+- **Admin Dashboard (NEW - CRITICAL FOR DEMO DAY):**
+  - **Backend APIs** (`/api/v1/ghana/stats`, `/api/v1/ghana/reports`, `/api/v1/ghana/nhie`):
+    - System KPIs: Today's registrations, encounters, revenue, NHIE sync status
+    - OPD register query with filters (date range, payment type)
+    - NHIS vs Cash summary (aggregation by payment type)
+    - NHIE transaction query (pending/failed transactions)
+    - Retry transaction endpoint (`POST /api/v1/ghana/nhie/retry/{id}`)
+  - **Frontend (Option B only):**
+    - Admin Dashboard page (`/admin/dashboard`)
+      - 4 KPI cards: Registrations, Encounters, Revenue, NHIE Status
+      - Quick links to OPD Register, NHIS vs Cash, NHIE Monitor
+    - NHIE Sync Monitor page (`/admin/nhie-sync`)
+      - Real-time status cards (pending, success, failed, sync rate)
+      - Pending/failed transactions table with "Retry Now" button
+      - 10-second polling for live updates
+    - **Role Access:** Facility Admin + Platform Admin can access admin dashboard
+  - **User Roles Expansion (Backend):**
+    - **NEW: Platform Admin** (Super Admin) - Multi-facility oversight, system configuration, cross-facility analytics
+    - **NEW: Facility Admin** - Per-facility user management, reports, NHIE monitoring (replaces generic "Admin")
+    - Existing: Doctor, Nurse, Pharmacist, Records Officer, Cashier (clinical roles unchanged)
+  - **Estimated Effort:** 3 days (1 day backend APIs, 2 days frontend dashboard + NHIE monitor)
 
-**Milestone 3**: Generate claims batch for 100 NHIS encounters, validate format with MoH
+**Milestone 3**: Generate claims batch for 100 NHIS encounters, validate format with MoH. **NEW: Demo admin dashboard showing real-time NHIE sync (98% success rate) to prove reliability.**
 
 ---
 
@@ -193,6 +235,15 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
 - NHIS vs Cash summary
 - Top 10 diagnoses (past 7 days, 30 days)
 - Revenue summary (cash collected, NHIS claims pending)
+- **Admin Dashboard Polish (Option B):**
+  - User Management UI (`/admin/users`) - Create/disable users, assign roles
+  - Facility Settings UI (`/admin/settings`) - Region code, facility code, NHIE mode
+  - Audit Log Viewer (`/admin/audit-log`) - Who did what, when (PII masked)
+  - **Estimated Effort:** 4 days (2 days reports, 2 days admin UI polish)
+- **Role-Based Access Control (RBAC) Enforcement:**
+  - Platform Admin: All facilities, all operations, system configuration
+  - Facility Admin: Single facility, user management, reports, NHIE monitoring
+  - Clinical roles: Patient care operations only (no admin access)
 
 **Week 14 (Option A) / Week 17 (Option B): Testing + Bug Fixes**
 - End-to-end testing with real clinical scenarios
