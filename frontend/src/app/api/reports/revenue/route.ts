@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 const OPENMRS_BASE_URL = process.env.OPENMRS_BASE_URL || 'http://localhost:8080/openmrs/ws/rest/v1';
 const OPENMRS_USERNAME = process.env.OPENMRS_USERNAME || 'admin';
@@ -11,7 +12,8 @@ export async function GET(request: NextRequest) {
   const from = request.nextUrl.searchParams.get('from') || to;
   const format = request.nextUrl.searchParams.get('format') || '';
   try {
-    const url = `${OPENMRS_ROOT_URL}/ws/rest/v1/ghana/reports/revenue?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}${format ? `&format=${encodeURIComponent(format)}` : ''}`;
+    const loc = cookies().get('omrsLocation')?.value || '';
+    const url = `${OPENMRS_ROOT_URL}/ws/rest/v1/ghana/reports/revenue?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}${loc ? `&locationUuid=${encodeURIComponent(loc)}` : ''}${format ? `&format=${encodeURIComponent(format)}` : ''}`;
     const headers: any = { Authorization: authHeader, Accept: format === 'csv' ? 'text/csv' : 'application/json' };
     const res = await fetch(url, { headers, cache: 'no-store' });
     if (format === 'csv') {
@@ -25,4 +27,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false }, { status: 200 });
   }
 }
-

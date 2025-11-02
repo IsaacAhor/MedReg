@@ -1,4 +1,4 @@
-﻿﻿﻿"use client";
+﻿﻿﻿﻿"use client";
 import { Button } from '@/components/ui/button';
 import * as React from 'react';
 import { useLogout } from '@/hooks/useAuth';
@@ -39,7 +39,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="text-sm text-gray-500">Today</div>
             <div className="text-3xl font-bold text-gray-900">OPD Encounters</div>
-            <div className="text-2xl text-teal-600 mt-2">�</div>
+            <div className="text-2xl text-teal-600 mt-2">${opd?.opdEncountersToday ?? "—"}</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="text-sm text-gray-500">Status</div>
@@ -57,8 +57,13 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="text-sm text-gray-500">NHIE Queue</div>
             <div className="text-3xl font-bold text-gray-900">DLQ</div>
-            <div className="text-gray-600 mt-2">{metrics?.dlqCount ?? '—'} pending</div>
+            <div className="text-gray-600 mt-2">{metrics?.dlqCount ?? '-'} pending</div>
           </div>
+        </div>
+        <div className="mt-6 flex items-center gap-3 text-sm">
+          <a className="border rounded px-3 py-2" href={`/api/reports/opd-register?date=${new Date().toISOString().slice(0,10)}&format=csv`}>Download Today’s OPD CSV</a>
+          <a className="border rounded px-3 py-2" href={`/api/reports/nhis-vs-cash?date=${new Date().toISOString().slice(0,10)}&format=csv`}>Download Today’s NHIS/Cash CSV</a>
+          <a className="border rounded px-3 py-2" href={`/api/reports/top-diagnoses?from=${new Date().toISOString().slice(0,10)}&to=${new Date().toISOString().slice(0,10)}&format=csv`}>Download Today’s Top Diagnoses CSV</a>
         </div>
       </main>
     </div>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 const OPENMRS_BASE_URL = process.env.OPENMRS_BASE_URL || 'http://localhost:8080/openmrs/ws/rest/v1';
 const OPENMRS_USERNAME = process.env.OPENMRS_USERNAME || 'admin';
@@ -17,6 +18,14 @@ const BILLING_CASH = process.env.OPENMRS_CONCEPT_BILLING_TYPE_CASH_UUID;
 
 export async function POST(request: NextRequest) {
   try {
+    // Role check: pharmacist/admins
+    const rolesRaw = cookies().get('omrsRole')?.value || '';
+    const roles = rolesRaw.split(',').map(r => r.trim().toLowerCase());
+    const isAdmin = roles.includes('admin') || roles.includes('platform admin') || roles.includes('facility admin');
+    const allowed = isAdmin || roles.includes('pharmacist');
+    if (!allowed) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const body = await request.json();
     const { patientUuid, billingType, items } = body || {} as {
       patientUuid: string,
@@ -89,4 +98,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Server error', details: e?.message }, { status: 500 });
   }
 }
-

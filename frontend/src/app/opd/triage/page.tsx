@@ -7,6 +7,17 @@ export default function TriagePage() {
   const search = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const initialUuid = search?.get('patientUuid') || '';
   const [patientUuid, setPatientUuid] = React.useState(initialUuid);
+  const [allowed, setAllowed] = React.useState(true);
+  React.useEffect(() => {
+    try {
+      const m = document.cookie.match(/(?:^|;\s*)omrsRole=([^;]+)/);
+      const rolesCsv = m ? decodeURIComponent(m[1]) : '';
+      const roles = rolesCsv.split(',').map(r => r.trim().toLowerCase());
+      const isAdmin = roles.includes('admin') || roles.includes('platform admin') || roles.includes('facility admin');
+      const ok = isAdmin || roles.includes('nurse') || roles.includes('records officer');
+      setAllowed(ok);
+    } catch { setAllowed(true); }
+  }, []);
   const [temperature, setTemperature] = React.useState('');
   const [weight, setWeight] = React.useState('');
   const [height, setHeight] = React.useState('');
@@ -68,7 +79,8 @@ export default function TriagePage() {
         </div>
       </div>
       <div className="mt-4 flex items-center gap-3">
-        <Button onClick={submit}>Save Triage</Button>
+        <Button onClick={submit} disabled={!allowed}>Save Triage</Button>
+        {!allowed && <span className="text-xs text-amber-600">Insufficient role to save triage</span>}
         {status && <span className="text-sm text-gray-600">{status}</span>}
       </div>
     </div>

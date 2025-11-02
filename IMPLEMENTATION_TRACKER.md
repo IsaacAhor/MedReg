@@ -998,6 +998,32 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
    - ✅ Tests marked @Ignore by default (remove to enable integration tests)
    - ✅ Run commands:
      - `mvn test -Dtest=NHIEHttpClientTest,NHIEResponseTest` (unit tests, no mock needed)
+     - `mvn test -Dtest=NHIEHttpClientIntegrationTest` (integration tests, requires mock)
+   - ✅ **Testing note**: Full test execution deferred until backend module compilation ready
+
+#### Architecture Notes ✅
+**Date:** November 2, 2025
+
+**NHIE Mock Infrastructure Clarification:**
+
+Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
+- ✅ **What it provides**: FHIR R4 endpoints, resource validation, idempotency, persistence
+- ❌ **Middleware gaps**: No OpenHIM routing, no OAuth 2.0, no audit trail, no rate limiting, no DLQ
+- ✅ **Why acceptable for MVP**: NHIEHttpClient architecture is correct, config-based URL swap, zero code changes for real NHIE
+- 📝 **Optional upgrade (Week 12-14)**: Add OpenHIM + Keycloak layer if MoH wants deeper middleware demonstration (2-3 days effort)
+
+**Strategic Decision:**
+- MVP demo: Simple HAPI mock sufficient (shows FHIR resource compliance)
+- Pilot deployment: Real NHIE handles OAuth/routing/audit (not our infrastructure)
+- Advanced demo: OpenHIM setup available if needed to differentiate from competitors
+
+**References:**
+- `docs/setup/nhie-mock-guide.md` - Updated with middleware clarification + upgrade path
+- `AGENTS.md` - Updated NHIE Mock Server section with architecture notes
+
+---
+
+### Week 2 Retrospective
      - `mvn test -Dtest=NHIEHttpClientIntegrationTest` (requires localhost:8090 mock)
    - ✅ Expected coverage: >90% for NHIEHttpClient, 100% for NHIEResponse
 
@@ -1677,3 +1703,7 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
 - Dev convenience: Admin user mapped to all core roles via Liquibase; role-aware menu now shows OPD items and Admin link based on omrsRole cookie.
 
 - Login updates: Fetch OpenMRS user roles and set omrsRole cookie; logout clears it. Layout renders role-aware nav accordingly.
+
+- BFF enforcement: OPD triage/consult/dispense endpoints now check roles from omrsRole cookie (triage: nurse/records; consult: doctor; dispense: pharmacist; admins override). Dashboard shows live OPD count.
+
+- Reports filtering: Added optional locationUuid filters (uses omrsLocation cookie via BFF). Dashboard includes quick CSV download links for today�s reports.

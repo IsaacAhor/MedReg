@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 const OPENMRS_BASE_URL = process.env.OPENMRS_BASE_URL || 'http://localhost:8080/openmrs/ws/rest/v1';
 const OPENMRS_USERNAME = process.env.OPENMRS_USERNAME || 'admin';
@@ -12,6 +13,14 @@ const NOTES_CONCEPT = process.env.OPENMRS_CONCEPT_CONSULTATION_NOTES_UUID;
 
 export async function POST(request: NextRequest) {
   try {
+    // Role check: doctor/admins
+    const rolesRaw = cookies().get('omrsRole')?.value || '';
+    const roles = rolesRaw.split(',').map(r => r.trim().toLowerCase());
+    const isAdmin = roles.includes('admin') || roles.includes('platform admin') || roles.includes('facility admin');
+    const allowed = isAdmin || roles.includes('doctor');
+    if (!allowed) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const body = await request.json();
     const { patientUuid, diagnoses, notes } = body || {} as { patientUuid: string, diagnoses: { code: string, display: string }[], notes?: string };
     if (!patientUuid) return NextResponse.json({ error: 'patientUuid is required' }, { status: 400 });

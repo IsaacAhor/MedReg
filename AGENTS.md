@@ -61,6 +61,10 @@
 - `03_Ghana_Health_Domain_Knowledge.md` - Ghana health system, NHIS rules, workflows
 - `07_AI_Agent_Architecture.md` - 17 specialized agents, interaction patterns
 
+- Internal references:
+  - docs/UGANDA_EMR_REFERENCE.md
+  - docs/KENYA_EMR_REFERENCE.md
+
 ---
 
 ## CRITICAL ARCHITECTURE RULES ⚠️
@@ -1316,6 +1320,37 @@ test('complete patient registration flow', async ({ page }) => {
 
 ### Overview
 Since Ghana NHIE sandbox is not yet available (30% uptime, specs pending), we use a production-grade HAPI FHIR mock server for development and testing. This mock simulates NHIE endpoints with realistic FHIR R4 responses, enabling immediate E2E testing without blocking on external infrastructure.
+
+**⚠️ IMPORTANT: Current Mock is NOT True Middleware**
+
+Our HAPI FHIR mock is a **FHIR server**, not a **middleware layer**. Key differences:
+
+**What it IS:**
+- ✅ FHIR R4 endpoint that stores patient/encounter/coverage data
+- ✅ Validates FHIR resource structure and returns standard error codes
+- ✅ Supports conditional creates (idempotency via If-None-Exist)
+- ✅ Persists data across restarts (PostgreSQL)
+
+**What it is NOT (middleware gaps):**
+- ❌ No OpenHIM-style routing to downstream systems (NHIA/MPI/SHR)
+- ❌ No OAuth 2.0 client-credentials authentication
+- ❌ No central audit trail or policy enforcement (rate limits, throttling)
+- ❌ No mediator behaviors (queueing, retries, DLQ at gateway layer)
+
+**Why This is Acceptable for MVP:**
+- Our `NHIEHttpClient.java` architecture is correct (routes through service layer)
+- Real NHIE will be a black box to us (we just POST to it)
+- Config-based URL swap works (mock → sandbox → production)
+- Zero code changes needed when switching to real NHIE
+
+**Future Enhancement (Optional - Week 12-14):**
+If time permits and MoH wants to see deeper middleware understanding, we can add OpenHIM + Keycloak layer:
+```
+EMR → OpenHIM Gateway → HAPI FHIR
+         ↓
+    (OAuth check, rate limits, audit log, routing logic)
+```
+See `docs/setup/nhie-mock-guide.md` "Upgrade Path" section for details. This would take 2-3 days to set up and would demonstrate enterprise middleware architecture to MoH.
 
 **Strategic Value:**
 - ✅ Unblocks Week 4-5 NHIE integration work (no waiting for MoH sandbox)

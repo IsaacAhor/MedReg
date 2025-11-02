@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 const OPENMRS_BASE_URL = process.env.OPENMRS_BASE_URL || 'http://localhost:8080/openmrs/ws/rest/v1';
 const OPENMRS_USERNAME = process.env.OPENMRS_USERNAME || 'admin';
@@ -20,6 +21,14 @@ const C = {
 
 export async function POST(request: NextRequest) {
   try {
+    // Role check: nurse/records officer/admins
+    const rolesRaw = cookies().get('omrsRole')?.value || '';
+    const roles = rolesRaw.split(',').map(r => r.trim().toLowerCase());
+    const isAdmin = roles.includes('admin') || roles.includes('platform admin') || roles.includes('facility admin');
+    const allowed = isAdmin || roles.includes('nurse') || roles.includes('records officer');
+    if (!allowed) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const body = await request.json();
     const { patientUuid, temperature, weight, height, pulse, systolic, diastolic } = body || {};
     if (!patientUuid) {

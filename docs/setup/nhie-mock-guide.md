@@ -51,6 +51,30 @@ ghana.nhie.oauth.enabled=false
 
 This guide sets up a local NHIE mock server for development and testing. The mock server simulates Ghana's National Health Information Exchange (NHIE) endpoints, enabling end-to-end testing without requiring access to the real NHIE sandbox.
 
+**⚠️ IMPORTANT: Current Mock is NOT True Middleware**
+
+Our current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**. Key differences:
+
+**What it IS:**
+- ✅ FHIR R4 endpoint for patient/encounter/coverage resources
+- ✅ Validates FHIR resource structure
+- ✅ Supports conditional creates (idempotency)
+- ✅ Returns standard FHIR error codes
+- ✅ Persists data across restarts
+
+**What it is NOT (middleware gaps):**
+- ❌ No OpenHIM-style routing to downstream systems (NHIA/MPI/SHR)
+- ❌ No OAuth 2.0 client-credentials authentication
+- ❌ No central audit trail for government compliance
+- ❌ No policy enforcement (rate limits, throttling, request tracing)
+- ❌ No mediator behaviors (queueing, retries, DLQ at gateway layer)
+
+**Why This is Acceptable for MVP:**
+- Our `NHIEHttpClient.java` architecture is correct (routes through service layer)
+- Real NHIE will be a black box to us (we just POST to it)
+- Config-based URL swap works (mock → sandbox → production)
+- Zero code changes needed when switching to real NHIE
+
 **Purpose:**
 - Test NHIE integration during development
 - Simulate various response scenarios (success, errors, timeouts)
@@ -64,8 +88,8 @@ This guide sets up a local NHIE mock server for development and testing. The moc
 - ✅ Zero code changes when switching to real NHIE (config-only)
 
 **Technology:**
-- **Production Option:** HAPI FHIR JPA Starter (recommended) - Full FHIR R4 server
-- **Lightweight Option:** WireMock - Simple HTTP mock with JSON responses
+- **Current (MVP):** HAPI FHIR JPA Starter - Full FHIR R4 server
+- **Future Option (Advanced Demo):** OpenHIM + Keycloak - True middleware simulator (see "Upgrade Path" section below)
 
 ---
 
@@ -772,6 +796,129 @@ Write-Host "✅ Demo data preloaded" -ForegroundColor Green
 ```
 
 **Run before demo:**
+```powershell
+.\scripts\preload-demo-data.ps1
+```
+
+---
+
+## Upgrade Path: True Middleware Simulation (Optional)
+
+**Timeline:** Week 12-14 (Post-MVP, if time permits)  
+**Effort:** 2-3 days setup + testing  
+**Value:** Demonstrates deep middleware understanding to MoH
+
+### Why Upgrade?
+
+Current HAPI mock is sufficient for MVP, but adding OpenHIM would:
+- ✅ Show we understand middleware architecture (competitive advantage)
+- ✅ Test OAuth 2.0 flow end-to-end before production
+- ✅ Simulate rate limiting, audit logging, request routing
+- ✅ Handle production-like authentication/authorization
+
+### Architecture with OpenHIM
+
+```
+┌─────────────────┐         ┌──────────────────┐         ┌─────────────────┐
+│  Ghana EMR      │ ──────► │  OpenHIM Gateway │ ──────► │  HAPI FHIR      │
+│  (OpenMRS)      │         │  + Keycloak      │         │  (Backend)      │
+│                 │         │                  │         │                 │
+│  NHIEHttpClient │         │  - OAuth check   │         │  - Patient DB   │
+│  with OAuth     │         │  - Rate limits   │         │  - Encounter DB │
+│                 │         │  - Audit log     │         │  - Coverage DB  │
+│                 │         │  - Routing logic │         │                 │
+└─────────────────┘         └──────────────────┘         └─────────────────┘
+     Bearer token          Validates token             Stores FHIR data
+```
+
+### Setup Steps
+# Docker: https://openhim.org/docs/getting-started/prerequisites/#install-docker
+**1. Add OpenHIM to docker-compose.yml:**
+```yaml
+openhim-core:
+  image: jembi/openhim-core:latest
+  ports: ["5001:5001", "8080:8080"]
+  environment:
+    mongo_url: mongodb://openhim-mongo:27017/openhim
+    mongo_atnaUrl: mongodb://openhim-mongo:27017/openhim
+
+openhim-console:
+  image: jembi/openhim-console:latest
+  ports: ["9000:80"]
+
+openhim-mongo:
+  image: mongo:4.4
+  volumes: [openhim-data:/data/db]
+
+keycloak:
+  image: quay.io/keycloak/keycloak:latest
+  ports: ["8180:8080"]
+  environment:
+    KEYCLOAK_ADMIN: admin
+    KEYCLOAK_ADMIN_PASSWORD: admin
+```
+
+**2. Configure OpenHIM Channel:**
+- Route: `/fhir/*` → HAPI FHIR at `http://nhie-mock:8080/fhir/`
+- Require OAuth 2.0 bearer token (Keycloak validation)
+- Enable audit logging (store all requests)
+- Set rate limit: 100 req/min per client
+
+**3. Configure Keycloak Realm:**
+- Create realm: `ghana-nhie`
+- Create client: `medreg-emr` (confidential, client-credentials flow)
+- Create scope: `patient.write encounter.write coverage.read`
+- Generate client secret
+
+**4. Update NHIEHttpClient.java:**
+```java
+// Add OAuth token fetching
+private String getAccessToken() {
+    HttpPost tokenRequest = new HttpPost("http://keycloak:8080/realms/ghana-nhie/protocol/openid-connect/token");
+    // ... client credentials grant
+    return parseToken(response);
+}
+
+// Add token to requests
+httpPost.addHeader("Authorization", "Bearer " + getAccessToken());
+```
+
+**5. Test OAuth Flow:**
+```powershell
+# Get token from Keycloak
+$token = (Invoke-RestMethod -Uri "http://localhost:8180/realms/ghana-nhie/protocol/openid-connect/token" `
+    -Method POST -Body @{grant_type="client_credentials"; client_id="medreg-emr"; client_secret="SECRET"}).access_token
+
+# Use token with OpenHIM
+Invoke-RestMethod -Uri "http://localhost:5001/fhir/Patient" `
+    -Headers @{Authorization="Bearer $token"}
+```
+
+### Benefits of Upgrade
+
+| Aspect | Current (HAPI Only) | With OpenHIM + Keycloak |
+|--------|---------------------|-------------------------|
+| Authentication | None | OAuth 2.0 + mTLS |
+| Routing | Direct to FHIR | Gateway routes to backends |
+| Audit Trail | HAPI internal logs | Central government-style audit |
+| Rate Limiting | None | 100 req/min enforced |
+| Policy Enforcement | None | Throttling, retry, DLQ |
+| Demo Impact | "FHIR works" | "Enterprise middleware ready" |
+
+### Decision Point
+
+**Ask MoH during pilot negotiations:**
+- "Do you want to see OAuth 2.0 flow working end-to-end?"
+- "Is FHIR resource compliance sufficient, or should we demo middleware architecture?"
+
+**Recommendation:**
+- **MVP (Week 16-20):** Keep simple HAPI mock - sufficient for demo
+- **Pilot Prep (Week 21-24):** Add OpenHIM if MoH requests deeper middleware proof
+- **Production:** Real NHIE handles this (not our infrastructure)
+
+---
+
+## References
 ```powershell
 .\scripts\preload-demo-data.ps1
 ```

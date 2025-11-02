@@ -9,6 +9,17 @@ export default function DispensePage() {
   const search = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const initialUuid = search?.get('patientUuid') || '';
   const [patientUuid, setPatientUuid] = React.useState(initialUuid);
+  const [allowed, setAllowed] = React.useState(true);
+  React.useEffect(() => {
+    try {
+      const m = document.cookie.match(/(?:^|;\s*)omrsRole=([^;]+)/);
+      const rolesCsv = m ? decodeURIComponent(m[1]) : '';
+      const roles = rolesCsv.split(',').map(r => r.trim().toLowerCase());
+      const isAdmin = roles.includes('admin') || roles.includes('platform admin') || roles.includes('facility admin');
+      const ok = isAdmin || roles.includes('pharmacist');
+      setAllowed(ok);
+    } catch { setAllowed(true); }
+  }, []);
   const [billingType, setBillingType] = React.useState<'NHIS'|'Cash'|''>('');
   const [items, setItems] = React.useState<Item[]>([{ drug: '' }]);
   const [status, setStatus] = React.useState<string | null>(null);
@@ -63,7 +74,8 @@ export default function DispensePage() {
       </div>
       <div className="mt-3 flex items-center gap-3">
         <Button variant="outline" onClick={addItem}>Add Item</Button>
-        <Button onClick={submit} disabled={!patientUuid || !items[0]?.drug}>Save Dispense</Button>
+        <Button onClick={submit} disabled={!patientUuid || !items[0]?.drug || !allowed}>Save Dispense</Button>
+        {!allowed && <span className="text-xs text-amber-600">Insufficient role to save dispense</span>}
         {status && <span className="text-sm text-gray-600">{status}</span>}
       </div>
     </div>

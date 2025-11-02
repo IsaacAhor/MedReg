@@ -19,7 +19,8 @@ public class OPDMetricsController {
 
     @GetMapping("/metrics")
     public ResponseEntity<?> metrics(HttpServletRequest request,
-                                     @RequestParam("encounterTypeUuid") String encounterTypeUuid) {
+                                     @RequestParam("encounterTypeUuid") String encounterTypeUuid,
+                                     @RequestParam(value = "locationUuid", required = false) String locationUuid) {
         ensureAuthenticated(request);
         try {
             ensurePrivilege("ghanaemr.reports.view");
@@ -30,7 +31,11 @@ public class OPDMetricsController {
                         .body(error("INVALID_ENCOUNTER_TYPE", "Unknown encounter type uuid"));
             }
 
-            Number todayEncounters = scalar("SELECT COUNT(*) FROM encounter WHERE DATE(encounter_datetime)=CURDATE() AND encounter_type=" + encTypeId);
+            String locClause = "";
+            if (locationUuid != null && !locationUuid.trim().isEmpty()) {
+                locClause = " AND location_id=(SELECT location_id FROM location WHERE uuid='" + locationUuid + "')";
+            }
+            Number todayEncounters = scalar("SELECT COUNT(*) FROM encounter WHERE DATE(encounter_datetime)=CURDATE() AND encounter_type=" + encTypeId + locClause);
             Number newPatients = scalar("SELECT COUNT(*) FROM patient WHERE DATE(date_created)=CURDATE()");
 
             Map<String, Object> body = new HashMap<>();
