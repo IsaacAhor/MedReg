@@ -25,7 +25,7 @@ public class NHIECoverageServiceImpl implements NHIECoverageService {
     @Override
     public CoverageResult checkCoverage(String nhis, boolean refresh) {
         String normalized = (nhis == null) ? null : nhis.replaceAll("[^0-9]", "");
-        if (normalized == null || !normalized.matches("^\\\d{10}$")) {
+        if (normalized == null || !normalized.matches("^\\d{10}$")) {
             return new CoverageResult("error", null);
         }
 

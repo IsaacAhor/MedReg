@@ -41,7 +41,7 @@ public class FhirPatientMapperTest {
     private org.openmrs.Patient mockPatient;
     
     @Mock
-    private Person mockPerson;
+    private org.openmrs.Person mockPerson;  // Fixed: Fully qualified to avoid ambiguity
     
     @Mock
     private PersonName mockPersonName;

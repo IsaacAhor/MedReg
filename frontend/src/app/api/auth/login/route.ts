@@ -1,150 +1,83 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
-export async function POST(request: Request) {
+const OPENMRS_BASE_URL = process.env.OPENMRS_BASE_URL || 'http://localhost:8080/openmrs/ws/rest/v1';
+const OPENMRS_ROOT_URL = OPENMRS_BASE_URL.replace(/\/ws\/rest\/v1\/?$/, '');
+
+export async function POST(request: NextRequest) {
   try {
     const { username, password, locationUuid } = await request.json();
 
     if (!username || !password) {
-      return NextResponse.json({ message: 'Username and password required' }, { status: 400 });
+      return NextResponse.json({ message: 'Username and password are required' }, { status: 400 });
     }
 
-    if (!locationUuid) {
-      return NextResponse.json({ message: 'Work location is required' }, { status: 400 });
-    }
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
 
-    const baseUrl = process.env.OPENMRS_BASE_URL || process.env.NEXT_PUBLIC_OPENMRS_API_URL;
-    if (!baseUrl) {
-      return NextResponse.json({ message: 'OpenMRS API URL not configured' }, { status: 500 });
-    }
-
-    // Authenticate against OpenMRS session endpoint using Basic Auth
-    const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
-
-    const upstream = await fetch(`${baseUrl.replace(/\/$/, '')}/session`, {
-      method: 'GET',
-      headers: {
-        Authorization: authHeader,
-        Accept: 'application/json',
-      },
-      redirect: 'manual',
+    const sessionResponse = await fetch(`${OPENMRS_BASE_URL}/session`, {
+      headers: { Authorization: authHeader, Accept: 'application/json' },
+      cache: 'no-store',
     });
 
-    const data = await upstream.json().catch(() => ({}));
-
-    if (!upstream.ok || data?.authenticated !== true) {
+    if (!sessionResponse.ok) {
       return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
 
-    // Capture JSESSIONID from upstream if present
-    const setCookie = upstream.headers.get('set-cookie') || '';
-    const jsessMatch = setCookie.match(/JSESSIONID=([^;]+);/);
-    const jsessionId = jsessMatch ? jsessMatch[1] : undefined;
-
-    // Fetch location details
-    let locationData = null;
-    try {
-      const locationResponse = await fetch(`${baseUrl.replace(/\/$/, '')}/location/${locationUuid}?v=full`, {
-        headers: {
-          Authorization: authHeader,
-          Accept: 'application/json',
-        },
-      });
-      if (locationResponse.ok) {
-        locationData = await locationResponse.json();
-      }
-    } catch (error) {
-      console.error('Error fetching location:', error);
+    const session = await sessionResponse.json();
+    if (!session?.authenticated) {
+      return NextResponse.json({ message: 'Authentication failed' }, { status: 401 });
     }
 
-    // Fetch user roles
-    let rolesCsv = '';
-    try {
-      if (data?.user?.uuid) {
-        const userRes = await fetch(`${baseUrl.replace(/\/$/, '')}/user/${data.user.uuid}?v=full`, {
-          headers: { Authorization: authHeader, Accept: 'application/json' },
-        });
-        if (userRes.ok) {
-          const userFull = await userRes.json();
-          const roles: string[] = (userFull?.roles || []).map((r: any) => r?.display || r?.name).filter(Boolean);
-          if (roles?.length) rolesCsv = roles.join(',');
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching user roles:', error);
-    }
-
-    // Fetch provider for user
-    let providerData = null;
-    try {
-      const providerResponse = await fetch(`${baseUrl.replace(/\/$/, '')}/provider?user=${data.user.uuid}&v=full`, {
-        headers: {
-          Authorization: authHeader,
-          Accept: 'application/json',
-        },
-      });
-      if (providerResponse.ok) {
-        const providerResult = await providerResponse.json();
-        providerData = providerResult?.results?.[0] || null;
-      }
-    } catch (error) {
-      console.error('Error fetching provider:', error);
-    }
-
-    const res = NextResponse.json({ 
-      user: data?.user || { username },
-      sessionLocation: locationData,
-      currentProvider: providerData,
-    }, { status: 200 });
-
-    // Auth flag for UI protection
-    res.cookies.set('omrsAuth', '1', {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-    });
-
-    if (jsessionId) {
-      res.cookies.set('omrsSessionId', jsessionId, {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-      });
-    }
-
-    // Minimal user context (non-PII)
-    if (data?.user?.username) {
-      res.cookies.set('omrsUser', data.user.username, {
-        httpOnly: false,
-        sameSite: 'lax',
-        path: '/',
-      });
-    }
-
-    // Store roles (for role-aware nav)
-    if (rolesCsv) {
-      res.cookies.set('omrsRole', rolesCsv, { httpOnly: false, sameSite: 'lax', path: '/' });
-    }
-
-    // Store location UUID
     if (locationUuid) {
-      res.cookies.set('omrsLocation', locationUuid, {
-        httpOnly: false,
-        sameSite: 'lax',
-        path: '/',
-      });
+      try {
+        await fetch(`${OPENMRS_ROOT_URL}/appui/session.action`, {
+          method: 'POST',
+          headers: {
+            Authorization: authHeader,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `locationId=${encodeURIComponent(locationUuid)}`,
+        });
+      } catch (e) {
+        // Non-fatal: continue login even if location set fails
+        console.warn('OpenMRS set session location failed');
+      }
     }
 
-    // Store provider UUID
-    if (providerData?.uuid) {
-      res.cookies.set('omrsProvider', providerData.uuid, {
-        httpOnly: false,
-        sameSite: 'lax',
-        path: '/',
-      });
-    }
+    const roles: string[] = (session.user?.roles || []).map((r: any) => r.display || r.name);
+    const primaryRole = roles.includes('Platform Admin') ? 'admin'
+      : roles.includes('Facility Admin') ? 'admin'
+      : roles.includes('Doctor') ? 'doctor'
+      : roles.includes('Nurse') ? 'nurse'
+      : roles.includes('Pharmacist') ? 'pharmacist'
+      : roles.includes('Records Officer') ? 'records'
+      : roles.includes('Cashier') ? 'cashier'
+      : roles.includes('NHIS Officer') ? 'nhis'
+      : 'user';
 
-    return res;
-  } catch (e) {
+    const cookieStore = cookies();
+    const secure = process.env.NODE_ENV === 'production';
+    const baseCookie = { httpOnly: true, secure, sameSite: 'lax' as const, maxAge: 60 * 60 * 8, path: '/' };
+
+    cookieStore.set('omrsAuth', '1', baseCookie);
+    cookieStore.set('omrsRole', primaryRole, baseCookie);
+    if (locationUuid) cookieStore.set('omrsLocation', locationUuid, baseCookie);
+    if (session.currentProvider?.uuid) cookieStore.set('omrsProvider', session.currentProvider.uuid, baseCookie);
+
+    return NextResponse.json({
+      success: true,
+      user: {
+        uuid: session.user?.uuid,
+        username: session.user?.username,
+        display: session.user?.display || session.user?.username,
+        roles,
+        primaryRole,
+      },
+      sessionLocation: session.sessionLocation || null,
+    });
+  } catch (error: any) {
+    console.error('Login error:', error?.message || String(error));
     return NextResponse.json({ message: 'Login failed' }, { status: 500 });
   }
 }
+

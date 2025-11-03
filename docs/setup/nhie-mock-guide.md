@@ -51,9 +51,37 @@ ghana.nhie.oauth.enabled=false
 
 This guide sets up a local NHIE mock server for development and testing. The mock server simulates Ghana's National Health Information Exchange (NHIE) endpoints, enabling end-to-end testing without requiring access to the real NHIE sandbox.
 
-**⚠️ IMPORTANT: Current Mock is NOT True Middleware**
+### Understanding Ghana's NHIE Architecture
 
-Our current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**. Key differences:
+**NHIE is NOT a single product** - it's a **standards-based, state-controlled exchange** that provides **"one way in, one way out"** - a single secure gateway for all national health integrations.
+
+**Production NHIE Architecture:**
+```
+Facility EMR → NHIE Gateway (Single Entry Point) → Backend Systems
+                     ↓
+    ┌────────────────┼────────────────┐
+    │                │                │
+  NHIA          DHIMS2/GHS      National MPI
+(Eligibility,    (Aggregate     (Patient
+ Claims)          Reports)       Registry)
+    │                │                │
+    └────────────────┼────────────────┘
+                     ↓
+           Shared Health Record (SHR)
+    (National ePharmacy, Telemedicine, Lab Results)
+```
+
+**NHIE Core Principles (MoH Architecture):**
+- ✅ **Fully interoperable**: HL7/FHIR-compliant APIs, validated code sets (ICD-10, national medicines list)
+- ✅ **Sovereign control**: MoH-controlled authentication/authorization, audit logs, terminology enforcement
+- ✅ **Standards-enforcing**: Validates payloads against FHIR profiles, rejects non-conformant requests
+- ✅ **Vendor-agnostic**: Any EMR meeting MoH conformance criteria can integrate (reference adapters/SDKs provided)
+- ✅ **Multi-system routing**: Single gateway routes to NHIA, DHIMS2, MPI, SHR, ePharmacy, telemedicine
+- ✅ **Zero direct connections**: EMRs **cannot** connect directly to NHIA/MPI - all traffic routes through NHIE
+
+**⚠️ IMPORTANT: Our Mock is a Simplified FHIR Server**
+
+Our current HAPI FHIR mock simulates **only the NHIE gateway's FHIR endpoints**, not the full middleware architecture.
 
 **What it IS:**
 - ✅ FHIR R4 endpoint for patient/encounter/coverage resources
@@ -62,34 +90,37 @@ Our current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**. Key
 - ✅ Returns standard FHIR error codes
 - ✅ Persists data across restarts
 
-**What it is NOT (middleware gaps):**
-- ❌ No OpenHIM-style routing to downstream systems (NHIA/MPI/SHR)
+**What it is NOT (production NHIE features):**
+- ❌ No multi-system routing (NHIA/MPI/SHR) - mock stores data locally
 - ❌ No OAuth 2.0 client-credentials authentication
-- ❌ No central audit trail for government compliance
+- ❌ No MoH-controlled audit trail for government compliance
 - ❌ No policy enforcement (rate limits, throttling, request tracing)
-- ❌ No mediator behaviors (queueing, retries, DLQ at gateway layer)
+- ❌ No terminology validation (national medicines list, ICD-10 enforcement)
 
 **Why This is Acceptable for MVP:**
-- Our `NHIEHttpClient.java` architecture is correct (routes through service layer)
-- Real NHIE will be a black box to us (we just POST to it)
+- Our `NHIEHttpClient.java` architecture is correct (routes through service layer, ready for OAuth)
+- Real NHIE will be a black box to us (we POST FHIR resources, get responses)
 - Config-based URL swap works (mock → sandbox → production)
-- Zero code changes needed when switching to real NHIE
+- **Zero code changes needed when switching to real NHIE** (config-only)
+- Mock provides realistic FHIR R4 responses that match production format
 
 **Purpose:**
-- Test NHIE integration during development
+- Test NHIE integration during development (Week 4-5)
 - Simulate various response scenarios (success, errors, timeouts)
 - Enable E2E testing for patient registration + NHIE sync
 - Provide realistic demo data for MoH presentations
+- Unblock development while waiting for MoH sandbox access (30% uptime)
 
 **Strategic Value:**
 - ✅ Unblocks Week 4-5 NHIE integration (no waiting for MoH sandbox)
 - ✅ Enables comprehensive E2E testing (all scenarios: success, errors, retries)
-- ✅ Demo-ready: Mock returns rich data identical to real NHIE
-- ✅ Zero code changes when switching to real NHIE (config-only)
+- ✅ Demo-ready: Mock returns rich FHIR data identical to real NHIE format
+- ✅ Zero code changes when switching to real NHIE (environment config only)
+- ✅ Demonstrates conformance to FHIR R4 standard (MoH requirement)
 
 **Technology:**
 - **Current (MVP):** HAPI FHIR JPA Starter - Full FHIR R4 server
-- **Future Option (Advanced Demo):** OpenHIM + Keycloak - True middleware simulator (see "Upgrade Path" section below)
+- **Future Option (Advanced Demo):** OpenHIM + Keycloak - True middleware simulator with multi-system routing (see "Upgrade Path" section below)
 
 ---
 

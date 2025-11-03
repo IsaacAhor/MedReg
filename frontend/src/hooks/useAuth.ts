@@ -1,33 +1,55 @@
-"use client";
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authApi, type LoginPayload } from '@/lib/api/auth';
+import { authApi, type SessionData } from '@/lib/api/auth';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export function useSession() {
-  return useQuery({ queryKey: ['session'], queryFn: authApi.session, staleTime: 60_000 });
+  return useQuery<SessionData>({
+    queryKey: ['session'],
+    queryFn: authApi.getSession,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false,
+  });
 }
 
 export function useLogin() {
-  const qc = useQueryClient();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (payload: LoginPayload) => authApi.login(payload),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['session'] });
-      router.push('/');
+    mutationFn: authApi.login,
+    onSuccess: (data) => {
+      queryClient.setQueryData(['session'], data);
+      toast.success('Login successful', {
+        description: `Welcome back, ${data.user?.display}`,
+      });
+      router.push('/dashboard');
+    },
+    onError: (error: any) => {
+      toast.error('Login failed', {
+        description: error.response?.data?.message || error.message || 'Authentication failed',
+      });
     },
   });
 }
 
 export function useLogout() {
-  const qc = useQueryClient();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: () => authApi.logout(),
+    mutationFn: authApi.logout,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['session'] });
+      queryClient.clear();
+      toast.success('Logged out', {
+        description: 'You have been successfully logged out',
+      });
       router.push('/login');
+    },
+    onError: (error: any) => {
+      toast.error('Logout failed', {
+        description: error.message,
+      });
     },
   });
 }
-

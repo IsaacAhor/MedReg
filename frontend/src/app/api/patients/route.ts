@@ -27,6 +27,29 @@ const FOLDER_NUMBER_IDENTIFIER_TYPE_UUID = 'c907a639-0890-4885-88f5-9314a55e263e
 
 // TODO: Move UUIDs to environment variables or fetch dynamically via OpenMRS REST API
 
+export async function GET(request: NextRequest) {
+  // List/search patients via OpenMRS REST API
+  try {
+    const q = request.nextUrl.searchParams.get('q') || '';
+    const url = `${OPENMRS_BASE_URL}/patient${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { Authorization: authHeader, Accept: 'application/json' },
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      return NextResponse.json({ results: [], ok: false, error: text || `OpenMRS error ${res.status}` }, { status: 200 });
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ results: [], ok: false }, { status: 200 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -40,7 +63,6 @@ export async function POST(request: NextRequest) {
       middleName,
       dateOfBirth,
       gender,
-      phone,
       regionCode,
       facilityCode,
       city,

@@ -60,7 +60,9 @@ public class NHIERetryJob {
                     String nhieId = svc.syncPatientToNHIE(p);
                     markSuccess(id, nhieId);
                 } catch (org.openmrs.module.ghanaemr.exception.NHIEIntegrationException ex) {
-                    if (ex.isRetryable() != null && ex.isRetryable() && attempt + 1 < getMaxAttempts()) {
+                    // Check if exception is retryable (isRetryable() returns Boolean, can be null)
+                    Boolean retryable = ex.isRetryable();
+                    if (retryable != null && retryable && attempt + 1 < getMaxAttempts()) {
                         scheduleRetry(id, attempt + 1);
                     } else {
                         markDlq(id, ex.getMessage());

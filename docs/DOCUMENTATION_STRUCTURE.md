@@ -4,6 +4,22 @@
 
 ---
 
+## ⚠️ MANDATORY: Documentation Creation Rule
+
+**BEFORE CREATING ANY NEW .md FILE:** Check if existing files can host the content!
+
+See **AGENTS.md** "Documentation Creation Rule (MANDATORY)" section for full process.
+
+**Quick Check:**
+1. Check IMPLEMENTATION_TRACKER.md (milestones, builds, troubleshooting)
+2. Check AGENTS.md (architecture, patterns, setup)
+3. Check docs/setup/, docs/specs/, docs/mapping/ folders
+4. Only create new file if content doesn't fit anywhere else
+
+**Why:** Prevents duplication, maintains Single Source of Truth, reduces maintenance burden.
+
+---
+
 ## Documentation Philosophy
 
 **Single Source of Truth:** `IMPLEMENTATION_TRACKER.md` is the authoritative record for:

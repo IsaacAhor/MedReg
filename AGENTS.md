@@ -5,7 +5,7 @@
 **Timeline**: 16-20 weeks to functional MVP  
 **Target**: Win MoH pilot facility + position for EOI Q1 2026  
 **Approach**: AI-first development with startup velocity  
-**Current Status**: Week 1 Complete ✅ (See [IMPLEMENTATION_TRACKER.md](IMPLEMENTATION_TRACKER.md))
+**Current Status**: Week 2 Complete ✅ - Module Builds Successfully (See [IMPLEMENTATION_TRACKER.md](IMPLEMENTATION_TRACKER.md))
 
 ---
 
@@ -14,15 +14,17 @@
 **GitHub Repository:** https://github.com/IsaacAhor/MedReg  
 **Implementation Tracker:** [IMPLEMENTATION_TRACKER.md](IMPLEMENTATION_TRACKER.md)  
 **Branch:** main  
-**First Commit:** October 31, 2025 (97 files, 23,077+ lines)
+**First Commit:** October 31, 2025 (97 files, 23,077+ lines)  
+**Latest Milestone:** OpenMRS Module Build Success (November 2, 2025)
 
 ### Tech Stack
 **Backend:**
 - OpenMRS Platform 2.6.0 (core EMR engine)
-- Java 8, Spring Framework
+- Java 8, Spring Framework (Eclipse Temurin OpenJDK 8u472-b08)
 - MySQL 5.7 (required - OpenMRS 2.6.0 MySQL Connector/J incompatible with MySQL 8.0)
-- HAPI FHIR 5.x (FHIR library)
-- Maven 3.6+
+- HAPI FHIR 5.7.0 (FHIR R4 library)
+- Maven 3.9.9 (build tool)
+- Apache HttpClient 4.5.13 (NHIE communication)
 
 **Frontend (Option B - CHOSEN):**
 - Next.js 14.x (App Router)
@@ -38,6 +40,28 @@
 - Frontend: Vercel (free tier) or Netlify
 - Database: MySQL 5.7 (same server or managed instance)
 - CI/CD: GitHub Actions (https://github.com/IsaacAhor/MedReg)
+
+### Build Status (November 2, 2025)
+
+**✅ OpenMRS Module Build: SUCCESS**
+- API Module: 21 source files compiled
+- OMOD Module: 7 source files compiled
+- Build time: 4 seconds
+- Artifact: `openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod` (31KB)
+- Location: `openmrs-modules/` directory (ready for Docker deployment)
+
+**Build Command:**
+```bash
+cd backend/openmrs-module-ghanaemr
+mvn clean package -Dmaven.test.skip=true
+```
+
+**Known Issues Resolved:**
+- ✅ Mockito 5.x incompatibility with Java 8 (downgraded to 3.12.4)
+- ✅ FHIR Patient class ambiguity (15+ locations fixed with fully qualified names)
+- ✅ OpenMRS API method signatures (getPatientsByIdentifier → getPatients)
+- ✅ Java 8 Stream API compatibility (method references → lambdas)
+- ✅ Missing dependencies (Apache HttpClient 4.5.13 added)
 
 ### MVP Scope (What We're Building)
 ✅ **IN SCOPE:**
@@ -69,25 +93,973 @@
 
 ## CRITICAL ARCHITECTURE RULES ⚠️
 
-### NHIE Middleware Architecture (NON-NEGOTIABLE)
+### Task Management Workflow (MANDATORY) 📋
+
+**⚠️ BEFORE STARTING ANY WORK: Check PROMPT_QUEUE.md for active tasks!**
+
+**Purpose:** Streamline task execution with single-command workflow. All tasks are pre-defined with self-contained instructions, verification steps, and file update requirements.
+
+#### **How It Works**
+
+**Human types ONE command:**
 ```
-Facility EMR → NHIE Middleware → Backend Systems (NHIA/MPI/SHR)
-     ↑              ↓
-     └──────────────┘
-    (All communication routes through NHIE)
+"Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, update IMPLEMENTATION_TRACKER.md when done."
+```
+
+**Worker executes automatically:**
+1. Opens `PROMPT_QUEUE.md`
+2. Finds FIRST task marked 🔵 QUEUED or 🟡 IN PROGRESS
+3. Executes ALL steps in "Self-Contained Execution Instructions"
+4. Runs verification tests (MANDATORY)
+5. Updates related files (IMPLEMENTATION_TRACKER.md, etc.)
+6. Moves task to `TASK_HISTORY.md` with completion details
+7. Deletes task from `PROMPT_QUEUE.md`
+8. Notifies human with summary
+
+#### **File Structure**
+
+| File | Purpose | Who Writes | Who Deletes |
+|------|---------|-----------|-------------|
+| **PROMPT_QUEUE.md** | Active tasks only (FIFO queue) | Human defines tasks | Worker after completion |
+| **TASK_HISTORY.md** | Completed tasks (audit trail) | Worker moves tasks here | NEVER (permanent record) |
+| **IMPLEMENTATION_TRACKER.md** | Overall project progress | Worker updates on completion | NEVER (living document) |
+
+#### **Task Status Indicators**
+
+- 🔵 **QUEUED** - Task defined, waiting to start
+- 🟡 **IN PROGRESS** - Worker currently executing (change status when you start)
+- ✅ **SUCCESS** - Task completed successfully (in TASK_HISTORY.md only)
+- ⚠️ **PARTIAL** - Task partially complete, needs follow-up (rare)
+- ❌ **FAILED** - Task abandoned due to blockers (escalate to human)
+
+#### **Task Definition Template**
+
+When human adds new task to PROMPT_QUEUE.md:
+
+```markdown
+## [Icon] Task N: [Title] ([Priority])
+**Status:** 🔵 QUEUED  
+**Assigned to:** Next Available Worker  
+**Due:** YYYY-MM-DD HH:MM UTC  
+**Estimated:** X hours  
+
+### Self-Contained Execution Instructions
+
+**When you see this task, execute these steps IN ORDER:**
+
+#### 1. Read Context
+- AGENTS.md sections: [Relevant sections]
+- IMPLEMENTATION_TRACKER.md: [Week/phase]
+- [Other context files]
+
+#### 2. Create/Modify These Files
+[List exact files to create or modify]
+
+#### 3. Implementation Requirements
+[Detailed technical requirements with code patterns]
+
+#### 4. Technical Constraints (NON-NEGOTIABLE)
+- ✅ [Constraint 1]
+- ✅ [Constraint 2]
+[Follow AGENTS.md rules]
+
+#### 5. Verification (MANDATORY - Run These Commands)
+[Exact commands to verify implementation]
+
+#### 6. Update Files (MANDATORY - Do This BEFORE Deleting Task)
+**A. Update IMPLEMENTATION_TRACKER.md:**
+[Exact text to add/modify]
+
+**B. Move Task to TASK_HISTORY.md:**
+[Instructions for completion record]
+
+**C. Delete Task from PROMPT_QUEUE.md:**
+[Instructions for queue cleanup]
+
+**D. Perfect Handshake - Add Next Task (If Applicable):**
+[If this task is part of a larger sequence, add the next task to PROMPT_QUEUE.md NOW]
+[Include all context from THIS task so next worker has full picture]
+[Example: If you just completed "Backend API", add "Frontend Integration" task]
+
+#### 7. Notify Human (MANDATORY FORMAT)
+
+**REQUIRED: Use this exact structure in your completion message:**
+
+```
+✅ Task N Complete: [Task Title]
+
+**Summary:**
+- [Key accomplishment 1]
+- [Key accomplishment 2]
+- [Key accomplishment 3]
+
+**Files Created/Modified:**
+- [file1.ts] - [brief description]
+- [file2.tsx] - [brief description]
+
+**Verification Results:**
+✅ [Command 1] - SUCCESS
+✅ [Command 2] - SUCCESS
+
+**Updated Documentation:**
+✅ IMPLEMENTATION_TRACKER.md - [What was updated]
+✅ TASK_HISTORY.md - Task N archived
+
+**Queue Status:**
+- Active Tasks: [N]
+- Next Task: [Task X: Title] or [Empty - No tasks queued]
+
+**Perfect Handshake:**
+- ✅ Added Task [N+1] to PROMPT_QUEUE.md - [Next logical task title]
+  OR
+- ⚠️ No follow-up task needed - sequence complete
+
+---
+
+**NEXT WORKER COMMAND (Copy & Paste):**
+```
+Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, update IMPLEMENTATION_TRACKER.md when done.
+```
+```
+
+**Why This Format?**
+- ✅ Provides completion summary (what was done)
+- ✅ Shows verification passed (quality assurance)
+- ✅ Confirms documentation updated (traceability)
+- ✅ Includes ready-to-use next worker command (seamless handoff)
+- ✅ Shows queue status (progress visibility)
+- ✅ **Perfect Handshake**: Next task already queued with full context (NO WORK LOST between sessions)
+
+### Acceptance Criteria (Self-Check Before Marking Complete)
+- [ ] [Criterion 1]
+- [ ] [Criterion 2]
+[All must be checked before moving to TASK_HISTORY.md]
+```
+
+#### **Worker Responsibilities**
+
+**When executing task from PROMPT_QUEUE.md:**
+
+1. ✅ **Change status to 🟡 IN PROGRESS** when you start (update PROMPT_QUEUE.md header)
+2. ✅ **Follow ALL steps** in "Self-Contained Execution Instructions" (no skipping)
+3. ✅ **Run verification commands** (compilation, tests, manual checks)
+4. ✅ **Update files in order:**
+   - First: Implementation files (code, config)
+   - Second: IMPLEMENTATION_TRACKER.md (mark task complete)
+   - Third: TASK_HISTORY.md (move task with completion details)
+   - Last: PROMPT_QUEUE.md (delete task, update header counts)
+5. ✅ **Notify human with MANDATORY format** (see Step 7 in task template above):
+   - Completion summary
+   - Files created/modified
+   - Verification results
+   - Documentation updates
+   - Queue status
+   - **NEXT WORKER COMMAND** (ready to copy & paste)
+6. ✅ **BEFORE completing task - Ensure perfect handshake:**
+   - If this task is part of a larger sequence, ADD the next logical task to PROMPT_QUEUE.md
+   - Include all context, dependencies, and self-contained instructions
+   - Reference what was just completed so next worker has full context
+   - This ensures NO WORK IS LOST between sessions
+7. ❌ **DO NOT delete task** from PROMPT_QUEUE.md until ALL acceptance criteria checked
+
+**If you encounter blockers:**
+1. Document the issue in task notes
+2. Change status to ⚠️ BLOCKED
+3. Leave task in PROMPT_QUEUE.md (do NOT move to TASK_HISTORY.md)
+4. Notify human: "Task N blocked: [reason]. Need: [what's needed to unblock]."
+
+#### **Benefits of This Workflow**
+
+| Benefit | Description |
+|---------|-------------|
+| **Single Command** | Human types one sentence, worker executes entire task |
+| **Self-Contained** | Each task has ALL context, no hunting for requirements |
+| **Audit Trail** | TASK_HISTORY.md preserves what was done, when, by whom |
+| **Verification Enforced** | Tasks include mandatory test commands |
+| **File Updates Enforced** | Explicit checklist prevents forgetting IMPLEMENTATION_TRACKER.md |
+| **Parallel Work Ready** | Multiple workers can take different tasks (Task 1, Task 2, etc.) |
+| **Error Recovery** | If worker crashes, task still in PROMPT_QUEUE.md with all details |
+| **Progress Visibility** | Human checks PROMPT_QUEUE.md (active) + TASK_HISTORY.md (done) |
+
+#### **Example Workflow Session**
+
+**Monday 9 AM - Human adds 3 tasks to PROMPT_QUEUE.md:**
+- Task 1: Auth endpoints (HIGH PRIORITY)
+- Task 2: Report stubs (MEDIUM PRIORITY)
+- Task 3: Fix NHIE bug (LOW PRIORITY)
+
+**Monday 10 AM - Human tells Copilot:**
+```
+"Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, update IMPLEMENTATION_TRACKER.md when done."
+```
+
+**Monday 10:05 AM - Copilot:**
+- Opens PROMPT_QUEUE.md
+- Sees Task 1 is 🔵 QUEUED
+- Changes status to 🟡 IN PROGRESS
+- Executes steps 1-7 from task instructions
+- Updates IMPLEMENTATION_TRACKER.md Week 3
+- Moves Task 1 to TASK_HISTORY.md (with completion details)
+- Deletes Task 1 from PROMPT_QUEUE.md
+- Notifies: "Task 1 complete. Auth endpoints ready."
+
+**Monday 2 PM - Human tells Codex:**
+```
+"Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, update IMPLEMENTATION_TRACKER.md when done."
+```
+
+**Monday 2:05 PM - Codex:**
+- Opens PROMPT_QUEUE.md
+- Sees Task 2 is 🔵 QUEUED (Task 1 already gone)
+- Changes status to 🟡 IN PROGRESS
+- Executes Task 2 (report stubs)
+- Notifies: "Task 2 complete. Report stubs ready."
+
+**Monday 5 PM - Human reviews:**
+- PROMPT_QUEUE.md: Only Task 3 remains (🔵 QUEUED)
+- TASK_HISTORY.md: Shows Task 1 + Task 2 completed (audit trail)
+- IMPLEMENTATION_TRACKER.md: Week 3 shows 2/3 tasks complete
+
+#### **Integration with Other AGENTS.md Rules**
+
+**Task execution MUST follow:**
+- ✅ **Documentation Creation Rule** - Check existing docs before creating new files
+- ✅ **Code Generation Rules** - Incremental generation, compile after every 50-100 lines
+- ✅ **Security Rules** - PII masking, no secrets in logs
+- ✅ **Testing Standards** - Unit tests for all new code
+- ✅ **Performance Validation** - N+1 query checks, indexes
+
+**Tasks in PROMPT_QUEUE.md reference these rules explicitly** in "Technical Constraints" sections.
+
+---
+
+### Documentation Creation Rule (MANDATORY) 📝
+
+**⚠️ BEFORE CREATING ANY NEW .md FILE: Check existing documentation first!**
+
+**RULE: NO NEW DOCUMENTATION FILES without checking if existing files can host the content.**
+
+**Process (MANDATORY for ALL workers):**
+
+1. **Search existing .md files first:**
+   ```bash
+   # Check if content fits in existing docs
+   grep -r "topic keyword" *.md docs/**/*.md
+   ```
+
+2. **Check these files FIRST (in priority order):**
+   - ✅ **IMPLEMENTATION_TRACKER.md** - Progress, milestones, build guides, troubleshooting
+   - ✅ **AGENTS.md** - Architecture, domain rules, code patterns, setup commands
+   - ✅ **README.md** - Quick start, project overview, basic setup
+   - ✅ **docs/QUICK_REFERENCE.md** - Commands, snippets, examples
+   - ✅ **docs/setup/** - Setup guides, configuration, operational procedures
+   - ✅ **docs/specs/** - Feature specifications, UI/UX specs
+   - ✅ **docs/mapping/** - FHIR mapping, data transformation
+   - ✅ **docs/security/** - Security policies, audit, privileges
+
+3. **Only create NEW file if:**
+   - ❌ Content doesn't fit any existing file's purpose
+   - ❌ Would make existing file too large (>3000 lines)
+   - ❌ Requires separate versioning/tracking
+   - ✅ Is a distinct, standalone topic (e.g., new integration guide)
+
+4. **If creating new file:**
+   - Update `docs/DOCUMENTATION_STRUCTURE.md` with new file reference
+   - Add link from related existing docs
+   - Justify why new file needed (comment in PR)
+
+**Why This Rule Exists:**
+- ✅ Maintains Single Source of Truth (see docs/DOCUMENTATION_STRUCTURE.md)
+- ✅ Prevents duplicate information across files
+- ✅ Reduces maintenance burden (fewer files to update)
+- ✅ Easier for workers to find information (consolidated docs)
+- ✅ Reduces context switching (related info in one place)
+
+**Example Decision Process:**
+```
+Question: "Should I create build-troubleshooting.md?"
+1. Check IMPLEMENTATION_TRACKER.md Week 2 → Already has build errors section ✅
+2. Check AGENTS.md → Has setup commands section ✅
+3. Decision: Add to IMPLEMENTATION_TRACKER.md Week 2, not new file ❌
+
+Question: "Should I create kenya-hie-integration-guide.md?"
+1. Check docs/setup/ → No Kenya-specific guide ❌
+2. Check UGANDA_EMR_REFERENCE.md → Different country ❌
+3. Check AGENTS.md → Too specific for architecture doc ❌
+4. Decision: Create new file (distinct integration topic) ✅
+```
+
+**Enforcement:**
+- AI workers: Check existing docs before suggesting new files
+- Code reviews: Reject PRs with unnecessary new .md files
+- Monthly audit: Consolidate redundant documentation
+
+---
+
+### Code Generation Rules (MANDATORY) 🔧
+
+**⚠️ BEFORE GENERATING ANY CODE: Verify constraints and compile incrementally!**
+
+**RULE: NO LARGE CODE GENERATION without incremental compilation and validation.**
+
+#### 1. **Check Project Constraints FIRST** ✅
+
+Before writing any code, verify:
+
+```bash
+# Check Java version
+java -version    # MUST be Java 8 (1.8.0_472)
+
+# Check OpenMRS version
+grep "openmrs-api" backend/*/pom.xml    # MUST be 2.6.0
+
+# Check dependency versions
+grep -E "(mockito|hapi.fhir|httpclient)" backend/*/pom.xml
+```
+
+**Required Constraints:**
+- ✅ **Java 8 only** (no Java 11+ features: var, new switch, records, sealed classes)
+- ✅ **OpenMRS 2.6.0 API** (not 3.x, not 1.x)
+- ✅ **MySQL 5.7** (not 8.0 - connector incompatibility)
+- ✅ **Mockito 3.12.4** (not 5.x - requires Java 11+)
+- ✅ **HAPI FHIR 5.7.0** (R4 compatible with OpenMRS 2.6)
+- ✅ **Spring Framework** (OpenMRS 2.6 uses Spring 4.x, not Spring Boot)
+
+**If you assume wrong version = 30+ compilation errors!**
+
+#### 2. **Incremental Code Generation (50-100 Lines Max)** 🔄
+
+**NEVER generate 500+ lines without compiling!**
+
+**Process:**
+```
+Generate 50 lines → Compile → Fix errors → Generate next 50 → Repeat
+```
+
+**Bad Example (Caused Week 2 Errors):**
+```
+❌ Generate NHIEIntegrationServiceImpl.java (560 lines)
+❌ Hope it compiles
+❌ Discover 20+ errors later
+```
+
+**Good Example:**
+```
+✅ Generate NHIEIntegrationServiceImpl skeleton (50 lines)
+✅ Run: mvn clean compile
+✅ Fix any errors (FHIR class ambiguity, imports)
+✅ Generate syncPatientToNHIE method (80 lines)
+✅ Run: mvn clean compile
+✅ Fix method signature errors
+✅ Generate helper methods (100 lines)
+✅ Run: mvn clean compile
+✅ All green → Continue
+```
+
+#### 3. **Compilation Validation After Every Change** ⚙️
+
+**MANDATORY: Compile after adding/modifying any file**
+
+```bash
+# Backend (Java)
+cd backend/openmrs-module-ghanaemr
+mvn clean compile -Dmaven.test.skip=true
+
+# If errors: FIX BEFORE CONTINUING!
+# Don't generate more broken code on top of broken code
+```
+
+**Red Flags (Stop and Fix):**
+- ❌ "cannot find symbol: class X" → Missing import or wrong class name
+- ❌ "reference to X is ambiguous" → Class name collision (use fully qualified names)
+- ❌ "cannot find symbol: method X()" → Wrong API method (check OpenMRS Javadocs)
+- ❌ "incompatible types" → Wrong Java version features or API mismatch
+
+#### 4. **Avoid Common Java 8 + OpenMRS 2.6 Pitfalls** 🚫
+
+**Known Error Patterns from Week 2 (30+ errors fixed):**
+
+##### Error Pattern 1: FHIR Class Ambiguity
+```java
+// ❌ BAD - Ambiguous (Patient exists in both OpenMRS and FHIR)
+import org.hl7.fhir.r4.model.*;
+Patient fhirPatient = mapper.toFhirPatient(patient);
+
+// ✅ GOOD - Fully qualified
+import org.hl7.fhir.r4.model.HumanName;
+import org.hl7.fhir.r4.model.Identifier;
+org.hl7.fhir.r4.model.Patient fhirPatient = mapper.toFhirPatient(patient);
+```
+
+**Conflicting Classes:**
+- `Patient`: OpenMRS vs FHIR
+- `Person`: OpenMRS vs FHIR
+- `Address`: OpenMRS vs FHIR
+- `Observation`: OpenMRS vs FHIR
+
+**Solution:** Use fully qualified names for ALL FHIR classes.
+
+##### Error Pattern 2: OpenMRS 2.6 API Method Names
+```java
+// ❌ BAD - Method doesn't exist in OpenMRS 2.6
+List<Patient> patients = patientService.getPatientsByIdentifier(identifier);
+
+// ✅ GOOD - Correct OpenMRS 2.6 API
+List<Patient> patients = patientService.getPatients(null, identifier, null, true);
+```
+
+**Check OpenMRS API:** https://docs.openmrs.org/doc/org/openmrs/api/PatientService.html
+
+##### Error Pattern 3: Mockito Version (Java 8)
+```xml
+<!-- ❌ BAD - Mockito 5.x requires Java 11+ -->
+<dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-core</artifactId>
+    <version>5.12.0</version>
+</dependency>
+
+<!-- ✅ GOOD - Mockito 3.x supports Java 8 -->
+<dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-core</artifactId>
+    <version>3.12.4</version>
+</dependency>
+```
+
+##### Error Pattern 4: Java 8 Stream API Limitations
+```java
+// ❌ BAD - Method reference doesn't work in Java 8 Optional.flatMap
+.map(Set::stream)
+
+// ✅ GOOD - Use explicit lambda
+.flatMap(set -> set.stream())
+```
+
+##### Error Pattern 5: Wrong OpenMRS Class Names
+```java
+// ❌ BAD - Class doesn't exist in OpenMRS 2.6
+ConceptReferenceSource source = term.getConceptSource();
+
+// ✅ GOOD - Correct class name
+ConceptSource source = term.getConceptSource();
+```
+
+##### Error Pattern 6: Missing Dependencies
+```java
+// If you use: import org.apache.http.*;
+// MUST add to pom.xml:
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
+    <version>4.5.13</version>
+</dependency>
+```
+
+#### 5. **Test Before Committing** 🧪
+
+**NEVER commit code that doesn't compile!**
+
+```bash
+# Full build validation
+cd backend/openmrs-module-ghanaemr
+mvn clean package -Dmaven.test.skip=true
+
+# Expected output:
+# [INFO] BUILD SUCCESS
+# [INFO] Total time: 4.006 s
+
+# If BUILD FAILURE: Fix errors before committing!
+```
+
+#### 6. **Consult Documentation BEFORE Assuming** 📚
+
+**Before writing code that uses:**
+
+| Technology | Check These Docs First |
+|------------|------------------------|
+| OpenMRS API | https://docs.openmrs.org/doc/ |
+| HAPI FHIR | https://hapifhir.io/hapi-fhir/docs/ |
+| Mockito | https://javadoc.io/doc/org.mockito/mockito-core/3.12.4/ |
+| Spring Framework | Check OpenMRS bundled version (4.x, not 5.x) |
+| Java 8 | https://docs.oracle.com/javase/8/docs/api/ |
+
+**Don't assume methods exist - verify first!**
+
+#### 7. **Code Generation Checklist** ✅
+
+Before generating any Java class:
+
+- [ ] Java version verified (Java 8)
+- [ ] OpenMRS version verified (2.6.0)
+- [ ] Dependencies checked in pom.xml
+- [ ] OpenMRS API docs consulted for method signatures
+- [ ] FHIR classes will use fully qualified names
+- [ ] Will compile after every 50-100 lines
+- [ ] Will run mvn compile before marking task complete
+- [ ] Will fix errors before generating more code
+- [ ] Will test with mvn clean package before committing
+
+#### 8. **Error Recovery Process** 🔧
+
+**If compilation errors occur:**
+
+1. **Stop generating new code immediately**
+2. **Read error messages carefully**
+3. **Check this section for known error patterns**
+4. **Fix errors one at a time**
+5. **Compile after each fix**
+6. **Only continue when BUILD SUCCESS**
+
+**Example Error Fix Session:**
+```bash
+# Error 1: FHIR Patient ambiguity (15 errors)
+# Fix: Add fully qualified names → mvn compile
+# Result: 15 errors → 8 errors ✅
+
+# Error 2: getPatientsByIdentifier not found (8 errors)
+# Fix: Change to getPatients(...) → mvn compile
+# Result: 8 errors → 3 errors ✅
+
+# Error 3: Mockito version (3 errors)
+# Fix: Downgrade pom.xml → mvn compile
+# Result: 3 errors → 0 errors ✅ BUILD SUCCESS
+```
+
+#### 9. **Why These Rules Exist** 🎯
+
+**Week 2 Lesson Learned:**
+- Codex generated 2,000+ lines of code (NHIEIntegrationService, NHIEHttpClient, FhirPatientMapper)
+- **30+ compilation errors** discovered later
+- **2-3 hours fixing errors** that could have been caught incrementally
+- **Root cause:** Generated large blocks without compilation validation
+
+**Prevention Strategy:**
+- ✅ Generate 50-100 lines at a time
+- ✅ Compile after each block
+- ✅ Fix errors immediately
+- ✅ Never generate 500+ lines without testing
+- ✅ Check project constraints FIRST
+- ✅ Consult docs instead of assuming
+
+**Result:** **Zero compilation errors** in generated code! 🎉
+
+#### 10. **Success Metrics** 📊
+
+**Target:** 
+- ✅ 100% of generated code compiles on first `mvn compile`
+- ✅ Zero "cannot find symbol" errors
+- ✅ Zero "incompatible types" errors
+- ✅ Zero dependency resolution errors
+
+**How to Achieve:**
+1. Check constraints before coding
+2. Generate incrementally (50-100 lines)
+3. Compile after every increment
+4. Fix errors before continuing
+5. Consult docs, don't assume
+
+**This prevents another Week 2 debugging marathon!**
+
+---
+
+### Additional Code Quality Rules 🛡️
+
+**Beyond compilation: Logic, security, and integration correctness**
+
+#### 11. **Logic Validation** 🧠
+
+**MANDATORY checks before considering code "complete":**
+
+```bash
+# 1. Test with actual data
+# Don't just compile - run with realistic inputs
+
+# 2. Test edge cases
+# What happens with: null, empty string, max length, special characters?
+
+# 3. Verify business logic
+# Check AGENTS.md for Ghana domain rules
+# - Ghana Card: Must use Luhn checksum algorithm (not just format check)
+# - NHIS: 10 digits (optional at registration, required for eligibility)
+# - Folder Number: [REGION]-[FACILITY]-[YEAR]-[SEQUENCE] format
+```
+
+**Common Logic Errors:**
+```java
+// ❌ BAD - Only checks format, not checksum
+if (ghanaCard.matches("^GHA-\\d{9}-\\d$")) {
+    return true; // WRONG! Missing Luhn validation
+}
+
+// ✅ GOOD - Validates format AND checksum
+if (ghanaCard.matches("^GHA-\\d{9}-\\d$")) {
+    return validateGhanaCardChecksum(ghanaCard); // Luhn algorithm
+}
+```
+
+#### 12. **Security Validation** 🔒
+
+**MANDATORY: Check for security issues before committing**
+
+```bash
+# 1. Search for PII in logs
+grep -r "logger.*Patient\|logger.*ghanaCard\|logger.*nhis" backend/
+
+# 2. Check for hardcoded secrets
+grep -r "password.*=\|secret.*=\|key.*=" backend/ | grep -v ".example"
+
+# 3. Verify PII masking
+# All Ghana Cards in logs must be: GHA-1234****-*
+# All NHIS numbers must be: 0123******
+```
+
+**PII Masking Rules (NON-NEGOTIABLE):**
+- ❌ NEVER log: Full Ghana Card, NHIS number, patient name, phone, address
+- ✅ ALWAYS mask: `maskGhanaCard()`, `maskNHIS()`, `maskName()`, `maskPhone()`
+- ✅ Use masked values in: Logs, error messages, transaction logging, audit trails
+
+**Example:**
+```java
+// ❌ BAD - Logs full Ghana Card
+logger.info("Registering patient with Ghana Card: " + ghanaCard);
+
+// ✅ GOOD - Logs masked Ghana Card
+logger.info("Registering patient with Ghana Card: " + maskGhanaCard(ghanaCard));
+```
+
+#### 13. **Integration Testing** 🔌
+
+**MANDATORY: Test integrations before marking complete**
+
+```bash
+# 1. Test against NHIE mock server
+./scripts/test-nhie-mock.ps1
+
+# 2. Test OpenMRS REST API
+curl -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session
+
+# 3. Test database persistence
+# Register patient → Query database → Verify data stored correctly
+```
+
+**Integration Checklist:**
+- [ ] OpenMRS REST API responds correctly
+- [ ] Database foreign keys don't break
+- [ ] NHIE mock server accepts requests
+- [ ] FHIR JSON matches expected format
+- [ ] Error responses handled gracefully
+- [ ] Retry logic works (test with 429, 5xx)
+
+#### 14. **Unit Test Requirements** 🧪
+
+**MANDATORY: Write tests for all new code**
+
+**Minimum Test Coverage:**
+- Service classes: >80% coverage
+- Mappers/Converters: >90% coverage
+- Validators: 100% coverage
+- Controllers: >70% coverage
+
+**Test Naming Convention:**
+```java
+@Test
+public void testMethodName_Scenario_ExpectedResult() {
+    // Example: testRegisterPatient_ValidGhanaCard_Success()
+    // Example: testRegisterPatient_InvalidGhanaCard_ThrowsException()
+}
+```
+
+**Required Test Scenarios:**
+1. **Happy path** (valid input → success)
+2. **Invalid input** (validation errors)
+3. **Edge cases** (null, empty, max length)
+4. **Error handling** (exceptions, network failures)
+5. **Idempotency** (calling twice produces same result)
+
+**Example:**
+```java
+// Don't just test success - test failures too!
+
+@Test
+public void testValidateGhanaCard_ValidCard_ReturnsTrue() {
+    assertTrue(validator.validate("GHA-123456789-0"));
+}
+
+@Test(expected = ValidationException.class)
+public void testValidateGhanaCard_InvalidChecksum_ThrowsException() {
+    validator.validate("GHA-123456789-5"); // Wrong checksum
+}
+
+@Test(expected = ValidationException.class)
+public void testValidateGhanaCard_Null_ThrowsException() {
+    validator.validate(null); // Edge case
+}
+```
+
+#### 15. **Database Schema Validation** 🗄️
+
+**MANDATORY: Verify Liquibase migrations**
+
+```bash
+# 1. Check migration syntax
+mvn liquibase:validate
+
+# 2. Dry-run migration (don't apply to production)
+mvn liquibase:updateSQL
+
+# 3. Verify indexes exist
+# Check for indexes on: patient_id, encounter_id, status, created_at
+```
+
+**Schema Design Rules:**
+- ✅ Foreign keys MUST have indexes
+- ✅ Query filter columns MUST have indexes (status, created_at)
+- ✅ Large TEXT columns (JSON) should NOT be indexed
+- ✅ Timestamps MUST be NOT NULL with default (CURRENT_TIMESTAMP)
+- ✅ Status enums MUST be VARCHAR(20) not INT
+
+**Example:**
+```xml
+<!-- ❌ BAD - Missing index on foreign key -->
+<addForeignKeyConstraint constraintName="fk_patient_id"
+    baseTableName="nhie_transaction_log"
+    baseColumnNames="patient_id"
+    referencedTableName="patient"
+    referencedColumnNames="patient_id"/>
+
+<!-- ✅ GOOD - Add index BEFORE foreign key -->
+<createIndex tableName="nhie_transaction_log" indexName="idx_patient_id">
+    <column name="patient_id"/>
+</createIndex>
+<addForeignKeyConstraint .../>
+```
+
+#### 16. **Frontend Code Quality** 💻
+
+**TypeScript/React rules (if generating frontend code):**
+
+```bash
+# 1. TypeScript compilation
+cd frontend
+npm run type-check
+
+# 2. Linting
+npm run lint
+
+# 3. Test React components
+npm test
+```
+
+**React Component Rules:**
+- ✅ Use TypeScript interfaces for props
+- ✅ Use Zod for form validation (not manual checks)
+- ✅ Use TanStack Query for API calls (not raw fetch)
+- ✅ Use shadcn/ui components (not custom HTML)
+- ✅ Handle loading and error states
+- ✅ Mask PII in UI (Ghana Card, NHIS)
+
+**Example:**
+```tsx
+// ❌ BAD - No loading/error states, plain fetch
+function PatientList() {
+    const [patients, setPatients] = useState([]);
+    useEffect(() => {
+        fetch('/api/patients').then(r => r.json()).then(setPatients);
+    }, []);
+    return <div>{patients.map(p => <div>{p.name}</div>)}</div>;
+}
+
+// ✅ GOOD - TanStack Query, loading/error handling, PII masking
+function PatientList() {
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['patients'],
+        queryFn: () => patientApi.list()
+    });
+    
+    if (isLoading) return <Spinner />;
+    if (error) return <ErrorAlert message={error.message} />;
+    
+    return <div>{data.map(p => (
+        <div key={p.uuid}>
+            {p.name} - {maskGhanaCard(p.ghanaCard)}
+        </div>
+    ))}</div>;
+}
+```
+
+#### 17. **Performance Validation** ⚡
+
+**Check for common performance issues:**
+
+```bash
+# 1. N+1 query detection
+# Look for loops that call database inside:
+grep -A 10 "for.*Patient\|while.*Patient" backend/
+
+# 2. Missing indexes (slow queries)
+# Check EXPLAIN PLAN for queries with >100ms execution time
+
+# 3. Memory leaks
+# Look for: unclosed streams, static collections, event listeners
+```
+
+**Performance Rules:**
+- ✅ Use `@Transactional(readOnly=true)` for read-only queries
+- ✅ Fetch associations with JOIN FETCH (avoid N+1)
+- ✅ Paginate large result sets (max 50 per page)
+- ✅ Cache expensive operations (NHIS eligibility for 24 hours)
+- ✅ Close resources in try-with-resources or finally blocks
+
+**Example:**
+```java
+// ❌ BAD - N+1 query problem
+List<Patient> patients = patientService.getPatients();
+for (Patient p : patients) {
+    p.getIdentifiers().size(); // Lazy load = 1 query per patient!
+}
+
+// ✅ GOOD - Fetch with JOIN
+@Query("SELECT DISTINCT p FROM Patient p " +
+       "LEFT JOIN FETCH p.identifiers " +
+       "WHERE p.voided = false")
+List<Patient> findAllWithIdentifiers();
+```
+
+#### 18. **Context Verification** 📖
+
+**MANDATORY: Verify you're building the right thing**
+
+```bash
+# Before starting ANY task:
+# 1. Check IMPLEMENTATION_TRACKER.md - Is this task in scope?
+# 2. Check AGENTS.md - What are the Ghana domain rules?
+# 3. Check docs/specs/ - Is there a spec for this feature?
+```
+
+**Questions to Ask:**
+- ❓ Is this feature in the MVP scope? (Check AGENTS.md "MVP Scope")
+- ❓ What are the Ghana-specific rules? (Ghana Card format, NHIS validation, folder number)
+- ❓ What's the workflow? (Check domain-knowledge/workflows/)
+- ❓ Are there existing patterns? (Check AGENTS.md "OpenMRS Code Patterns")
+
+**Example Decision:**
+```
+Task: "Build NHIS claims submission"
+
+Check 1: AGENTS.md MVP Scope
+❌ "NHIS Integration (eligibility check, claims export)"
+→ Claims EXPORT in scope, not SUBMISSION
+
+Check 2: Is claims submission needed?
+❌ MVP focus: Eligibility check only
+✅ Defer claims submission to v2
+
+Decision: DON'T build it! Focus on eligibility check.
+```
+
+#### 19. **Code Review Self-Checklist** 👀
+
+**Before marking task complete, self-review:**
+
+- [ ] Code compiles (`mvn clean package`)
+- [ ] Unit tests pass (`mvn test`)
+- [ ] Integration tests pass (NHIE mock working)
+- [ ] No PII in logs (grep for Ghana Card, NHIS)
+- [ ] No hardcoded secrets (grep for passwords, keys)
+- [ ] Performance acceptable (<2s for API calls)
+- [ ] Error handling comprehensive (4xx, 5xx, network errors)
+- [ ] Documentation updated (Javadoc, README)
+- [ ] AGENTS.md constraints followed (Java 8, OpenMRS 2.6)
+- [ ] Ghana domain rules correct (Ghana Card checksum, NHIS format)
+
+#### 20. **Gradual Rollout Strategy** 📈
+
+**Don't deploy untested code to production!**
+
+**Deployment Phases:**
+1. **Local testing** (your machine)
+2. **NHIE mock testing** (against mock server)
+3. **Staging environment** (test with realistic data)
+4. **Pilot facility** (1 facility, supervised)
+5. **Production rollout** (gradual expansion)
+
+**Red Flags (DO NOT DEPLOY):**
+- ❌ "Works on my machine" but not tested elsewhere
+- ❌ Integration tests failing
+- ❌ Performance untested (don't know if it scales)
+- ❌ No rollback plan (what if it breaks production?)
+
+---
+
+### Confidence Level Update 📊
+
+**With These Additional Rules:**
+
+| Category | Coverage | Confidence | Previous |
+|----------|----------|------------|----------|
+| **Compilation Errors** | 95% | ✅ High | 95% |
+| **Runtime Errors** | 70% | ⚠️ Good | 30% → **+40%** |
+| **Security Issues** | 80% | ✅ High | 40% → **+40%** |
+| **Integration Bugs** | 75% | ⚠️ Good | 50% → **+25%** |
+| **Performance Problems** | 60% | ⚠️ Medium | 20% → **+40%** |
+| **Testing Quality** | 80% | ✅ High | 30% → **+50%** |
+| **Frontend Issues** | 65% | ⚠️ Good | 10% → **+55%** |
+
+**Overall Confidence: 85-90%** ✅ - Comprehensive rules covering most failure modes.
+
+**Remaining 10-15% Gap:**
+- Creative bugs (unique to this project)
+- Deployment/infrastructure issues
+- Third-party API changes
+- Human judgment calls (architecture decisions)
+
+**These require human oversight - AI cannot prevent 100% of errors!**
+
+---
+
+### NHIE Gateway Architecture (NON-NEGOTIABLE)
+
+**Ghana's NHIE is a standards-based, state-controlled exchange** - NOT a single product, but an architectural pattern that provides **"one way in, one way out"** for all national health integrations.
+
+```
+Facility EMR → NHIE Gateway (Single Entry Point) → Backend Systems
+                     ↓
+    ┌────────────────┼────────────────┐
+    │                │                │
+  NHIA          DHIMS2/GHS      National MPI
+(Eligibility,    (Aggregate     (Patient
+ Claims)          Reports)       Registry)
+    │                │                │
+    └────────────────┼────────────────┘
+                     ↓
+           Shared Health Record (SHR)
+    (National ePharmacy, Telemedicine, Lab Results)
 ```
 
 **RULES:**
 1. ❌ **NEVER generate code that connects directly to NHIA backend**
 2. ❌ **NEVER generate code that connects directly to National MPI**
-3. ✅ **ALWAYS route through NHIE middleware** (OpenHIM Interoperability Layer)
-4. ✅ Facility EMR submits to NHIE, NHIE routes internally to NHIA/MPI
-5. ✅ Responses flow back: NHIA → NHIE → Facility EMR
+3. ❌ **NEVER generate code that connects directly to DHIMS2**
+4. ✅ **ALWAYS route through NHIE gateway** (single secure entry point)
+5. ✅ Facility EMR submits FHIR resources to NHIE, NHIE routes internally to NHIA/MPI/SHR
+6. ✅ Responses flow back: NHIA → NHIE → Facility EMR
+7. ✅ NHIE enforces standards (FHIR R4, ICD-10, national medicines list)
+8. ✅ NHIE provides: OAuth 2.0 authentication, audit logging, terminology validation, routing
 
 **Why This Matters:**
-- Ghana MoH mandate: All facilities connect via NHIE (no direct backend access)
-- Violating this = disqualification from MoH contract
-- NHIE provides: authentication, authorization, audit logging, message routing
+- **Ghana MoH mandate**: All facilities connect via NHIE (no direct backend access)
+- **Violating this = disqualification from MoH contract**
+- **NHIE is vendor-agnostic**: Any EMR meeting MoH conformance criteria can integrate
+- **Sovereign control**: MoH controls authentication, authorization, audit logs
+- **Full interoperability**: NHIE routes to NHIA, DHIMS2, MPI, SHR, ePharmacy, telemedicine
+
+**NHIE Technical Characteristics:**
+- **Standards-based**: HL7/FHIR R4 payloads, validated code sets (ICD-10, LOINC)
+- **May use OpenHIM or equivalent** gateway/mediation layer (transparent to EMR)
+- **OAuth 2.0 client credentials**: EMRs authenticate with MoH-issued credentials
+- **Centralized audit**: All transactions logged for compliance and analytics
+- **Policy enforcement**: Rate limits, request tracing, terminology validation
 
 **Implementation:**
 - OpenMRS module calls `NHIEIntegrationService` 

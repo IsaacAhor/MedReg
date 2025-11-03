@@ -10,6 +10,7 @@ import org.openmrs.api.PersonService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.db.DAOException;
 import org.openmrs.module.ghanaemr.api.fhir.FhirPatientMapper;
+import org.openmrs.module.ghanaemr.api.fhir.FhirEncounterMapper;
 import org.openmrs.module.ghanaemr.api.nhie.NHIEHttpClient;
 import org.openmrs.module.ghanaemr.api.nhie.NHIEIntegrationService;
 import org.openmrs.module.ghanaemr.api.nhie.NHIEResponse;
@@ -57,6 +58,7 @@ public class NHIEIntegrationServiceImpl implements NHIEIntegrationService {
     private static final String NHIE_PATIENT_ID_ATTRIBUTE_NAME = "NHIE Patient ID";
     
     private final FhirPatientMapper fhirPatientMapper;
+    private final FhirEncounterMapper fhirEncounterMapper = new FhirEncounterMapper();
     private final NHIEHttpClient nhieHttpClient;
     private final org.openmrs.module.ghanaemr.api.nhie.NHIETransactionLogger transactionLogger;
     private final ObjectMapper objectMapper;
@@ -90,6 +92,37 @@ public class NHIEIntegrationServiceImpl implements NHIEIntegrationService {
                 ? new org.openmrs.module.ghanaemr.api.nhie.DefaultNHIETransactionLogger()
                 : transactionLogger;
     }
+
+    @Override
+    public String submitEncounter(org.openmrs.Encounter encounter) throws NHIEIntegrationException {
+        if (encounter == null) {
+            throw new IllegalArgumentException("Encounter cannot be null");
+        }
+        try {
+            String transactionId = java.util.UUID.randomUUID().toString();
+            org.hl7.fhir.r4.model.Encounter fhirEncounter = fhirEncounterMapper.toFhirEncounter(encounter);
+            String fhirJson = new ca.uhn.fhir.context.FhirContext().newJsonParser().encodeResourceToString(fhirEncounter);
+
+            transactionLogger.log(transactionId,
+                    encounter.getPatient() != null ? encounter.getPatient().getPatientId() : null,
+                    "ENCOUNTER", "POST", "/Encounter",
+                    maskPII(fhirJson), null, null, 0, "PENDING");
+
+            NHIEResponse response = nhieHttpClient.submitEncounter(fhirJson);
+            if (response.isSuccess()) {
+                String nhieId = response.getNhieResourceId();
+                transactionLogger.update(transactionId, response.getStatusCode(), maskPII(response.getResponseBody()),
+                        0, "SUCCESS", nhieId, null);
+                return nhieId;
+            } else {
+                transactionLogger.update(transactionId, response.getStatusCode(), maskPII(response.getResponseBody()),
+                        0, "FAILED", null, response.getErrorMessage());
+                throw new NHIEIntegrationException("Failed to submit encounter to NHIE");
+            }
+        } catch (Exception e) {
+            throw new NHIEIntegrationException("Error submitting encounter to NHIE", e);
+        }
+    }
     
     @Override
     public String syncPatientToNHIE(org.openmrs.Patient patient) throws NHIEIntegrationException {
@@ -118,7 +151,7 @@ public class NHIEIntegrationServiceImpl implements NHIEIntegrationService {
         
         try {
             // 3. Convert OpenMRS Patient to FHIR R4 JSON
-            Patient fhirPatient = fhirPatientMapper.toFhirPatient(patient);
+            org.hl7.fhir.r4.model.Patient fhirPatient = fhirPatientMapper.toFhirPatient(patient);
             fhirJson = serializeFhirPatient(fhirPatient);
             
             logger.debug("Converted patient to FHIR R4 (Ghana Card: {})", maskIdentifier(ghanaCard));
@@ -332,7 +365,7 @@ public class NHIEIntegrationServiceImpl implements NHIEIntegrationService {
         return personService.getPersonAttributeTypeByName(NHIE_PATIENT_ID_ATTRIBUTE_NAME);
     }
     
-    private String serializeFhirPatient(Patient fhirPatient) throws IOException {
+    private String serializeFhirPatient(org.hl7.fhir.r4.model.Patient fhirPatient) throws IOException {
         // Use HAPI FHIR's built-in JSON parser for proper FHIR serialization
         // For now, use Jackson (simple implementation)
         return objectMapper.writeValueAsString(fhirPatient);

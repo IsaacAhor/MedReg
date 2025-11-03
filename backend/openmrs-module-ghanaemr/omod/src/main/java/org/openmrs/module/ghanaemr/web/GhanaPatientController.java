@@ -12,7 +12,6 @@ import org.openmrs.module.ghanaemr.exception.DuplicatePatientException;
 import org.openmrs.module.ghanaemr.exception.ValidationException;
 import org.openmrs.module.ghanaemr.service.GhanaPatientService;
 import org.openmrs.module.ghanaemr.api.nhie.NHIEIntegrationService;
-import org.openmrs.module.ghanaemr.api.nhie.NHIEIntegrationService;
 import org.openmrs.module.ghanaemr.exception.NHIEIntegrationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,24 +76,24 @@ public class GhanaPatientController {
             List<Patient> results = new ArrayList<>();
 
             // Try identifier-based searches first
-            List<Patient> idMatches = safe(() -> patientService.getPatientsByIdentifier(query));
+            List<Patient> idMatches = safe(() -> patientService.getPatients(null, query, null, true));
             if (idMatches != null) collectDistinct(results, seen, idMatches);
 
             // If looks like Ghana Card normalize (uppercase)
             if (query != null && query.toUpperCase().startsWith("GHA-")) {
-                List<Patient> ghMatches = safe(() -> patientService.getPatientsByIdentifier(query.toUpperCase()));
+                List<Patient> ghMatches = safe(() -> patientService.getPatients(null, query.toUpperCase(), null, true));
                 if (ghMatches != null) collectDistinct(results, seen, ghMatches);
             }
 
             // NHIS 10 digits
             if (query != null && query.replaceAll("[\\s-]", "").matches("\\d{10}")) {
-                List<Patient> nhisMatches = safe(() -> patientService.getPatientsByIdentifier(query.replaceAll("[\\s-]", "")));
+                List<Patient> nhisMatches = safe(() -> patientService.getPatients(null, query.replaceAll("[\\s-]", ""), null, true));
                 if (nhisMatches != null) collectDistinct(results, seen, nhisMatches);
             }
 
             // Folder number pattern [REGION]-[FACILITY]-[YEAR]-[SEQUENCE]
             if (query != null && query.matches("[A-Z]{2}-[A-Z0-9]{4}-\\d{4}-\\d{6}")) {
-                List<Patient> folderMatches = safe(() -> patientService.getPatientsByIdentifier(query));
+                List<Patient> folderMatches = safe(() -> patientService.getPatients(null, query, null, true));
                 if (folderMatches != null) collectDistinct(results, seen, folderMatches);
             }
 
@@ -120,6 +119,54 @@ public class GhanaPatientController {
             return ResponseEntity.ok(body);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error("SERVER_ERROR", "Failed to search patients"));
+        }
+    }
+
+    @GetMapping("/{uuid}/nhie-status")
+    public ResponseEntity<?> getNHIEStatus(HttpServletRequest request, @PathVariable("uuid") String uuid) {
+        ensureAuthenticated(request);
+        try {
+            PatientService ps = Context.getPatientService();
+            Patient patient = ps.getPatientByUuid(uuid);
+            if (patient == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error("NOT_FOUND", "Patient not found"));
+            }
+
+            // Query transaction log for most recent sync attempt
+            String sql = "SELECT transaction_id, status, response_status, error_message, retry_count, " +
+                        "nhie_resource_id, created_at, updated_at " +
+                        "FROM ghanaemr_nhie_transaction_log " +
+                        "WHERE patient_id = ? AND resource_type = 'Patient' " +
+                        "ORDER BY created_at DESC LIMIT 1";
+
+            @SuppressWarnings("unchecked")
+            List<List<Object>> rows = Context.getAdministrationService().executeSQL(sql, true);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("patientUuid", patient.getUuid());
+
+            if (rows != null && !rows.isEmpty()) {
+                List<Object> row = rows.get(0);
+                body.put("syncStatus", row.get(1)); // status
+                body.put("nhiePatientId", row.get(5)); // nhie_resource_id
+                body.put("lastSyncAttempt", row.get(7)); // updated_at
+                body.put("retryCount", row.get(4)); // retry_count
+                body.put("errorMessage", row.get(3)); // error_message
+                body.put("responseStatus", row.get(2)); // response_status
+            } else {
+                // No sync attempted yet
+                body.put("syncStatus", "PENDING");
+                body.put("nhiePatientId", null);
+                body.put("lastSyncAttempt", null);
+                body.put("retryCount", 0);
+                body.put("errorMessage", null);
+                body.put("responseStatus", null);
+            }
+
+            return ResponseEntity.ok(body);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(error("SERVER_ERROR", "Failed to fetch NHIE status"));
         }
     }
 
@@ -268,4 +315,21 @@ public class GhanaPatientController {
             throw new APIAuthenticationException("Required privilege: " + privilege);
         }
     }
+
+    private void collectDistinct(List<Patient> results, Set<String> seen, List<Patient> candidates) {
+        if (candidates == null) return;
+        for (Patient p : candidates) {
+            if (p != null && !seen.contains(p.getUuid())) {
+                seen.add(p.getUuid());
+                results.add(p);
+            }
+        }
+    }
+
+    private String maskQuery(String query) {
+        if (query == null) return null;
+        if (query.length() <= 3) return "***";
+        return query.substring(0, 2) + "***";
+    }
 }
+

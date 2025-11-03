@@ -196,14 +196,14 @@ public class ReportsController {
             }
             if (!billingConcept.isEmpty() && (!nhisConcept.isEmpty() || !cashConcept.isEmpty())) {
                 if (!nhisConcept.isEmpty()) {
-                    nhis = ((Number) scalar("SELECT COUNT(*) FROM obs o WHERE o.concept_id=(SELECT concept_id FROM concept WHERE uuid='" + billingConcept + "') AND o.value_coded=(SELECT concept_id FROM concept WHERE uuid='" + nhisConcept + "') AND DATE(o.obs_datetime) BETWEEN '" + from + "' AND '" + to + "'" + locClause))).intValue();
+                    nhis = ((Number) scalar("SELECT COUNT(*) FROM obs o WHERE o.concept_id=(SELECT concept_id FROM concept WHERE uuid='" + billingConcept + "') AND o.value_coded=(SELECT concept_id FROM concept WHERE uuid='" + nhisConcept + "') AND DATE(o.obs_datetime) BETWEEN '" + from + "' AND '" + to + "'" + locClause)).intValue();
                 }
                 if (!cashConcept.isEmpty()) {
-                    cash = ((Number) scalar("SELECT COUNT(*) FROM obs o WHERE o.concept_id=(SELECT concept_id FROM concept WHERE uuid='" + billingConcept + "') AND o.value_coded=(SELECT concept_id FROM concept WHERE uuid='" + cashConcept + "') AND DATE(o.obs_datetime) BETWEEN '" + from + "' AND '" + to + "'" + locClause))).intValue();
+                    cash = ((Number) scalar("SELECT COUNT(*) FROM obs o WHERE o.concept_id=(SELECT concept_id FROM concept WHERE uuid='" + billingConcept + "') AND o.value_coded=(SELECT concept_id FROM concept WHERE uuid='" + cashConcept + "') AND DATE(o.obs_datetime) BETWEEN '" + from + "' AND '" + to + "'" + locClause)).intValue();
                 }
             } else {
-                nhis = ((Number) scalar("SELECT COUNT(*) FROM obs o WHERE o.value_text LIKE '%Billing: NHIS%' AND DATE(o.obs_datetime) BETWEEN '" + from + "' AND '" + to + "'" + locClause))).intValue();
-                cash = ((Number) scalar("SELECT COUNT(*) FROM obs o WHERE o.value_text LIKE '%Billing: Cash%' AND DATE(o.obs_datetime) BETWEEN '" + from + "' AND '" + to + "'" + locClause))).intValue();
+                nhis = ((Number) scalar("SELECT COUNT(*) FROM obs o WHERE o.value_text LIKE '%Billing: NHIS%' AND DATE(o.obs_datetime) BETWEEN '" + from + "' AND '" + to + "'" + locClause)).intValue();
+                cash = ((Number) scalar("SELECT COUNT(*) FROM obs o WHERE o.value_text LIKE '%Billing: Cash%' AND DATE(o.obs_datetime) BETWEEN '" + from + "' AND '" + to + "'" + locClause)).intValue();
             }
             if ("csv".equalsIgnoreCase(format)) {
                 String csv = "from,to,nhis,cash\n" + from + "," + to + "," + nhis + "," + cash + "\n";
@@ -283,5 +283,12 @@ public class ReportsController {
         if (!Context.hasPrivilege(privilege)) {
             throw new APIAuthenticationException("Required privilege: " + privilege);
         }
+    }
+
+    private ResponseEntity<?> bad(String code, String message) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("error", code);
+        error.put("message", message);
+        return ResponseEntity.badRequest().body(error);
     }
 }

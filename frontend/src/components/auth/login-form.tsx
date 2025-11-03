@@ -38,7 +38,11 @@ export function LoginForm() {
       return;
     }
     setLocationError(undefined);
-    await login.mutateAsync(values);
+    await login.mutateAsync({
+      username: values.username,
+      password: values.password,
+      location: values.locationUuid,
+    });
   };
 
   return (

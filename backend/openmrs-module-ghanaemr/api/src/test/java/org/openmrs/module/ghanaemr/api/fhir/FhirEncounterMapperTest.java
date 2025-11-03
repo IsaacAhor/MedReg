@@ -47,7 +47,7 @@ public class FhirEncounterMapperTest {
     private ConceptReferenceTerm mockTerm;
 
     @Mock
-    private ConceptReferenceSource mockSource;
+    private ConceptSource mockSource;  // Fixed: ConceptSource, not ConceptReferenceSource
 
     @Mock
     private PatientIdentifier mockGhanaCardIdentifier;

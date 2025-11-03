@@ -47,7 +47,10 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - openmrs_data:/root/.OpenMRS
+      # Persist OpenMRS application data
+      - openmrs_data:/openmrs/data
+      # Mount custom modules built locally (.omod files)
+      - ./openmrs-modules:/openmrs/data/modules
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs/"]
       interval: 30s

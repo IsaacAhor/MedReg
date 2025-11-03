@@ -99,4 +99,12 @@ public interface NHIEIntegrationService {
      * @return true if patient has NHIE patient ID attribute, false otherwise
      */
     boolean isPatientSyncedToNHIE(Patient patient);
+
+    /**
+     * Submit an OPD Encounter to NHIE as FHIR Encounter.
+     *
+     * @param encounter OpenMRS encounter to submit
+     * @return NHIE encounter ID
+     */
+    String submitEncounter(org.openmrs.Encounter encounter) throws org.openmrs.module.ghanaemr.exception.NHIEIntegrationException;
 }

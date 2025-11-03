@@ -1,9 +1,18 @@
 package org.openmrs.module.ghanaemr.api.fhir;
 
 import ca.uhn.fhir.context.FhirContext;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Address;
+import org.hl7.fhir.r4.model.ContactPoint;
 import org.hl7.fhir.r4.model.Enumerations.AdministrativeGender;
-import org.openmrs.*;
+import org.hl7.fhir.r4.model.HumanName;
+import org.hl7.fhir.r4.model.Identifier;
+import org.openmrs.PatientIdentifier;
+import org.openmrs.PatientIdentifierType;
+import org.openmrs.Person;
+import org.openmrs.PersonAddress;
+import org.openmrs.PersonAttribute;
+import org.openmrs.PersonAttributeType;
+import org.openmrs.PersonName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +68,7 @@ public class FhirPatientMapper {
      * @return FHIR R4 Patient resource
      * @throws IllegalArgumentException if patient is null or missing required data
      */
-    public Patient toFhirPatient(org.openmrs.Patient patient) {
+    public org.hl7.fhir.r4.model.Patient toFhirPatient(org.openmrs.Patient patient) {
         if (patient == null) {
             throw new IllegalArgumentException("Patient cannot be null");
         }
@@ -69,7 +78,7 @@ public class FhirPatientMapper {
             throw new IllegalArgumentException("Patient must have associated Person");
         }
         
-        Patient fhirPatient = new Patient();
+        org.hl7.fhir.r4.model.Patient fhirPatient = new org.hl7.fhir.r4.model.Patient();
         
         // Map identifiers
         mapIdentifiers(patient, fhirPatient);
@@ -97,7 +106,7 @@ public class FhirPatientMapper {
     /**
      * Map patient identifiers (Ghana Card, NHIS, Folder Number)
      */
-    private void mapIdentifiers(org.openmrs.Patient patient, Patient fhirPatient) {
+    private void mapIdentifiers(org.openmrs.Patient patient, org.hl7.fhir.r4.model.Patient fhirPatient) {
         Set<PatientIdentifier> identifiers = patient.getIdentifiers();
         
         for (PatientIdentifier identifier : identifiers) {
@@ -156,7 +165,7 @@ public class FhirPatientMapper {
     /**
      * Map person name to FHIR HumanName
      */
-    private void mapName(Person person, Patient fhirPatient) {
+    private void mapName(Person person, org.hl7.fhir.r4.model.Patient fhirPatient) {
         PersonName personName = person.getPersonName();
         
         if (personName == null) {
@@ -193,7 +202,7 @@ public class FhirPatientMapper {
      * - O → other
      * - U → unknown
      */
-    private void mapGender(Person person, Patient fhirPatient) {
+    private void mapGender(Person person, org.hl7.fhir.r4.model.Patient fhirPatient) {
         String gender = person.getGender();
         
         if (gender == null) {
@@ -223,7 +232,7 @@ public class FhirPatientMapper {
     /**
      * Map birth date
      */
-    private void mapBirthDate(Person person, Patient fhirPatient) {
+    private void mapBirthDate(Person person, org.hl7.fhir.r4.model.Patient fhirPatient) {
         Date birthdate = person.getBirthdate();
         
         if (birthdate != null) {
@@ -237,7 +246,7 @@ public class FhirPatientMapper {
     /**
      * Map telecom (phone number) from person attributes
      */
-    private void mapTelecom(Person person, Patient fhirPatient) {
+    private void mapTelecom(Person person, org.hl7.fhir.r4.model.Patient fhirPatient) {
         Set<PersonAttribute> attributes = person.getAttributes();
         
         for (PersonAttribute attribute : attributes) {
@@ -268,7 +277,7 @@ public class FhirPatientMapper {
     /**
      * Map person address to FHIR Address
      */
-    private void mapAddress(Person person, Patient fhirPatient) {
+    private void mapAddress(Person person, org.hl7.fhir.r4.model.Patient fhirPatient) {
         PersonAddress personAddress = person.getPersonAddress();
         
         if (personAddress == null) {
@@ -332,7 +341,7 @@ public class FhirPatientMapper {
      * @param patient FHIR Patient resource
      * @return JSON string representation
      */
-    public String toJson(Patient patient) {
+    public String toJson(org.hl7.fhir.r4.model.Patient patient) {
         return fhirContext.newJsonParser()
             .setPrettyPrint(true)
             .encodeResourceToString(patient);
@@ -344,9 +353,9 @@ public class FhirPatientMapper {
      * @param json JSON string
      * @return FHIR Patient resource
      */
-    public Patient fromJson(String json) {
+    public org.hl7.fhir.r4.model.Patient fromJson(String json) {
         return fhirContext.newJsonParser()
-            .parseResource(Patient.class, json);
+            .parseResource(org.hl7.fhir.r4.model.Patient.class, json);
     }
     
     /**
@@ -355,7 +364,7 @@ public class FhirPatientMapper {
      * @param patient FHIR Patient resource
      * @return true if valid, false otherwise
      */
-    public boolean validate(Patient patient) {
+    public boolean validate(org.hl7.fhir.r4.model.Patient patient) {
         if (patient == null) {
             return false;
         }
@@ -396,3 +405,4 @@ public class FhirPatientMapper {
         return prefix + "***" + suffix;
     }
 }
+

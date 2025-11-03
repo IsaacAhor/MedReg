@@ -27,7 +27,25 @@ function validateGhanaCardChecksum(ghanaCard: string): boolean {
   return checkDigit === Number(digits[9]);
 }
 
-// Regions (code ? label) - 16 regions per AGENTS.md\nconst GH_REGIONS: { code: string; name: string }[] = [\n  { code: 'AR', name: 'Ashanti' },\n  { code: 'BER', name: 'Bono East' },\n  { code: 'BR', name: 'Bono' },\n  { code: 'CR', name: 'Central' },\n  { code: 'ER', name: 'Eastern' },\n  { code: 'GAR', name: 'Greater Accra' },\n  { code: 'NER', name: 'North East' },\n  { code: 'NR', name: 'Northern' },\n  { code: 'NWR', name: 'North West' },\n  { code: 'OR', name: 'Oti' },\n  { code: 'SR', name: 'Savannah' },\n  { code: 'UER', name: 'Upper East' },\n  { code: 'UWR', name: 'Upper West' },\n  { code: 'VR', name: 'Volta' },\n  { code: 'WR', name: 'Western' },\n  { code: 'WNR', name: 'Western North' },\n];
+// Regions (code → label) - 16 regions per AGENTS.md
+const GH_REGIONS: { code: string; name: string }[] = [
+  { code: 'AR', name: 'Ashanti' },
+  { code: 'BER', name: 'Bono East' },
+  { code: 'BR', name: 'Bono' },
+  { code: 'CR', name: 'Central' },
+  { code: 'ER', name: 'Eastern' },
+  { code: 'GAR', name: 'Greater Accra' },
+  { code: 'NER', name: 'North East' },
+  { code: 'NR', name: 'Northern' },
+  { code: 'NWR', name: 'North West' },
+  { code: 'OR', name: 'Oti' },
+  { code: 'SR', name: 'Savannah' },
+  { code: 'UER', name: 'Upper East' },
+  { code: 'UWR', name: 'Upper West' },
+  { code: 'VR', name: 'Volta' },
+  { code: 'WR', name: 'Western' },
+  { code: 'WNR', name: 'Western North' },
+];
 
 // Zod schema
 const formSchema = z
@@ -214,7 +232,11 @@ export default function PatientRegistrationPage() {
                 <FormItem>
                   <FormLabel>Date of Birth *</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input
+                      type="date"
+                      value={field.value ? new Date(field.value).toISOString().slice(0, 10) : ''}
+                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

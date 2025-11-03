@@ -17,6 +17,9 @@ import org.openmrs.module.ghanaemr.util.FolderNumberGenerator;
 import org.openmrs.module.ghanaemr.util.SequenceProvider;
 import org.openmrs.module.ghanaemr.validation.GhanaCardValidator;
 import org.openmrs.module.ghanaemr.validation.NHISValidator;
+import org.openmrs.module.ghanaemr.api.nhie.NHIEIntegrationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,8 @@ import java.util.List;
 @Service
 @Transactional
 public class GhanaPatientServiceImpl implements GhanaPatientService {
+
+    private static final Logger log = LoggerFactory.getLogger(GhanaPatientServiceImpl.class);
 
     private static final String IDTYPE_GHANA_CARD = "Ghana Card";
     private static final String IDTYPE_NHIS_NUMBER = "NHIS Number"; // retained for backward compatibility only
@@ -97,16 +102,34 @@ public class GhanaPatientServiceImpl implements GhanaPatientService {
             }
         }
 
-        return patientService.savePatient(patient);
+        // Save patient to local database first
+        Patient savedPatient = patientService.savePatient(patient);
+
+        // Trigger NHIE sync asynchronously (non-blocking, fire-and-forget)
+        try {
+            String nhieEnabled = Context.getAdministrationService()
+                    .getGlobalProperty("ghana.feature.nhie.sync.enabled", "false");
+
+            if ("true".equalsIgnoreCase(nhieEnabled)) {
+                NHIEIntegrationService nhieIntegrationService = getNHIEIntegrationService();
+                if (nhieIntegrationService != null) {
+                    nhieIntegrationService.syncPatientToNHIE(savedPatient);
+                    log.info("NHIE sync triggered for patient: {}", savedPatient.getUuid());
+                }
+            }
+        } catch (Exception e) {
+            // Don't throw - patient is already saved locally
+            // Failed syncs will be retried by NHIERetryJob
+            log.error("Failed to trigger NHIE sync for patient: {}, will retry via background job",
+                     savedPatient.getUuid(), e);
+        }
+
+        return savedPatient;
     }
 
     private List<Patient> getByIdentifier(PatientService patientService, String identifier) {
-        try {
-            // OpenMRS API typically provides this; if not available, fallback to generic search
-            return patientService.getPatientsByIdentifier(identifier);
-        } catch (NoSuchMethodError e) {
-            return patientService.getPatients(null, identifier, null, true);
-        }
+        // OpenMRS 2.6 API: use getPatients method with identifier parameter
+        return patientService.getPatients(null, identifier, null, true);
     }
 
     private PatientIdentifierType getIdentifierType(String name) {
@@ -129,5 +152,25 @@ public class GhanaPatientServiceImpl implements GhanaPatientService {
             type.setName(name);
         }
         return type;
+    }
+
+    /**
+     * Get NHIE Integration Service from Spring context.
+     * Returns null if service not available (e.g., during testing or if NHIE module disabled).
+     */
+    private NHIEIntegrationService getNHIEIntegrationService() {
+        try {
+            return Context.getRegisteredComponents(NHIEIntegrationService.class)
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+        } catch (Exception e) {
+            try {
+                return Context.getService(NHIEIntegrationService.class);
+            } catch (Exception ex) {
+                log.warn("NHIEIntegrationService not available: {}", ex.getMessage());
+                return null;
+            }
+        }
     }
 }

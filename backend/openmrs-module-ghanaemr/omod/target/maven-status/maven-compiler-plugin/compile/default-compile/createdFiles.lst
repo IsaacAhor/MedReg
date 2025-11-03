@@ -1,0 +1,8 @@
+org\openmrs\module\ghanaemr\web\AuditLogger.class
+org\openmrs\module\ghanaemr\web\NHIECoverageController.class
+org\openmrs\module\ghanaemr\web\NHIEDlqController.class
+org\openmrs\module\ghanaemr\web\ReportsController.class
+org\openmrs\module\ghanaemr\web\GhanaPatientController$SupplierWithException.class
+org\openmrs\module\ghanaemr\web\GhanaPatientController.class
+org\openmrs\module\ghanaemr\web\OPDMetricsController.class
+org\openmrs\module\ghanaemr\web\NHIEMetricsController.class

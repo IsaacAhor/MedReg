@@ -8,7 +8,7 @@ import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.openmrs.Concept;
 import org.openmrs.ConceptMap;
-import org.openmrs.ConceptReferenceSource;
+import org.openmrs.ConceptSource;
 import org.openmrs.ConceptReferenceTerm;
 import org.openmrs.EncounterType;
 import org.openmrs.Obs;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Collection;
 
 /**
  * FHIR R4 Encounter Mapper for NHIE Integration
@@ -148,13 +149,12 @@ public class FhirEncounterMapper {
             if (concept == null) continue;
 
             // Attempt to find ICD-10 mapping on the concept
-            Optional<ConceptMap> icd10Map = Optional.ofNullable(concept.getConceptMappings())
-                    .map(Set::stream)
-                    .orElseGet(java.util.stream.Stream::empty)
+            Collection<ConceptMap> mappings = concept.getConceptMappings();
+            Optional<ConceptMap> icd10Map = (mappings != null ? mappings.stream() : java.util.stream.Stream.<ConceptMap>empty())
                     .filter(cm -> cm.getConceptReferenceTerm() != null)
                     .filter(cm -> {
                         ConceptReferenceTerm term = cm.getConceptReferenceTerm();
-                        ConceptReferenceSource src = term.getConceptSource();
+                        ConceptSource src = term.getConceptSource();
                         if (src == null) return false;
                         String name = src.getName();
                         String hl7Code = src.getHl7Code();
@@ -178,4 +178,5 @@ public class FhirEncounterMapper {
         }
     }
 }
+
 

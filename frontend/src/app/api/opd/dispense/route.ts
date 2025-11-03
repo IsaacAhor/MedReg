@@ -5,7 +5,6 @@ const OPENMRS_BASE_URL = process.env.OPENMRS_BASE_URL || 'http://localhost:8080/
 const OPENMRS_USERNAME = process.env.OPENMRS_USERNAME || 'admin';
 const OPENMRS_PASSWORD = process.env.OPENMRS_PASSWORD || 'Admin123';
 const authHeader = `Basic ${Buffer.from(`${OPENMRS_USERNAME}:${OPENMRS_PASSWORD}`).toString('base64')}`;
-const OPENMRS_ROOT_URL = OPENMRS_BASE_URL.replace(/\/ws\/rest\/v1\/?$/, '');
 
 const LOCATION_UUID = process.env.OPENMRS_LOCATION_UUID || 'aff27d58-a15c-49a6-9beb-d30dcfc0c66e';
 const DISPENSE_ENCOUNTER_TYPE_UUID = process.env.OPENMRS_OPD_DISPENSE_ENCOUNTER_TYPE_UUID || process.env.OPENMRS_OPD_ENCOUNTER_TYPE_UUID || '';

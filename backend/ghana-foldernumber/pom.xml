@@ -37,5 +37,13 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <repositories>
+    <repository>
+      <id>openmrs-repo</id>
+      <name>OpenMRS Maven Repository</name>
+      <url>https://mavenrepo.openmrs.org/public</url>
+    </repository>
+  </repositories>
 </project>
 

@@ -2,10 +2,33 @@
 
 GitHub Copilot will automatically read AGENTS.md from the workspace root.
 
+## Task Management (NEW - November 2, 2025)
+
+**When user says: "Refer to PROMPT_QUEUE.md pending task and complete it"**
+
+1. Open `PROMPT_QUEUE.md`
+2. Find FIRST task marked 🔵 QUEUED or 🟡 IN PROGRESS
+3. Execute ALL steps in "Self-Contained Execution Instructions"
+4. Run verification tests (MANDATORY)
+5. Update IMPLEMENTATION_TRACKER.md (mark task complete)
+6. Move task to TASK_HISTORY.md (with completion details)
+7. Delete task from PROMPT_QUEUE.md
+8. Notify user with summary
+
+**DO NOT:**
+- Skip verification commands
+- Delete task before updating IMPLEMENTATION_TRACKER.md
+- Work on Task 2 if Task 1 is still 🔵 QUEUED (follow order)
+
+See AGENTS.md "Task Management Workflow" section for full details.
+
+---
+
 ## Additional Context
 When generating code for this project:
 
 1. **Always check AGENTS.md first** for:
+   - Task Management Workflow (PROMPT_QUEUE.md execution)
    - Ghana domain rules (Ghana Card validation, NHIS format)
    - NHIE middleware architecture (NO direct backend connections)
    - OpenMRS code patterns (Service/DAO/REST controller)

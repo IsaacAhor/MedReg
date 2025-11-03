@@ -117,3 +117,21 @@ export const INVALID_GHANA_CARDS = [
   'GHA-1234567890-1', // Too long
   '123456789', // Missing prefix
 ];
+
+/**
+ * Mask Ghana Card for display/logging
+ * Rules: keep prefix and first 4 digits, mask middle block and check digit
+ * Example: GHA-123456789-7 -> GHA-1234****-*
+ */
+export function maskGhanaCard(value: string | null | undefined): string {
+  if (!value) return '';
+  const normalized = String(value).toUpperCase().trim();
+  const m = normalized.match(/^GHA-(\d{4})\d{5}-\d$/);
+  if (m) {
+    return `GHA-${m[1]}****-*`;
+  }
+  // Fallback: preserve first 4 digits encountered
+  const digits = normalized.replace(/\D/g, '');
+  const first4 = digits.slice(0, 4);
+  return normalized.replace(/^(GHA-)?(.+)$/, `GHA-${first4}****-*`);
+}

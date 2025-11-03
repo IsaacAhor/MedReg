@@ -2,9 +2,9 @@
 
 ## Executive Summary
 
-Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for EOI submission Q1 2026. Focus: prove NHIE integration works, handle 80% of daily workflows, demonstrate cost advantage.
+Build a **working EMR in 20 weeks** (Option B: Next.js + shadcn/ui frontend) that wins pilot facility + positions for EOI submission Q1 2026. Focus: prove NHIE integration works, handle 80% of daily workflows, demonstrate cost advantage.
 
-**Target**: 1 teaching hospital or regional hospital live by Week 16
+**Target**: 1 teaching hospital or regional hospital live by Week 20
 
 ---
 
@@ -85,7 +85,7 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
 
 ## 16-Week Build Timeline (Option A) / 20-Week Timeline (Option B)
 
-### Phase 1: Foundation (Week 1-4 Option A / Week 1-5 Option B)
+### Phase 1: Foundation (Week 1-5 Option B)
 
 **Week 1: Setup + User Management** ✅ **COMPLETED (Nov 1, 2025)**
 - ✅ Day 1-2: OpenMRS 2.6.0 installation, MySQL 8.0, Docker Compose setup
@@ -95,7 +95,7 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
 - ✅ Day 5: Facility metadata (using Amani Hospital as default location)
 - ✅ **BONUS**: MCP infrastructure (OpenMRS + MySQL MCP servers with 6 tools, 5 validators)
 
-**Week 2-3: Patient Registration** ✅ **COMPLETED (Nov 1, 2025) - AHEAD BY 2 WEEKS**
+**Week 2: Patient Registration** ✅ **COMPLETED (Nov 1, 2025) - AHEAD BY 1 WEEK**
 - ✅ **Option B Implementation**: 
   - ✅ shadcn/ui form components (Input, Select, DatePicker, Button, Form)
   - ✅ React Hook Form + Zod validation (Ghana Card format + Luhn checksum, NHIS 10-digit format)
@@ -110,7 +110,28 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
 - ⏳ Photo capture (deferred to v2)
 - ⏳ Advanced patient search UI (basic search works via OpenMRS UI)
 
-**Week 4 (Option A) / Week 4-5 (Option B): NHIE Patient Sync** ⏳ **SCHEDULED FOR WEEK 2 DAY 7**
+**Week 3 (Option B): Frontend Integration & Backend APIs** 🔄 **IN PROGRESS (Nov 2-3, 2025)**
+- ✅ Auth endpoints (login, logout, session, location) - **COMPLETE Nov 2**
+  - Next.js API routes with secure cookie handling (HttpOnly, SameSite=Lax, 8-hour expiry)
+  - OpenMRS session management via BFF pattern
+  - Role-based authentication (8 roles: Platform Admin, Facility Admin, Doctor, Nurse, Pharmacist, Records Officer, Cashier, NHIS Officer)
+  - Location-based login for OPD workflow
+- ✅ Backend report stubs (opd-register, nhis-vs-cash, top-diagnoses, revenue) - **COMPLETE Nov 3**
+  - ReportsController.java with 4 endpoints
+  - JSON and CSV export support
+  - Authentication checks via Context.isAuthenticated()
+  - Ready for frontend consumption
+- ⏳ Frontend pages (login, dashboard, patient list)
+  - shadcn/ui components (Button, Card, Table, Form)
+  - TanStack Query integration for data fetching
+  - Responsive layout with role-aware navigation
+- ⏳ Connect frontend to backend APIs
+  - Patient registration form → POST /api/patients
+  - Login form → POST /api/auth/login
+  - Dashboard → GET /api/reports/*
+  - Real-time OPD metrics display
+
+**Week 4 (Option A) / Week 4-5 (Option B): NHIE Patient Sync** ⏳ **SCHEDULED**
 - ⏳ OpenMRS → FHIR Patient converter (backend)
 - ⏳ NHIE HTTP client (OAuth 2.0 + mTLS if required)
 - ⏳ Patient submission to NHIE
@@ -126,18 +147,16 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
 
 ---
 
-### Phase 2: OPD Core Workflow (Week 5-9 Option A / Week 6-11 Option B)
+### Phase 2: OPD Core Workflow (Week 6-11 Option B)
 
-**Week 5 (Option A) / Week 6 (Option B): Triage Module**
+**Week 6 (Option B): Triage Module**
 - **Backend**: Vitals Obs creation (OpenMRS)
-- **Option A**: HTML Form Entry for vitals
 - **Option B**: shadcn/ui vitals form (Input components for BP, Temp, Weight, Height)
 - BMI auto-calculation (client-side + server validation)
 - Triage queue UI (shows patients waiting for consultation)
 
-**Week 6-7 (Option A) / Week 7-8 (Option B): Consultation Module**
+**Week 7-8 (Option B): Consultation Module**
 - **Backend**: Encounter creation, Obs for complaints/diagnosis/prescriptions, Order creation
-- **Option A**: HTML Form Entry for consultation
 - **Option B**: 
   - Complaints textarea (shadcn/ui Textarea)
   - Diagnosis search with autocomplete (shadcn/ui Command + Combobox, top 20 Ghana diagnoses)
@@ -145,7 +164,7 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
   - Lab order checkboxes (top 10 tests)
 - Save encounter (creates OpenMRS Encounter with Obs)
 
-**Week 8 (Option A) / Week 9 (Option B): Pharmacy Module**
+**Week 9 (Option B): Pharmacy Module**
 - **Backend**: Dispense order processing
 - **Option A**: Simple dispensing queue page
 - **Option B**: 
@@ -154,7 +173,7 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
   - Mark as dispensed with timestamp
 - Inventory/stock tracking deferred to v2
 
-**Week 9 (Option A) / Week 10-11 (Option B): NHIE Encounter Sync**
+**Week 10-11 (Option B): NHIE Encounter Sync**
 - **Backend**: OpenMRS Encounter → FHIR Encounter/Observation converter
 - Submit to NHIE after consultation saved
 - Background job (every 5 minutes) to retry failed submissions
@@ -164,19 +183,17 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
 
 ---
 
-### Phase 3: NHIS + Billing (Week 10-12 Option A / Week 12-14 Option B)
+### Phase 3: NHIS + Billing (Week 12-14 Option B)
 
-**Week 10 (Option A) / Week 12 (Option B): NHIS Eligibility Check**
+**Week 12 (Option B): NHIS Eligibility Check**
 - **Backend**: NHIE Coverage resource query, caching logic
 - At registration: Query NHIE for Coverage resource
-- **Option A**: Simple status display
 - **Option B**: shadcn/ui Badge components (ACTIVE=green, EXPIRED=red, NOT FOUND=yellow)
 - Store eligibility status with patient visit
 - Cache eligibility for 24 hours (reduce API calls)
 
-**Week 11 (Option A) / Week 13 (Option B): Billing/Cashier**
+**Week 13 (Option B): Billing/Cashier**
 - **Backend**: Billing calculation, payment recording
-- **Option A**: Basic billing form
 - **Option B**:
   - shadcn/ui billing form (service charges, drug charges)
   - Total calculation with breakdown
@@ -221,11 +238,10 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
 
 ---
 
-### Phase 4: Reports + Polish (Week 13-16 Option A / Week 15-20 Option B)
+### Phase 4: Reports + Polish (Week 15-20 Option B)
 
-**Week 13 (Option A) / Week 15-16 (Option B): Essential Reports**
+**Week 15-16 (Option B): Essential Reports**
 - **Backend**: Report queries (daily OPD register, NHIS vs Cash, top diagnoses, revenue)
-- **Option A**: Basic report pages with tables
 - **Option B**:
   - shadcn/ui Table components with sorting/filtering
   - shadcn/ui Card components for summary stats
@@ -252,13 +268,13 @@ Build a **working EMR in 12-16 weeks** that wins pilot facility + positions for 
 - Security audit (basic: SQL injection, XSS, privilege escalation)
 - **Option B**: Cross-browser testing (Chrome, Firefox, Safari), responsive design validation
 
-**Week 15 (Option A) / Week 18-19 (Option B): User Training + Documentation**
+**Week 18-19 (Option B): User Training + Documentation**
 - User manual (registration, OPD workflow, NHIS checking, reports)
 - Training videos (5-10 minutes each for key workflows)
 - Job aids (one-page quick reference cards)
 - **Option B Week 19**: In-app help tooltips, onboarding tour
 
-**Week 16 (Option A) / Week 20 (Option B): Pilot Deployment**
+**Week 20 (Option B): Pilot Deployment**
 - Deploy to pilot facility (teaching hospital or regional hospital)
 - **Option B**: Frontend deployed to Vercel or Nginx, configure CORS
 - On-site setup: Server installation, network config, printer setup

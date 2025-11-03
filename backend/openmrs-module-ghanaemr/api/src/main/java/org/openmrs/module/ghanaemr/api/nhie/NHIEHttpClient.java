@@ -465,6 +465,24 @@ public class NHIEHttpClient {
             httpClient.close();
         }
     }
+
+    /**
+     * Submit FHIR Encounter resource to NHIE.
+     */
+    public NHIEResponse submitEncounter(String encounterJson) throws IOException {
+        String url = getBaseUrl() + "/Encounter";
+        HttpPost request = new HttpPost(url);
+        request.setHeader("Content-Type", "application/fhir+json");
+        request.setHeader("Accept", "application/fhir+json");
+        String token = getAccessToken();
+        if (token != null) {
+            request.setHeader("Authorization", "Bearer " + token);
+        }
+        request.setEntity(new StringEntity(encounterJson, StandardCharsets.UTF_8));
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            return buildResponse(response);
+        }
+    }
     
     /**
      * Inner class: OAuth 2.0 token with expiry tracking
