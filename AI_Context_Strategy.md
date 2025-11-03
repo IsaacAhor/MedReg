@@ -35,13 +35,13 @@ By creating comprehensive context documents for AI coding assistants, we can shi
 ```markdown
 # OpenMRS Context Service Pattern
 
-## ❌ WRONG (Standard Spring)
+## [FAILED] WRONG (Standard Spring)
 ```java
 @Autowired
 private PatientService patientService;
 ```
 
-## ✅ CORRECT (OpenMRS Pattern)
+## [DONE] CORRECT (OpenMRS Pattern)
 ```java
 PatientService patientService = Context.getPatientService();
 ```
@@ -343,7 +343,7 @@ Generate OpenMRS service method that:
 2. Includes all three identifiers (Ghana Card, NHIS, Folder Number)
 3. Calls NHIE middleware API with OAuth2 token (NHIE routes internally to MPI)
 4. Handles 409 conflict by searching existing patient via NHIE
-5. Logs transaction to nhie_transaction_log table (facility → NHIE calls only)
+5. Logs transaction to nhie_transaction_log table (facility -> NHIE calls only)
 6. Returns NHIE patient ID for future reference
 
 IMPORTANT: Never generate direct connections to NHIA or National MPI—all calls go through NHIE middleware.
@@ -446,10 +446,10 @@ When generating code:
   - Technical Lead (OpenMRS expert) - Still required
   - 2 Backend Developers (vs 3) - AI handles more
   - 1 Frontend Developer - AI handles more
-  - ~~Clinical Informaticist~~ → Part-time consultant (knowledge captured in docs)
+  - ~~Clinical Informaticist~~ -> Part-time consultant (knowledge captured in docs)
   - DevOps Engineer
   - QA Engineer
-  - ~~Business Analyst~~ → Part-time (requirements captured in docs)
+  - ~~Business Analyst~~ -> Part-time (requirements captured in docs)
   
 - **AI contribution**: 80-85% of code including domain logic
 - **Timeline**: 4-5 months (faster iteration with AI)
@@ -504,9 +504,9 @@ Track metrics:
 
 **YES**, exposing AI to OpenMRS docs and domain knowledge would dramatically help:
 - Shifts AI from "code generator" to "Ghana EMR expert"
-- Reduces team from 11 → 6-8 people
-- Cuts timeline from 6 → 4-5 months  
-- Reduces cost from $80K → $50-60K
+- Reduces team from 11 -> 6-8 people
+- Cuts timeline from 6 -> 4-5 months  
+- Reduces cost from $80K -> $50-60K
 - Most importantly: Makes AI generate **working domain logic** not just boilerplate
 
 **Investment required**: 2-3 weeks upfront documentation effort  

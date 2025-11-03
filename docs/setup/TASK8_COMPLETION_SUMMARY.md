@@ -2,8 +2,8 @@
 
 **Date:** November 2, 2025  
 **Task:** Create NHIEIntegrationService.java orchestration layer  
-**Status:** ✅ COMPLETE  
-**Progress:** Week 4-5 updated from 65% → 75%
+**Status:** [DONE] COMPLETE  
+**Progress:** Week 4-5 updated from 65% -> 75%
 
 ---
 
@@ -72,15 +72,15 @@
 **syncPatientToNHIE Implementation:**
 1. Validate Ghana Card identifier exists (throw IllegalArgumentException if missing)
 2. Check if already synced (idempotent - return existing ID)
-3. Convert OpenMRS Patient → FHIR R4 JSON (FhirPatientMapper)
+3. Convert OpenMRS Patient -> FHIR R4 JSON (FhirPatientMapper)
 4. Log transaction as PENDING (nhie_transaction_log table)
 5. Submit to NHIE via NHIEHttpClient.submitPatient()
 6. Handle responses:
-   - **201 Created**: Extract NHIE ID from Location header → Store → Log SUCCESS
-   - **200 OK (duplicate)**: Extract NHIE ID from response body → Store → Log SUCCESS
-   - **409 Conflict**: Call handleDuplicatePatient → Reconcile IDs → Log SUCCESS
-   - **4xx/5xx**: Log FAILED with retry flag → Throw NHIEIntegrationException
-7. Network/IO errors: Log FAILED (retryable) → Throw exception with retryable=true
+   - **201 Created**: Extract NHIE ID from Location header -> Store -> Log SUCCESS
+   - **200 OK (duplicate)**: Extract NHIE ID from response body -> Store -> Log SUCCESS
+   - **409 Conflict**: Call handleDuplicatePatient -> Reconcile IDs -> Log SUCCESS
+   - **4xx/5xx**: Log FAILED with retry flag -> Throw NHIEIntegrationException
+7. Network/IO errors: Log FAILED (retryable) -> Throw exception with retryable=true
 
 **handleDuplicatePatient Implementation:**
 1. Extract existing NHIE patient ID from 409 response body (parse FHIR JSON "id" field)
@@ -121,9 +121,9 @@
 - Fields logged: transaction_id, patient_id, resource_type, http_method, endpoint, request_body_masked, response_status, response_body_masked, retry_count, status, created_at, updated_at
 
 **PII Masking Patterns:**
-- Ghana Card: `GHA-XXXXXXXXX-X` → `GHA-1234****-*`
-- NHIS: `0123456789` → `0123******`
-- Names in JSON: `"Kwame"` → `"K***e"` (mask middle characters)
+- Ghana Card: `GHA-XXXXXXXXX-X` -> `GHA-1234****-*`
+- NHIS: `0123456789` -> `0123******`
+- Names in JSON: `"Kwame"` -> `"K***e"` (mask middle characters)
 - Generic identifiers: Show first 4 chars + `***`
 
 **Thread Safety:**
@@ -200,14 +200,14 @@
 
 ## Production Readiness Checklist
 
-✅ **All interface methods implemented**
+[DONE] **All interface methods implemented**
 - syncPatientToNHIE: 150+ lines
 - handleDuplicatePatient: 30+ lines
 - getNHIEPatientId: 15+ lines
 - storeNHIEPatientId: 25+ lines
 - isPatientSyncedToNHIE: 5+ lines
 
-✅ **Error handling for all scenarios**
+[DONE] **Error handling for all scenarios**
 - 201 Created: Store ID, log SUCCESS
 - 200 OK (duplicate): Extract ID, log SUCCESS
 - 409 Conflict: Reconcile IDs, log SUCCESS
@@ -217,38 +217,38 @@
 - 5xx Server Error: Log FAILED (retryable), throw exception
 - Network/IO errors: Log FAILED (retryable), throw exception
 
-✅ **Transaction logging with PII masking**
+[DONE] **Transaction logging with PII masking**
 - All transactions logged to nhie_transaction_log table
 - Ghana Card masked: GHA-1234****-*
 - NHIS masked: 0123******
 - Names masked: K***e M****h
 
-✅ **NHIE patient ID lifecycle management**
+[DONE] **NHIE patient ID lifecycle management**
 - getNHIEPatientId: Query person_attribute table
 - storeNHIEPatientId: Create/update "NHIE Patient ID" attribute
 - isPatientSyncedToNHIE: Check if NHIE ID exists
 - handleDuplicatePatient: Reconcile conflicts (NHIE is source of truth)
 
-✅ **Idempotency**
+[DONE] **Idempotency**
 - Check if already synced before submitting (avoid duplicate API calls)
 - Return existing NHIE ID immediately if found
 
-✅ **Conflict resolution**
+[DONE] **Conflict resolution**
 - 409 Conflict: Extract existing NHIE patient ID from response
 - Compare with stored OpenMRS NHIE ID
 - Update to NHIE value if different (NHIE is source of truth)
 
-✅ **Thread safety**
+[DONE] **Thread safety**
 - @Transactional: Database operations are atomic
 - NHIEHttpClient: Thread-safe token caching (ConcurrentHashMap)
 - FhirPatientMapper: Stateless, thread-safe
 
-✅ **Comprehensive logging**
+[DONE] **Comprehensive logging**
 - SLF4J Logger for all operations
 - PII masking in all log statements
 - Log levels: INFO for success, WARN for conflicts, ERROR for failures
 
-✅ **Javadoc for all public methods**
+[DONE] **Javadoc for all public methods**
 - Class-level: Workflow, thread safety, error recovery
 - Method-level: Parameters, return values, exceptions thrown
 - Total: 600+ lines embedded documentation
@@ -259,7 +259,7 @@
 
 ### Upstream Dependencies (What This Service Uses)
 1. **FhirPatientMapper** (Week 4)
-   - Converts OpenMRS Patient → FHIR R4 JSON
+   - Converts OpenMRS Patient -> FHIR R4 JSON
    - Called by syncPatientToNHIE (step 3)
 
 2. **NHIEHttpClient** (Task #6)
@@ -288,7 +288,7 @@
    - Implementation pending (Task #9)
 
 3. **Patient Dashboard UI** (React)
-   - Display NHIE sync status badge (✅ Synced, ⏳ Pending, ❌ Failed)
+   - Display NHIE sync status badge ([DONE] Synced, [PENDING] Pending, [FAILED] Failed)
    - Show masked NHIE patient ID
    - Manual retry button (admin only)
    - Implementation pending (Task #10)
@@ -319,7 +319,7 @@
    - Extend AbstractTask (OpenMRS scheduler)
    - Schedule: Every 5 minutes
    - Query nhie_transaction_log WHERE status='FAILED' AND retry_count<8
-   - Calculate exponential backoff: 5s→30s→2m→10m→1h→2h→4h
+   - Calculate exponential backoff: 5s->30s->2m->10m->1h->2h->4h
    - Retry via NHIEIntegrationService.syncPatientToNHIE()
    - Update retry_count, status, next_retry_at
    - Move to DLQ (status='DLQ') after 8 failures
@@ -329,15 +329,15 @@
    - File: `src/app/patients/[uuid]/page.tsx`
    - Display patient demographics (shadcn/ui Card)
    - NHIE sync status badge:
-     - ✅ Synced (green): status='SUCCESS'
-     - ⏳ Pending (yellow): status='PENDING'
-     - ❌ Failed (red): status='FAILED'
+     - [DONE] Synced (green): status='SUCCESS'
+     - [PENDING] Pending (yellow): status='PENDING'
+     - [FAILED] Failed (red): status='FAILED'
    - Show masked NHIE patient ID (if synced)
    - Recent encounters list (shadcn/ui Table)
    - Manual retry button (admin only, for failed syncs)
 
 5. **E2E tests** (Playwright)
-   - Test flow: Open registration form → Fill data → Submit → Verify creation → Wait for sync → Verify status badge
+   - Test flow: Open registration form -> Fill data -> Submit -> Verify creation -> Wait for sync -> Verify status badge
    - Test scenarios: Success (201), duplicate (409), failure (5xx retry)
 
 ---
@@ -360,7 +360,7 @@
 1. **syncPatientToNHIE Success Tests (10 tests)**
    - 201 Created: Verify ID stored, transaction logged SUCCESS
    - 200 OK (duplicate): Verify existing ID extracted, logged SUCCESS
-   - Idempotency: Already synced → return existing ID without API call
+   - Idempotency: Already synced -> return existing ID without API call
 
 2. **syncPatientToNHIE Error Tests (15 tests)**
    - 409 Conflict: Verify handleDuplicatePatient called, ID reconciled
@@ -374,27 +374,27 @@
 3. **handleDuplicatePatient Tests (8 tests)**
    - ID extraction from 409 response body (valid JSON)
    - ID extraction failure (no "id" field in response)
-   - Reconcile: No stored ID → store NHIE ID
-   - Reconcile: Different ID → update to NHIE value, log warning
-   - Reconcile: Same ID → no update
+   - Reconcile: No stored ID -> store NHIE ID
+   - Reconcile: Different ID -> update to NHIE value, log warning
+   - Reconcile: Same ID -> no update
 
 4. **getNHIEPatientId Tests (5 tests)**
-   - Attribute exists → return value
-   - Attribute missing → return null
-   - Attribute type not configured → return null
-   - Null patient → return null
+   - Attribute exists -> return value
+   - Attribute missing -> return null
+   - Attribute type not configured -> return null
+   - Null patient -> return null
 
 5. **storeNHIEPatientId Tests (7 tests)**
    - Create new attribute (first sync)
    - Update existing attribute (re-sync)
-   - Attribute type not configured → throw IllegalStateException
-   - Null patient → throw IllegalArgumentException
-   - Null NHIE ID → throw IllegalArgumentException
+   - Attribute type not configured -> throw IllegalStateException
+   - Null patient -> throw IllegalArgumentException
+   - Null NHIE ID -> throw IllegalArgumentException
 
 6. **isPatientSyncedToNHIE Tests (3 tests)**
-   - NHIE ID exists → return true
-   - NHIE ID missing → return false
-   - Null patient → return false
+   - NHIE ID exists -> return true
+   - NHIE ID missing -> return false
+   - Null patient -> return false
 
 7. **Transaction Logging Tests (5 tests)**
    - PENDING log before submission
@@ -421,9 +421,9 @@
 - Marked @Ignore by default (run manually)
 
 **Test Scenarios:**
-1. Complete patient sync flow (OpenMRS → FHIR → NHIE mock → Store ID)
+1. Complete patient sync flow (OpenMRS -> FHIR -> NHIE mock -> Store ID)
 2. Duplicate prevention (If-None-Exist header, 200 OK response)
-3. Conflict resolution (409 → extract existing ID)
+3. Conflict resolution (409 -> extract existing ID)
 4. Transaction logging (verify database entries)
 5. Performance (<5s for single patient sync)
 
@@ -488,19 +488,19 @@
 ## Conclusion
 
 Task #8 (NHIEIntegrationService orchestration layer) is **COMPLETE**:
-- ✅ Interface defined (100+ lines, 5 methods)
-- ✅ Exception class created (50+ lines, 4 constructors)
-- ✅ Implementation complete (560+ lines, 12 helper methods)
-- ✅ Comprehensive Javadoc (600+ lines)
-- ✅ All interface methods implemented
-- ✅ Error handling for all scenarios (201/200/409/401/422/429/5xx)
-- ✅ Transaction logging with PII masking
-- ✅ NHIE patient ID lifecycle management
-- ✅ Idempotency and conflict resolution
-- ✅ Thread safety (@Transactional, thread-safe dependencies)
+- [DONE] Interface defined (100+ lines, 5 methods)
+- [DONE] Exception class created (50+ lines, 4 constructors)
+- [DONE] Implementation complete (560+ lines, 12 helper methods)
+- [DONE] Comprehensive Javadoc (600+ lines)
+- [DONE] All interface methods implemented
+- [DONE] Error handling for all scenarios (201/200/409/401/422/429/5xx)
+- [DONE] Transaction logging with PII masking
+- [DONE] NHIE patient ID lifecycle management
+- [DONE] Idempotency and conflict resolution
+- [DONE] Thread safety (@Transactional, thread-safe dependencies)
 
 **Total Production Code:** 710+ lines  
-**Week 4-5 Progress:** 65% → 75% (updated in IMPLEMENTATION_TRACKER.md)
+**Week 4-5 Progress:** 65% -> 75% (updated in IMPLEMENTATION_TRACKER.md)
 
 **Next Task:** Create NHIEIntegrationServiceTest.java (800+ lines, >90% coverage target)
 

@@ -480,8 +480,15 @@ public class NHIEHttpClient {
         }
         request.setEntity(new StringEntity(encounterJson, StandardCharsets.UTF_8));
         try (CloseableHttpResponse response = httpClient.execute(request)) {
-            return buildResponse(response);
+            return handleResponse(response, "POST", url);
         }
+    }
+
+    /**
+     * Build NHIEResponse from HTTP response (alias for handleResponse for backward compatibility)
+     */
+    private NHIEResponse buildResponse(CloseableHttpResponse response) throws IOException {
+        return handleResponse(response, "POST", "encounter");
     }
     
     /**

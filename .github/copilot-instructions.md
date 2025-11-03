@@ -7,7 +7,7 @@ GitHub Copilot will automatically read AGENTS.md from the workspace root.
 **When user says: "Refer to PROMPT_QUEUE.md pending task and complete it"**
 
 1. Open `PROMPT_QUEUE.md`
-2. Find FIRST task marked 🔵 QUEUED or 🟡 IN PROGRESS
+2. Find FIRST task marked [QUEUED] QUEUED or [WIP] IN PROGRESS
 3. Execute ALL steps in "Self-Contained Execution Instructions"
 4. Run verification tests (MANDATORY)
 5. Update IMPLEMENTATION_TRACKER.md (mark task complete)
@@ -18,7 +18,7 @@ GitHub Copilot will automatically read AGENTS.md from the workspace root.
 **DO NOT:**
 - Skip verification commands
 - Delete task before updating IMPLEMENTATION_TRACKER.md
-- Work on Task 2 if Task 1 is still 🔵 QUEUED (follow order)
+- Work on Task 2 if Task 1 is still [QUEUED] QUEUED (follow order)
 
 See AGENTS.md "Task Management Workflow" section for full details.
 

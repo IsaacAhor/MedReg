@@ -5,12 +5,12 @@
 ## Purpose
 
 Allows AI agents to inspect and query the OpenMRS database safely:
-- ✅ Read-only queries (SELECT) by default
-- ✅ Schema inspection (DESCRIBE, SHOW)
-- ✅ Gated migrations (propose → approve → apply)
-- ✅ Automatic backups before critical operations
-- ✅ SQL validation (blocks dangerous operations)
-- ✅ PII masking in query results
+- [DONE] Read-only queries (SELECT) by default
+- [DONE] Schema inspection (DESCRIBE, SHOW)
+- [DONE] Gated migrations (propose -> approve -> apply)
+- [DONE] Automatic backups before critical operations
+- [DONE] SQL validation (blocks dangerous operations)
+- [DONE] PII masking in query results
 
 ## Tools
 
@@ -101,10 +101,10 @@ MYSQL_BACKUP_DIR=./backups
 
 ### PII Masking
 All query results automatically mask:
-- Ghana Card numbers → `GHA-1234****-*`
-- NHIS numbers → `0123****`
-- Phone numbers → `+233244****`
-- Patient names (in results) → `K***e M****h`
+- Ghana Card numbers -> `GHA-1234****-*`
+- NHIS numbers -> `0123****`
+- Phone numbers -> `+233244****`
+- Patient names (in results) -> `K***e M****h`
 
 ### Backup & Rollback
 Before every migration:

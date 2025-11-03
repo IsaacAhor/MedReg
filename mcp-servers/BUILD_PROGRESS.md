@@ -7,82 +7,87 @@
 
 ---
 
-## ✅ Completed (Nov 1, 2025)
+## [DONE] Completed (Nov 1, 2025)
 
-### 1. Directory Structure ✅
+### 1. Directory Structure [DONE]
 ```
 mcp-servers/
-├─ README.md ✅                      Main documentation
-├─ shared/ ✅                        Shared utilities package
+├─ README.md [DONE]                      Main documentation
+├─ shared/ [DONE]                        Shared utilities package
 │  ├─ package.json
 │  ├─ tsconfig.json
 │  └─ src/
 │     ├─ index.ts
 │     ├─ pii-masker.ts              PII masking utilities
 │     └─ context-loader.ts          Project context loader
-├─ openmrs/ ✅                       OpenMRS MCP Server
+├─ openmrs/ [DONE]                       OpenMRS MCP Server
 │  ├─ package.json
 │  ├─ tsconfig.json
 │  ├─ README.md
 │  └─ src/
 │     ├─ index.ts                   Main server entry point
 │     ├─ tools/
-│     │  ├─ create-patient.ts       ✅ Create patient with Ghana validation
-│     │  ├─ search-patient.ts       ✅ Search patients with PII masking
+│     │  ├─ create-patient.ts       [DONE] Create patient with Ghana validation
+│     │  ├─ search-patient.ts       [DONE] Search patients with PII masking
 │     │  └─ index.ts
 │     ├─ validators/
-│     │  ├─ ghana-card.ts           ✅ Ghana Card + Luhn checksum
-│     │  ├─ nhis-number.ts          ✅ NHIS format validation
-│     │  ├─ nhie-enforcer.ts        ✅ NHIE-only routing enforcement
+│     │  ├─ ghana-card.ts           [DONE] Ghana Card + Luhn checksum
+│     │  ├─ nhis-number.ts          [DONE] NHIS format validation
+│     │  ├─ nhie-enforcer.ts        [DONE] NHIE-only routing enforcement
 │     │  └─ index.ts
 │     └─ utils/
-│        ├─ openmrs-client.ts       ✅ OpenMRS REST API client
+│        ├─ openmrs-client.ts       [DONE] OpenMRS REST API client
 │        └─ index.ts
-├─ mysql/ ✅                         MySQL MCP Server
+├─ mysql/ [DONE]                         MySQL MCP Server
 │  ├─ package.json
 │  ├─ tsconfig.json
 │  ├─ README.md
 │  └─ src/
 │     ├─ index.ts                   Main server entry point
 │     ├─ tools/
-│     │  ├─ query.ts                ✅ Read-only SQL queries
-│     │  ├─ read-schema.ts          ✅ Table schema inspection
-│     │  ├─ propose-migration.ts    ✅ Migration proposal workflow
+│     │  ├─ query.ts                [DONE] Read-only SQL queries
+│     │  ├─ read-schema.ts          [DONE] Table schema inspection
+│     │  ├─ propose-migration.ts    [DONE] Migration proposal workflow
 │     │  └─ index.ts
 │     ├─ validators/
-│     │  ├─ sql-validator.ts        ✅ SQL safety validation
+│     │  ├─ sql-validator.ts        [DONE] SQL safety validation
 │     │  └─ index.ts
 │     └─ utils/
-│        ├─ mysql-client.ts         ✅ MySQL connection pooling
+│        ├─ mysql-client.ts         [DONE] MySQL connection pooling
 │        └─ index.ts
 └─ scripts/ (to be created)
 ```
 
-### 2. Shared Utilities Package ✅
-- ✅ PII Masker - Masks Ghana Card, NHIS, phone numbers in all outputs
-- ✅ Context Loader - Loads AGENTS.md and domain knowledge files
-- ✅ TypeScript configuration
-- ✅ Package.json with dependencies
+### 2. Shared Utilities Package [DONE]
+- [DONE] PII Masker - Masks Ghana Card, NHIS, phone numbers in all outputs
+- [DONE] Context Loader - Loads AGENTS.md and domain knowledge files
+- [DONE] TypeScript configuration
+- [DONE] Package.json with dependencies
 
-### 3. OpenMRS MCP Server ✅
-- ✅ Ghana Card validator with Luhn checksum
-- ✅ NHIS number validator
-- ✅ NHIE enforcer (blocks direct NHIA/MPI calls)
-- ✅ create_patient tool (registers patient with auto folder number)
-- ✅ search_patient tool (search by Ghana Card, NHIS, name)
-- ✅ OpenMRS REST API client with session management
-- ✅ PII masking in all responses
-- ✅ Complete package.json & tsconfig.json
+### 3. OpenMRS MCP Server [DONE]
+- [DONE] Ghana Card validator with Luhn checksum
+- [DONE] NHIS number validator
+- [DONE] NHIE enforcer (blocks direct NHIA/MPI calls)
+- [DONE] OpenMRS REST API client with session management
+- [DONE] PII masking in all responses
+- [DONE] Complete package.json & tsconfig.json
+- [DONE] Tooling (20 tools):
+  - Patient: create_patient, search_patient, get_patient, update_patient
+  - Session/Config: verify_session, update_env
+  - Discovery: list_encounter_types, list_visit_types, list_locations, list_providers, list_identifier_types, list_person_attribute_types, list_encounter_roles, list_concepts
+  - Visits: find_active_visit, create_visit, close_visit
+  - Encounters: create_encounter
+  - Opinionated: record_triage_vitals, record_consultation_notes
 
-### 4. MySQL MCP Server ✅
-- ✅ SQL validator (blocks dangerous operations)
-- ✅ query tool (read-only SELECT)
-- ✅ read_schema tool (table structure)
-- ✅ list_tables tool
-- ✅ propose_migration tool (migration workflow with GitHub issue)
-- ✅ MySQL client with connection pooling
-- ✅ PII masking in query results
-- ✅ Complete package.json & tsconfig.json
+### 4. MySQL MCP Server [DONE]
+- [DONE] SQL validator (blocks dangerous operations)
+- [DONE] query tool (read-only SELECT)
+- [DONE] read_schema tool (table structure)
+- [DONE] list_tables tool
+- [DONE] propose_migration tool (migration workflow with GitHub issue)
+- [DONE] MySQL client with connection pooling
+- [DONE] PII masking in query results
+- [DONE] Complete package.json & tsconfig.json
 
 ---
 
@@ -150,34 +155,34 @@ npm run build
 
 ## 📋 Week 1 Checklist
 
-- [x] Create directory structure ✅
-- [x] Build shared utilities (PII masker, context loader) ✅
-- [x] Build OpenMRS MCP server ✅
-  - [x] Ghana Card validator ✅
-  - [x] NHIS validator ✅
-  - [x] NHIE enforcer ✅
-  - [x] create_patient tool ✅
-  - [x] search_patient tool ✅
+- [x] Create directory structure [DONE]
+- [x] Build shared utilities (PII masker, context loader) [DONE]
+- [x] Build OpenMRS MCP server [DONE]
+  - [x] Ghana Card validator [DONE]
+  - [x] NHIS validator [DONE]
+  - [x] NHIE enforcer [DONE]
+  - [x] create_patient tool [DONE]
+  - [x] search_patient tool [DONE]
   - [ ] create_encounter tool (defer to Week 2)
   - [ ] check_nhis_eligibility tool (defer to Week 2)
-- [x] Build MySQL MCP server ✅
-  - [x] query tool (read-only) ✅
-  - [x] read_schema tool ✅
-  - [x] list_tables tool ✅
-  - [x] propose_migration tool ✅
-  - [x] SQL validator ✅
-- [x] Create helper scripts ✅
-  - [x] install-all.ps1 ✅
-  - [x] verify-mcp.ps1 ✅
+- [x] Build MySQL MCP server [DONE]
+  - [x] query tool (read-only) [DONE]
+  - [x] read_schema tool [DONE]
+  - [x] list_tables tool [DONE]
+  - [x] propose_migration tool [DONE]
+  - [x] SQL validator [DONE]
+- [x] Create helper scripts [DONE]
+  - [x] install-all.ps1 [DONE]
+  - [x] verify-mcp.ps1 [DONE]
   - [ ] run-all-tests.ps1 (defer)
   - [ ] backup-database.ps1 (defer)
   - [ ] rollback-database.ps1 (defer)
-- [x] Documentation ✅
-  - [x] Main README.md ✅
-  - [x] SETUP_GUIDE.md ✅
-  - [x] SUMMARY.md ✅
-  - [x] OpenMRS README.md ✅
-  - [x] MySQL README.md ✅
+- [x] Documentation [DONE]
+  - [x] Main README.md [DONE]
+  - [x] SETUP_GUIDE.md [DONE]
+  - [x] SUMMARY.md [DONE]
+  - [x] OpenMRS README.md [DONE]
+  - [x] MySQL README.md [DONE]
   - [ ] Troubleshooting guide (in progress)
   - [ ] AI workflow examples (after testing)
 
@@ -186,15 +191,15 @@ npm run build
 ## 🎯 Success Criteria (End of Week 1)
 
 By Nov 8, you should be able to:
-1. ✅ Configure Claude Desktop with MCP servers
-2. ✅ AI can read project context (AGENTS.md, domain knowledge)
-3. ✅ AI can create test patients with Ghana Card validation
-4. ✅ AI can inspect OpenMRS database schema
-5. ✅ AI can propose database migrations
-6. ✅ Run `.\scripts\verify-system.ps1` → All checks pass
-7. ✅ PII automatically masked in all AI outputs
+1. [DONE] Configure Claude Desktop with MCP servers
+2. [DONE] AI can read project context (AGENTS.md, domain knowledge)
+3. [DONE] AI can create test patients with Ghana Card validation
+4. [DONE] AI can inspect OpenMRS database schema
+5. [DONE] AI can propose database migrations
+6. [DONE] Run `.\scripts\verify-system.ps1` -> All checks pass
+7. [DONE] PII automatically masked in all AI outputs
 
-**Then: Week 2-3 → AI builds Patient Registration feature (first real test)**
+**Then: Week 2-3 -> AI builds Patient Registration feature (first real test)**
 
 ---
 
@@ -222,16 +227,16 @@ Week 19-20 (Feb 28-Mar 14): Integration testing + pilot prep
 
 ## 🎯 Current Status (Nov 1, 2025 - 9:00 PM)
 
-### ✅ CODE COMPLETE
+### [DONE] CODE COMPLETE
 All MCP infrastructure code written and structured. Ready for installation & testing.
 
 **What's Done:**
-- ✅ OpenMRS MCP Server (create_patient, search_patient)
-- ✅ MySQL MCP Server (query, read_schema, list_tables, propose_migration)
-- ✅ Shared utilities (PII masking, context loading)
-- ✅ Ghana validators (Ghana Card Luhn, NHIS, NHIE enforcer)
-- ✅ Installation scripts (install-all.ps1, verify-mcp.ps1)
-- ✅ Complete documentation (5 README files, SETUP_GUIDE, SUMMARY)
+- [DONE] OpenMRS MCP Server (20 tools incl. visit/encounter helpers)
+- [DONE] MySQL MCP Server (query, read_schema, list_tables, propose_migration)
+- [DONE] Shared utilities (PII masking, context loading)
+- [DONE] Ghana validators (Ghana Card Luhn, NHIS, NHIE enforcer)
+- [DONE] Installation scripts (install-all.ps1, verify-mcp.ps1)
+- [DONE] Complete documentation (5 README files, SETUP_GUIDE, SUMMARY)
 
 **Metrics:**
 - 📊 34 files created
@@ -265,6 +270,6 @@ All MCP infrastructure code written and structured. Ready for installation & tes
 
 ---
 
-**Status: ✅ CODE COMPLETE - READY FOR INSTALL & TEST**  
+**Status: [DONE] CODE COMPLETE - READY FOR INSTALL & TEST**  
 **Confidence: HIGH (all AGENTS.md patterns followed)**  
 **Timeline: On track for Week 1 completion by Nov 8**

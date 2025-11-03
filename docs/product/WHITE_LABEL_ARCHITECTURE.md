@@ -28,13 +28,13 @@ MedReg is designed from Day 1 as a **white-label, multi-tenant EMR platform** wh
 ┌─────────────────────────────────────────────────────────────────┐
 │  END USER LAYER (100% MedReg Branding)                         │
 ├─────────────────────────────────────────────────────────────────┤
-│  Doctor/Nurse/Pharmacist → Next.js UI (localhost:3000)         │
+│  Doctor/Nurse/Pharmacist -> Next.js UI (localhost:3000)         │
 │  - Patient Registration, OPD Workflow, Reports                  │
 │  - Zero OpenMRS visibility                                      │
 ├─────────────────────────────────────────────────────────────────┤
 │  ADMIN LAYER (Facility-Specific)                               │
 ├─────────────────────────────────────────────────────────────────┤
-│  Facility Admin → Admin Dashboard (/admin)                     │
+│  Facility Admin -> Admin Dashboard (/admin)                     │
 │  - User Management (create doctors/nurses)                      │
 │  - System Reports (OPD register, NHIS vs Cash, revenue)        │
 │  - NHIE Sync Monitor (pending/failed transactions)             │
@@ -44,7 +44,7 @@ MedReg is designed from Day 1 as a **white-label, multi-tenant EMR platform** wh
 ├─────────────────────────────────────────────────────────────────┤
 │  PLATFORM LAYER (Multi-Facility Oversight)                     │
 ├─────────────────────────────────────────────────────────────────┤
-│  Platform Admin → Multi-Facility Dashboard                     │
+│  Platform Admin -> Multi-Facility Dashboard                     │
 │  - Switch between facilities (dropdown)                         │
 │  - Cross-facility analytics (total patients, encounters)       │
 │  - System configuration (NHIE endpoints, global settings)      │
@@ -79,17 +79,17 @@ MedReg is designed from Day 1 as a **white-label, multi-tenant EMR platform** wh
 **Scope:** All facilities (can switch between facilities)
 
 **Use Cases:**
-- **Scenario 1:** MedReg deploys at 10 hospitals → 1 Platform Admin manages all 10
-- **Scenario 2:** MoH national rollout → MoH IT staff (Platform Admin) oversees all 200+ facilities
+- **Scenario 1:** MedReg deploys at 10 hospitals -> 1 Platform Admin manages all 10
+- **Scenario 2:** MoH national rollout -> MoH IT staff (Platform Admin) oversees all 200+ facilities
 - **Scenario 3:** System integrator troubleshoots issue across facilities
 
 **Access:**
-- ✅ Multi-facility dashboard (switch facilities via dropdown)
-- ✅ Cross-facility analytics (total patients across all facilities, national stats)
-- ✅ System configuration (NHIE production endpoint, OAuth credentials, global settings)
-- ✅ Branding management (future v2: upload logo per facility, set primary colors)
-- ✅ Create Facility Admin accounts (onboard new facilities)
-- ✅ View audit logs across all facilities (for compliance monitoring)
+- [DONE] Multi-facility dashboard (switch facilities via dropdown)
+- [DONE] Cross-facility analytics (total patients across all facilities, national stats)
+- [DONE] System configuration (NHIE production endpoint, OAuth credentials, global settings)
+- [DONE] Branding management (future v2: upload logo per facility, set primary colors)
+- [DONE] Create Facility Admin accounts (onboard new facilities)
+- [DONE] View audit logs across all facilities (for compliance monitoring)
 
 **What They See:**
 - Header: "MedReg Platform Admin | Facility: [Dropdown: Korle Bu | KATH | Tamale | All]"
@@ -97,8 +97,8 @@ MedReg is designed from Day 1 as a **white-label, multi-tenant EMR platform** wh
 - Map view: Ghana map with facility markers (future v2)
 
 **What They DON'T See:**
-- ❌ OpenMRS branding (unless accessing OpenMRS admin panel for deep troubleshooting - rare)
-- ❌ Other facilities' clinical data when viewing single facility (privacy enforced)
+- [FAILED] OpenMRS branding (unless accessing OpenMRS admin panel for deep troubleshooting - rare)
+- [FAILED] Other facilities' clinical data when viewing single facility (privacy enforced)
 
 ---
 
@@ -114,12 +114,12 @@ MedReg is designed from Day 1 as a **white-label, multi-tenant EMR platform** wh
 - **Scenario 3:** Regional hospital director reviews OPD register, checks NHIS vs Cash ratio
 
 **Access:**
-- ✅ Facility-specific admin dashboard (KPIs for their facility only)
-- ✅ User management (create/disable Doctor, Nurse, Pharmacist, Records Officer, Cashier, NHIS Officer)
-- ✅ System reports (OPD register, NHIS vs Cash, top diagnoses, revenue)
-- ✅ NHIE sync monitor (pending/failed transactions for their facility)
-- ✅ Facility settings (region code, contact info, NHIE mode: mock/sandbox/production)
-- ✅ Audit logs (who registered which patient, who created which encounter)
+- [DONE] Facility-specific admin dashboard (KPIs for their facility only)
+- [DONE] User management (create/disable Doctor, Nurse, Pharmacist, Records Officer, Cashier, NHIS Officer)
+- [DONE] System reports (OPD register, NHIS vs Cash, top diagnoses, revenue)
+- [DONE] NHIE sync monitor (pending/failed transactions for their facility)
+- [DONE] Facility settings (region code, contact info, NHIE mode: mock/sandbox/production)
+- [DONE] Audit logs (who registered which patient, who created which encounter)
 
 **What They See:**
 - Header: "MedReg Admin Dashboard | Facility: Korle Bu Teaching Hospital"
@@ -127,9 +127,9 @@ MedReg is designed from Day 1 as a **white-label, multi-tenant EMR platform** wh
 - No cross-facility data (privacy enforced at database level)
 
 **What They DON'T See:**
-- ❌ OpenMRS branding (100% MedReg admin UI)
-- ❌ Other facilities' data (database queries filtered by facility_id)
-- ❌ System-wide configuration (NHIE production endpoints, OAuth secrets)
+- [FAILED] OpenMRS branding (100% MedReg admin UI)
+- [FAILED] Other facilities' data (database queries filtered by facility_id)
+- [FAILED] System-wide configuration (NHIE production endpoints, OAuth secrets)
 
 ---
 
@@ -138,29 +138,29 @@ MedReg is designed from Day 1 as a **white-label, multi-tenant EMR platform** wh
 | Feature | Platform Admin | Facility Admin | Clinical Users |
 |---------|----------------|----------------|----------------|
 | **Branding Visibility** |
-| See "MedReg" branding | ✅ Yes | ✅ Yes | ✅ Yes |
-| See "OpenMRS" branding | ⚠️ Optional (admin panel) | ⚠️ Optional (rare) | ❌ Never |
+| See "MedReg" branding | [DONE] Yes | [DONE] Yes | [DONE] Yes |
+| See "OpenMRS" branding | [WARNING] Optional (admin panel) | [WARNING] Optional (rare) | [FAILED] Never |
 | **Data Access** |
-| Multi-facility access | ✅ All facilities | ❌ Single facility | ❌ Single facility |
-| Switch facilities | ✅ Dropdown | ❌ | ❌ |
-| View cross-facility analytics | ✅ Yes | ❌ | ❌ |
+| Multi-facility access | [DONE] All facilities | [FAILED] Single facility | [FAILED] Single facility |
+| Switch facilities | [DONE] Dropdown | [FAILED] | [FAILED] |
+| View cross-facility analytics | [DONE] Yes | [FAILED] | [FAILED] |
 | **User Management** |
-| Create Facility Admins | ✅ Yes | ❌ | ❌ |
-| Create clinical users | ✅ All facilities | ✅ Own facility | ❌ |
-| Disable users | ✅ All facilities | ✅ Own facility | ❌ |
+| Create Facility Admins | [DONE] Yes | [FAILED] | [FAILED] |
+| Create clinical users | [DONE] All facilities | [DONE] Own facility | [FAILED] |
+| Disable users | [DONE] All facilities | [DONE] Own facility | [FAILED] |
 | **System Configuration** |
-| NHIE production endpoint | ✅ Yes | ❌ | ❌ |
-| OAuth credentials | ✅ Yes | ❌ | ❌ |
-| Branding (logo, colors) | ✅ Yes (v2) | ❌ | ❌ |
-| Facility settings | ✅ All facilities | ✅ Own facility | ❌ |
+| NHIE production endpoint | [DONE] Yes | [FAILED] | [FAILED] |
+| OAuth credentials | [DONE] Yes | [FAILED] | [FAILED] |
+| Branding (logo, colors) | [DONE] Yes (v2) | [FAILED] | [FAILED] |
+| Facility settings | [DONE] All facilities | [DONE] Own facility | [FAILED] |
 | **Monitoring** |
-| NHIE sync monitor | ✅ All facilities | ✅ Own facility | ❌ |
-| Audit logs | ✅ All facilities | ✅ Own facility | ❌ |
-| System health | ✅ All facilities | ✅ Own facility | ❌ |
+| NHIE sync monitor | [DONE] All facilities | [DONE] Own facility | [FAILED] |
+| Audit logs | [DONE] All facilities | [DONE] Own facility | [FAILED] |
+| System health | [DONE] All facilities | [DONE] Own facility | [FAILED] |
 | **Reports** |
-| OPD register | ✅ All facilities | ✅ Own facility | ⚠️ View-only (doctors) |
-| NHIS vs Cash | ✅ All facilities | ✅ Own facility | ❌ |
-| Revenue reports | ✅ All facilities | ✅ Own facility | ❌ |
+| OPD register | [DONE] All facilities | [DONE] Own facility | [WARNING] View-only (doctors) |
+| NHIS vs Cash | [DONE] All facilities | [DONE] Own facility | [FAILED] |
+| Revenue reports | [DONE] All facilities | [DONE] Own facility | [FAILED] |
 
 ---
 
@@ -386,7 +386,7 @@ public class GhanaPatientServiceImpl implements GhanaPatientService {
 **Demo Flow:**
 1. Login as Dr. Kwame Mensah (Doctor role, KBTH)
 2. Register patient: Ama Asante (Ghana Card, NHIS active)
-3. Triage: Capture vitals (BP 120/80, Temp 37.2°C)
+3. Triage: Capture vitals (BP 120/80, Temp 37.2DEGC)
 4. Consultation: Diagnose Malaria (B54), prescribe Artemether-Lumefantrine
 5. Pharmacy: Dispense drugs
 6. Billing: Generate receipt (NHIS covered)
@@ -404,7 +404,7 @@ public class GhanaPatientServiceImpl implements GhanaPatientService {
 1. Login as Joseph Osei (Facility Admin, KBTH)
 2. Admin Dashboard: Show KPIs (250 patients today, 1,200 encounters, GH₵ 45,000 revenue)
 3. NHIE Sync Monitor: Show 98% success rate, 2 pending transactions
-4. Click "Retry Now" on failed transaction → Status changes to SUCCESS
+4. Click "Retry Now" on failed transaction -> Status changes to SUCCESS
 5. User Management: Create new doctor account (Dr. Akua Owusu)
 6. Audit Log: Show "Joseph Osei registered patient Ama Asante at 9:30 AM" (Ghana Card masked)
 
@@ -422,7 +422,7 @@ public class GhanaPatientServiceImpl implements GhanaPatientService {
 2. Header dropdown: Switch between KBTH, KATH, Tamale Teaching Hospital
 3. Cross-facility dashboard: 5,000 patients, 15,000 encounters across 3 facilities
 4. NHIE Sync Monitor: 48 pending across all facilities
-5. Facility-specific drill-down: Click "KBTH" → See KBTH-specific KPIs
+5. Facility-specific drill-down: Click "KBTH" -> See KBTH-specific KPIs
 
 **What They See:** Multi-facility oversight, aggregated analytics, facility switcher
 
@@ -431,41 +431,41 @@ public class GhanaPatientServiceImpl implements GhanaPatientService {
 ## White-Label Benefits
 
 ### For Ghana MoH:
-- ✅ **Sovereignty:** MedReg appears as "Ghana's EMR", not "OpenMRS installation"
-- ✅ **No Vendor Lock-In:** Open-source foundation (can hire any OpenMRS developer)
-- ✅ **National Scale:** Single platform for 200+ facilities (not 200 separate installations)
-- ✅ **Audit Trail:** Platform Admin (MoH IT) oversees all facilities, compliance monitoring
+- [DONE] **Sovereignty:** MedReg appears as "Ghana's EMR", not "OpenMRS installation"
+- [DONE] **No Vendor Lock-In:** Open-source foundation (can hire any OpenMRS developer)
+- [DONE] **National Scale:** Single platform for 200+ facilities (not 200 separate installations)
+- [DONE] **Audit Trail:** Platform Admin (MoH IT) oversees all facilities, compliance monitoring
 
 ### For Private Hospitals:
-- ✅ **Custom Branding:** Can deploy as "MyHospital EMR" (logo, colors)
-- ✅ **Independence:** Manage own facility without MedReg company involvement
-- ✅ **Cost-Effective:** Share infrastructure (SaaS model) but isolated data
+- [DONE] **Custom Branding:** Can deploy as "MyHospital EMR" (logo, colors)
+- [DONE] **Independence:** Manage own facility without MedReg company involvement
+- [DONE] **Cost-Effective:** Share infrastructure (SaaS model) but isolated data
 
 ### For MedReg Business:
-- ✅ **Scalability:** Single codebase serves 100+ facilities (economies of scale)
-- ✅ **SaaS Revenue:** Subscription model ($200-300/month per facility)
-- ✅ **Market Positioning:** "National EMR platform" (not just "another hospital software")
+- [DONE] **Scalability:** Single codebase serves 100+ facilities (economies of scale)
+- [DONE] **SaaS Revenue:** Subscription model ($200-300/month per facility)
+- [DONE] **Market Positioning:** "National EMR platform" (not just "another hospital software")
 
 ---
 
 ## Security & Compliance
 
 ### Data Isolation
-- ✅ Row-level security (database auto-filters by facility_id)
-- ✅ Backend privilege checks (Context.hasPrivilege)
-- ✅ Frontend role-based UI hiding (UX only, not security)
-- ✅ Audit logging (all admin operations logged with PII masked)
+- [DONE] Row-level security (database auto-filters by facility_id)
+- [DONE] Backend privilege checks (Context.hasPrivilege)
+- [DONE] Frontend role-based UI hiding (UX only, not security)
+- [DONE] Audit logging (all admin operations logged with PII masked)
 
 ### PII Protection
-- ✅ Ghana Card masked in logs: `GHA-1234****-*`
-- ✅ NHIS masked in logs: `0123******`
-- ✅ Names masked in logs: `K***e M****h`
-- ✅ Phone masked in logs: `+233244***456`
+- [DONE] Ghana Card masked in logs: `GHA-1234****-*`
+- [DONE] NHIS masked in logs: `0123******`
+- [DONE] Names masked in logs: `K***e M****h`
+- [DONE] Phone masked in logs: `+233244***456`
 
 ### Session Security
-- ✅ Session timeout: 30 minutes inactivity
-- ✅ Password policy: Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char
-- ✅ OpenMRS session-based auth (server-side credentials, no tokens in browser)
+- [DONE] Session timeout: 30 minutes inactivity
+- [DONE] Password policy: Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char
+- [DONE] OpenMRS session-based auth (server-side credentials, no tokens in browser)
 
 ---
 

@@ -3,9 +3,9 @@
 
 ---
 
-## 🚀 Quick Setup (Pick One)
+## [LAUNCH] Quick Setup (Pick One)
 
-### Option 1: Codex CLI (Recommended) ✅
+### Option 1: Codex CLI (Recommended) [DONE]
 
 **Status**: Works today with full MCP support
 
@@ -26,7 +26,7 @@ codex
 
 ---
 
-### Option 2: Claude Desktop ✅
+### Option 2: Claude Desktop [DONE]
 
 **Status**: Works today with full MCP support
 
@@ -35,7 +35,7 @@ codex
 cd c:\temp\AI\MedReg\mcp-servers
 Copy-Item .\configs\claude-desktop-config.json "$env:APPDATA\Claude\claude_desktop_config.json"
 
-# Restart Claude Desktop (File → Exit, then reopen)
+# Restart Claude Desktop (File -> Exit, then reopen)
 # Test: Ask "What MCP tools do you have?"
 ```
 
@@ -45,7 +45,7 @@ Copy-Item .\configs\claude-desktop-config.json "$env:APPDATA\Claude\claude_deskt
 
 ---
 
-### Option 3: GitHub Copilot ⏳
+### Option 3: GitHub Copilot [PENDING]
 
 **Status**: MCP support NOT available yet (coming soon)
 
@@ -68,12 +68,12 @@ Copy-Item .\configs\vscode-settings.json ..\.vscode\settings.json
 
 | Feature | Codex CLI | GitHub Copilot | Claude Desktop |
 |---------|-----------|----------------|----------------|
-| **MCP Support** | ✅ Yes | ❌ Not yet | ✅ Yes |
-| **Works Today** | ✅ Yes | ⚠️ Partial | ✅ Yes |
-| **Ghana Card Validation** | ✅ Via MCP | ❌ Manual | ✅ Via MCP |
-| **Database Queries** | ✅ Via MCP | ❌ Manual | ✅ Via MCP |
-| **NHIE Enforcement** | ✅ Via MCP | ❌ Manual | ✅ Via MCP |
-| **Inline Code Suggestions** | ❌ No | ✅ Yes | ❌ No |
+| **MCP Support** | [DONE] Yes | [FAILED] Not yet | [DONE] Yes |
+| **Works Today** | [DONE] Yes | [WARNING] Partial | [DONE] Yes |
+| **Ghana Card Validation** | [DONE] Via MCP | [FAILED] Manual | [DONE] Via MCP |
+| **Database Queries** | [DONE] Via MCP | [FAILED] Manual | [DONE] Via MCP |
+| **NHIE Enforcement** | [DONE] Via MCP | [FAILED] Manual | [DONE] Via MCP |
+| **Inline Code Suggestions** | [FAILED] No | [DONE] Yes | [FAILED] No |
 | **Interface** | Terminal | VS Code | Desktop App |
 | **Config Format** | TOML | JSON | JSON |
 | **Path Style** | `c:/temp/...` | `c:\\temp\\...` | `c:\\temp\\...` |
@@ -98,20 +98,20 @@ Copy-Item .\configs\vscode-settings.json ..\.vscode\settings.json
 **Example Workflow**:
 ```
 1. Writing code in VS Code
-   → Copilot suggests: const ghanaCard = "GHA-123456789-0";
+   -> Copilot suggests: const ghanaCard = "GHA-123456789-0";
 
 2. Need to validate?
-   → Switch to terminal, run: codex
-   → Ask: "Validate this Ghana Card: GHA-123456789-0"
-   → Codex uses MCP ghana_card validator (Luhn checksum)
+   -> Switch to terminal, run: codex
+   -> Ask: "Validate this Ghana Card: GHA-123456789-0"
+   -> Codex uses MCP ghana_card validator (Luhn checksum)
 
 3. Need to check database?
-   → Ask Codex: "Show me patients with NHIS number 0123456789"
-   → Codex uses MCP mysql server (safe query + PII masking)
+   -> Ask Codex: "Show me patients with NHIS number 0123456789"
+   -> Codex uses MCP mysql server (safe query + PII masking)
 
 4. Generate OpenMRS code?
-   → Copilot generates code in VS Code
-   → Codex validates against live OpenMRS API via MCP
+   -> Copilot generates code in VS Code
+   -> Codex validates against live OpenMRS API via MCP
 ```
 
 ---
@@ -182,5 +182,5 @@ Test-Path "$env:APPDATA\Claude\claude_desktop_config.json"
 ---
 
 **Last Updated**: November 1, 2025  
-**Status**: Codex CLI ✅ | Claude Desktop ✅ | GitHub Copilot ⏳  
+**Status**: Codex CLI [DONE] | Claude Desktop [DONE] | GitHub Copilot [PENDING]  
 **Next Step**: Run `.\scripts\configure-codex.ps1` to get started!

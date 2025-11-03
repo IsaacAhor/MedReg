@@ -23,8 +23,8 @@ This project uses a **self-contained task queue system** where:
 Copy this template:
 
 ```markdown
-## 🔥 Task N: [Title] ([Priority])
-**Status:** 🔵 QUEUED  
+## [HOT] Task N: [Title] ([Priority])
+**Status:** [QUEUED] QUEUED  
 **Assigned to:** Next Available Worker  
 **Due:** YYYY-MM-DD HH:MM UTC  
 **Estimated:** X hours  
@@ -42,8 +42,8 @@ Copy this template:
 [Detailed technical specs with code patterns]
 
 #### 4. Technical Constraints (NON-NEGOTIABLE)
-- ✅ [Constraint 1]
-- ✅ [Constraint 2]
+- [DONE] [Constraint 1]
+- [DONE] [Constraint 2]
 
 #### 5. Verification (MANDATORY)
 ```bash
@@ -95,8 +95,8 @@ Copy this template:
 **Execute these steps:**
 
 1. **Open PROMPT_QUEUE.md**
-2. **Find FIRST task** marked 🔵 QUEUED or 🟡 IN PROGRESS
-3. **Change status to 🟡 IN PROGRESS** (update header)
+2. **Find FIRST task** marked [QUEUED] QUEUED or [WIP] IN PROGRESS
+3. **Change status to [WIP] IN PROGRESS** (update header)
 4. **Execute steps 1-7** in "Self-Contained Execution Instructions"
 5. **Run ALL verification commands** (do not skip!)
 6. **Update files in this order:**
@@ -113,7 +113,7 @@ Copy this template:
 - This ensures NO WORK IS LOST between sessions
 
 **If blocked:**
-- Change status to ⚠️ BLOCKED
+- Change status to [WARNING] BLOCKED
 - Leave task in PROMPT_QUEUE.md
 - Notify human: "Task N blocked: [reason]. Need: [solution]."
 
@@ -133,27 +133,27 @@ c:\temp\AI\MedReg\
 - **Purpose:** Active tasks only
 - **Who writes:** Human defines tasks
 - **Who deletes:** Worker after completion
-- **Status indicators:** 🔵 QUEUED, 🟡 IN PROGRESS, ⚠️ BLOCKED
+- **Status indicators:** [QUEUED] QUEUED, [WIP] IN PROGRESS, [WARNING] BLOCKED
 
 ### TASK_HISTORY.md
 - **Purpose:** Completed tasks (permanent record)
 - **Who writes:** Worker moves completed tasks here
 - **Who deletes:** NEVER (audit trail)
-- **Status indicators:** ✅ SUCCESS, ⚠️ PARTIAL, ❌ FAILED
+- **Status indicators:** [DONE] SUCCESS, [WARNING] PARTIAL, [FAILED] FAILED
 
 ### IMPLEMENTATION_TRACKER.md
 - **Purpose:** Weekly project progress
 - **Who updates:** Worker after completing each task
-- **Format:** Week N: Task description - ✅ COMPLETE
+- **Format:** Week N: Task description - [DONE] COMPLETE
 
 ---
 
 ## Task Status Lifecycle
 
 ```
-🔵 QUEUED → 🟡 IN PROGRESS → ✅ SUCCESS (in TASK_HISTORY.md)
+[QUEUED] QUEUED -> [WIP] IN PROGRESS -> [DONE] SUCCESS (in TASK_HISTORY.md)
                 ↓
-            ⚠️ BLOCKED → 🔵 QUEUED (after unblocking)
+            [WARNING] BLOCKED -> [QUEUED] QUEUED (after unblocking)
 ```
 
 ---
@@ -163,8 +163,8 @@ c:\temp\AI\MedReg\
 ### Monday 9 AM - Human adds task:
 
 ```markdown
-## 🔥 Task 1: Implement Auth Endpoints
-**Status:** 🔵 QUEUED
+## [HOT] Task 1: Implement Auth Endpoints
+**Status:** [QUEUED] QUEUED
 **Due:** Monday EOD
 **Estimated:** 4 hours
 
@@ -186,8 +186,8 @@ c:\temp\AI\MedReg\
 ### Monday 10:05 AM - Worker:
 
 1. Opens PROMPT_QUEUE.md
-2. Sees Task 1 (🔵 QUEUED)
-3. Changes to 🟡 IN PROGRESS
+2. Sees Task 1 ([QUEUED] QUEUED)
+3. Changes to [WIP] IN PROGRESS
 4. Creates 4 files (auth endpoints)
 5. Runs 5 verification tests (all pass)
 6. Updates IMPLEMENTATION_TRACKER.md Week 3
@@ -197,10 +197,10 @@ c:\temp\AI\MedReg\
 
 ### Monday 10:30 AM - Human reviews:
 
-- PROMPT_QUEUE.md: Task 1 gone ✅
+- PROMPT_QUEUE.md: Task 1 gone [DONE]
 - TASK_HISTORY.md: Task 1 shows completion (210 lines, 4 hours)
-- IMPLEMENTATION_TRACKER.md: Week 3 shows ✅ COMPLETE
-- Tests implementation: Login works ✅
+- IMPLEMENTATION_TRACKER.md: Week 3 shows [DONE] COMPLETE
+- Tests implementation: Login works [DONE]
 
 ---
 
@@ -223,7 +223,7 @@ c:\temp\AI\MedReg\
 
 ### For Human (Task Definition)
 
-✅ **DO:**
+[DONE] **DO:**
 - Write detailed "Self-Contained Execution Instructions"
 - Include exact file paths to create/modify
 - Provide code patterns and examples
@@ -231,7 +231,7 @@ c:\temp\AI\MedReg\
 - Specify acceptance criteria (checklist)
 - Reference AGENTS.md sections
 
-❌ **DON'T:**
+[FAILED] **DON'T:**
 - Write vague requirements ("implement auth")
 - Assume worker knows file locations
 - Skip verification steps
@@ -239,16 +239,16 @@ c:\temp\AI\MedReg\
 
 ### For Worker (Task Execution)
 
-✅ **DO:**
+[DONE] **DO:**
 - Read ALL steps before starting
-- Change status to 🟡 IN PROGRESS when starting
-- Follow steps IN ORDER (1 → 7)
+- Change status to [WIP] IN PROGRESS when starting
+- Follow steps IN ORDER (1 -> 7)
 - Run ALL verification commands
 - Update files in specified order
 - Copy completion details to TASK_HISTORY.md
 - Delete task ONLY after all criteria checked
 
-❌ **DON'T:**
+[FAILED] **DON'T:**
 - Skip verification steps
 - Delete task before updating IMPLEMENTATION_TRACKER.md
 - Work on Task 2 if Task 1 still queued
@@ -263,7 +263,7 @@ c:\temp\AI\MedReg\
 - If missing, create it from template in AGENTS.md
 
 ### "Task is blocked, what do I do?"
-1. Change status to ⚠️ BLOCKED
+1. Change status to [WARNING] BLOCKED
 2. Document blocker in task notes
 3. Leave task in PROMPT_QUEUE.md
 4. Notify human with details
@@ -274,7 +274,7 @@ c:\temp\AI\MedReg\
 - Human can adjust future estimates
 
 ### "Multiple tasks are queued, which one first?"
-- Always execute FIRST task marked 🔵 QUEUED
+- Always execute FIRST task marked [QUEUED] QUEUED
 - Tasks are ordered by priority (top = highest)
 
 ---
@@ -289,7 +289,7 @@ c:\temp\AI\MedReg\
 ### IMPLEMENTATION_TRACKER.md
 - Updated by worker after each task completion
 - Shows weekly progress (Week 1, Week 2, etc.)
-- Format: `- ✅ [Task] - COMPLETE (Completed: YYYY-MM-DD)`
+- Format: `- [DONE] [Task] - COMPLETE (Completed: YYYY-MM-DD)`
 
 ### .github/copilot-instructions.md
 - Auto-loaded by GitHub Copilot
@@ -301,19 +301,19 @@ c:\temp\AI\MedReg\
 ## FAQ
 
 **Q: Can I have multiple workers on different tasks?**  
-A: Yes! Each worker takes the next 🔵 QUEUED task. Task 1 → Worker A, Task 2 → Worker B (parallel).
+A: Yes! Each worker takes the next [QUEUED] QUEUED task. Task 1 -> Worker A, Task 2 -> Worker B (parallel).
 
 **Q: What if I need to change a task after it's queued?**  
-A: Edit PROMPT_QUEUE.md directly. If task is 🟡 IN PROGRESS, coordinate with worker first.
+A: Edit PROMPT_QUEUE.md directly. If task is [WIP] IN PROGRESS, coordinate with worker first.
 
 **Q: Can I skip verification steps?**  
 A: NO. Verification is MANDATORY. Without it, we repeat Week 2 (30+ compilation errors).
 
 **Q: What if task is 80% done but blocked?**  
-A: Mark status ⚠️ PARTIAL in TASK_HISTORY.md. Create new task for remaining 20%.
+A: Mark status [WARNING] PARTIAL in TASK_HISTORY.md. Create new task for remaining 20%.
 
 **Q: How do I prioritize tasks?**  
-A: Order tasks in PROMPT_QUEUE.md (top = highest priority). Worker always takes first 🔵 QUEUED.
+A: Order tasks in PROMPT_QUEUE.md (top = highest priority). Worker always takes first [QUEUED] QUEUED.
 
 ---
 

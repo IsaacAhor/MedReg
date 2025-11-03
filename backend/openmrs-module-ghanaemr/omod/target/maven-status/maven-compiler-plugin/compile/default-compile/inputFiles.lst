@@ -2,6 +2,8 @@ C:\temp\AI\MedReg\backend\openmrs-module-ghanaemr\omod\src\main\java\org\openmrs
 C:\temp\AI\MedReg\backend\openmrs-module-ghanaemr\omod\src\main\java\org\openmrs\module\ghanaemr\web\NHIEMetricsController.java
 C:\temp\AI\MedReg\backend\openmrs-module-ghanaemr\omod\src\main\java\org\openmrs\module\ghanaemr\web\OPDMetricsController.java
 C:\temp\AI\MedReg\backend\openmrs-module-ghanaemr\omod\src\main\java\org\openmrs\module\ghanaemr\web\ReportsController.java
+C:\temp\AI\MedReg\backend\openmrs-module-ghanaemr\omod\src\main\java\org\openmrs\module\ghanaemr\web\ConsultationController.java
 C:\temp\AI\MedReg\backend\openmrs-module-ghanaemr\omod\src\main\java\org\openmrs\module\ghanaemr\web\NHIECoverageController.java
+C:\temp\AI\MedReg\backend\openmrs-module-ghanaemr\omod\src\main\java\org\openmrs\module\ghanaemr\web\TriageController.java
 C:\temp\AI\MedReg\backend\openmrs-module-ghanaemr\omod\src\main\java\org\openmrs\module\ghanaemr\web\NHIEDlqController.java
 C:\temp\AI\MedReg\backend\openmrs-module-ghanaemr\omod\src\main\java\org\openmrs\module\ghanaemr\web\AuditLogger.java

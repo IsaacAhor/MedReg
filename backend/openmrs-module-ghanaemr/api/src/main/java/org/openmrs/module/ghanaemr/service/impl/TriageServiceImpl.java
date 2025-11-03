@@ -205,7 +205,7 @@ public class TriageServiceImpl implements TriageService {
         EncounterRole role = es.getEncounterRoleByUuid(EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID);
         if (role == null) {
             // Fallback to the first role to avoid NPE in tests
-            List<EncounterRole> roles = es.getAllEncounterRoles();
+            List<EncounterRole> roles = es.getAllEncounterRoles(false);
             if (roles != null && !roles.isEmpty()) return roles.get(0);
         }
         return role;

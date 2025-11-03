@@ -261,7 +261,7 @@ public List<Map> sendToNHIE(SyncFhirProfile syncFhirProfile) {
 ```java
 // Ghana: Register NHIE sync profiles on module startup
 public void registerGhanaSyncProfiles() {
-    // 1. Patient Registration → NHIE MPI
+    // 1. Patient Registration -> NHIE MPI
     SyncFhirProfile patientSync = new SyncFhirProfile();
     patientSync.setName("NHIE Patient Sync");
     patientSync.setProfileEnabled(true);
@@ -269,7 +269,7 @@ public void registerGhanaSyncProfiles() {
     patientSync.setScheduledTaskName("Send Patients to NHIE");
     saveSyncFhirProfile(patientSync);
     
-    // 2. OPD Encounters → NHIE SHR
+    // 2. OPD Encounters -> NHIE SHR
     SyncFhirProfile encounterSync = new SyncFhirProfile();
     encounterSync.setName("NHIE Encounter Sync");
     encounterSync.setProfileEnabled(true);
@@ -330,7 +330,7 @@ public void scheduleRetry(SyncFhirResource resource) {
 #### What It Does:
 - Core Uganda EMR customizations
 - Patient identifier generation (UIC - Unique Identification Code)
-- Queue management system (triage → clinician → pharmacy → dispensary)
+- Queue management system (triage -> clinician -> pharmacy -> dispensary)
 - Custom validators (NIN - National Identification Number)
 - Transfer in/out tracking
 - Service/DAO/REST controller patterns
@@ -471,7 +471,7 @@ public CheckInPatient checkInPatient(Patient patient,
 
 **Ghana Adaptation:**
 ```java
-// Ghana OPD workflow: Triage → Consultation → Pharmacy → Billing
+// Ghana OPD workflow: Triage -> Consultation -> Pharmacy -> Billing
 public enum OPDStation {
     TRIAGE("Triage", "triage"),
     CONSULTATION("Consultation", "consultation"),
@@ -971,7 +971,7 @@ public class GhanaEMRMetadataBundle extends AbstractMetadataBundle {
 ### Phase 1 (Week 2-4): Core Patterns
 1. **Patient Identifier Generation:** Adapt Uganda UIC algorithm to Ghana folder number format
 2. **Custom Validators:** Implement Ghana Card validator based on Uganda NIN pattern
-3. **Queue Management:** Implement OPD workflow (triage → consultation → pharmacy) based on Uganda queue system
+3. **Queue Management:** Implement OPD workflow (triage -> consultation -> pharmacy) based on Uganda queue system
 
 ### Phase 2 (Week 5-8): NHIE Integration
 1. **Sync Module Architecture:** Fork `openmrs-module-ugandaemr-sync` and adapt for NHIE
@@ -996,12 +996,12 @@ public class GhanaEMRMetadataBundle extends AbstractMetadataBundle {
 **Uganda EMR License:** Mozilla Public License 2.0 (MPL 2.0)
 
 **Ghana EMR Obligations:**
-1. ✅ **Can use:** Fork, modify, adapt Uganda EMR code for Ghana EMR
-2. ✅ **Can distribute:** Deploy Ghana EMR to multiple facilities
-3. ✅ **Can commercialize:** Charge for support/hosting (if applicable)
-4. ⚠️ **Must attribute:** Include copyright notice in modified files
-5. ⚠️ **Must disclose source:** If we modify Uganda EMR modules, must make source available
-6. ⚠️ **Must use same license:** Ghana-specific modules built on Uganda code must be MPL 2.0
+1. [DONE] **Can use:** Fork, modify, adapt Uganda EMR code for Ghana EMR
+2. [DONE] **Can distribute:** Deploy Ghana EMR to multiple facilities
+3. [DONE] **Can commercialize:** Charge for support/hosting (if applicable)
+4. [WARNING] **Must attribute:** Include copyright notice in modified files
+5. [WARNING] **Must disclose source:** If we modify Uganda EMR modules, must make source available
+6. [WARNING] **Must use same license:** Ghana-specific modules built on Uganda code must be MPL 2.0
 
 **Recommended Approach:**
 1. Create separate `openmrs-module-ghanaemr` module (not fork of ugandaemr)
@@ -1026,13 +1026,13 @@ If we need clarification on implementation patterns or licensing:
 
 **METS-Programme (Uganda EMR) is HIGHLY RELEVANT to Ghana EMR project:**
 
-✅ **Central server sync module** - Exactly what we need for NHIE integration  
-✅ **Queue management system** - Perfect for Ghana OPD workflow  
-✅ **Identifier generation patterns** - Adapt UIC algorithm to Ghana folder number  
-✅ **Government reporting** - Similar MoH requirements  
-✅ **OpenMRS 3.x experience** - Post-MVP migration path  
-✅ **African context** - Proven in production with similar challenges (power, network)  
-✅ **License compatible** - MPL 2.0 allows fork/adapt with attribution  
-✅ **Active maintenance** - Community responsive, regular updates  
+[DONE] **Central server sync module** - Exactly what we need for NHIE integration  
+[DONE] **Queue management system** - Perfect for Ghana OPD workflow  
+[DONE] **Identifier generation patterns** - Adapt UIC algorithm to Ghana folder number  
+[DONE] **Government reporting** - Similar MoH requirements  
+[DONE] **OpenMRS 3.x experience** - Post-MVP migration path  
+[DONE] **African context** - Proven in production with similar challenges (power, network)  
+[DONE] **License compatible** - MPL 2.0 allows fork/adapt with attribution  
+[DONE] **Active maintenance** - Community responsive, regular updates  
 
 **Recommended Action:** Add all 6 repositories to Ghana EMR documentation with specific code adaptation strategies. Reference throughout Week 2-16 development.

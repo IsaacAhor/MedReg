@@ -145,51 +145,51 @@ MedReg implements Role-Based Access Control (RBAC) with **8 distinct roles** des
 | Privilege | Platform Admin | Facility Admin | Doctor | Nurse | Pharmacist | Records | Cashier | NHIS Officer |
 |-----------|----------------|----------------|--------|-------|------------|---------|---------|--------------|
 | **System & Multi-Facility** |
-| Multi-facility access | ✅ All | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| System configuration | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Branding management | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Cross-facility analytics | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Multi-facility access | [DONE] All | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| System configuration | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| Branding management | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| Cross-facility analytics | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
 | **User Management** |
-| Manage users | ✅ | ✅ Facility | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| View admin dashboard | ✅ | ✅ | ⚠️ Reports | ❌ | ❌ | ❌ | ❌ | ⚠️ NHIS |
-| NHIE sync monitor | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Facility settings | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Audit logs | ✅ All | ✅ Facility | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Manage users | [DONE] | [DONE] Facility | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| View admin dashboard | [DONE] | [DONE] | [WARNING] Reports | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [WARNING] NHIS |
+| NHIE sync monitor | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| Facility settings | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| Audit logs | [DONE] All | [DONE] Facility | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
 | **Patient Registration** |
-| Register patients | ✅ | ✅ | ⚠️ Emergency | ⚠️ Emergency | ❌ | ✅ | ❌ | ✅ |
-| View patients | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Edit demographics | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
-| Search patients | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Print records | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Register patients | [DONE] | [DONE] | [WARNING] Emergency | [WARNING] Emergency | [FAILED] | [DONE] | [FAILED] | [DONE] |
+| View patients | [DONE] | [DONE] | [DONE] | [DONE] | [DONE] | [DONE] | [DONE] | [DONE] |
+| Edit demographics | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [DONE] | [FAILED] | [DONE] |
+| Search patients | [DONE] | [DONE] | [DONE] | [DONE] | [DONE] | [DONE] | [DONE] | [DONE] |
+| Print records | [DONE] | [DONE] | [DONE] | [FAILED] | [FAILED] | [DONE] | [FAILED] | [FAILED] |
 | **Clinical Workflows** |
-| Create encounters | ✅ | ✅ | ✅ | ⚠️ Triage | ❌ | ❌ | ❌ | ❌ |
-| View encounters | ✅ | ✅ | ✅ | ✅ | ⚠️ Limited | ✅ | ✅ | ✅ |
-| Record vitals | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Record diagnosis | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Prescribe drugs | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Order lab tests | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Create encounters | [DONE] | [DONE] | [DONE] | [WARNING] Triage | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| View encounters | [DONE] | [DONE] | [DONE] | [DONE] | [WARNING] Limited | [DONE] | [DONE] | [DONE] |
+| Record vitals | [DONE] | [FAILED] | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| Record diagnosis | [DONE] | [FAILED] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| Prescribe drugs | [DONE] | [FAILED] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| Order lab tests | [DONE] | [FAILED] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
 | **Pharmacy** |
-| View prescriptions | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Dispense drugs | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| View prescriptions | [DONE] | [DONE] | [DONE] | [FAILED] | [DONE] | [FAILED] | [FAILED] | [FAILED] |
+| Dispense drugs | [DONE] | [FAILED] | [FAILED] | [FAILED] | [DONE] | [FAILED] | [FAILED] | [FAILED] |
 | **Billing** |
-| Create bills | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Record payments | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Generate receipts | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| View revenue reports | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| Create bills | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [DONE] | [FAILED] |
+| Record payments | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [DONE] | [FAILED] |
+| Generate receipts | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [DONE] | [FAILED] |
+| View revenue reports | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [DONE] | [FAILED] |
 | **NHIS** |
-| Eligibility check | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ |
-| Claims export | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| NHIS reports | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Eligibility check | [DONE] | [DONE] | [DONE] | [DONE] | [FAILED] | [DONE] | [FAILED] | [DONE] |
+| Claims export | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [DONE] |
+| NHIS reports | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [DONE] |
 | **Reports** |
-| OPD register | ✅ | ✅ | ✅ | ⚠️ View | ❌ | ❌ | ❌ | ✅ |
-| NHIS vs Cash | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Top diagnoses | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Revenue summary | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| OPD register | [DONE] | [DONE] | [DONE] | [WARNING] View | [FAILED] | [FAILED] | [FAILED] | [DONE] |
+| NHIS vs Cash | [DONE] | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [DONE] | [DONE] |
+| Top diagnoses | [DONE] | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [FAILED] |
+| Revenue summary | [DONE] | [DONE] | [FAILED] | [FAILED] | [FAILED] | [FAILED] | [DONE] | [FAILED] |
 
 **Legend:**
-- ✅ **Full access** - Can perform operation without restrictions
-- ⚠️ **Partial access** - Limited access with conditions (see notes)
-- ❌ **No access** - Cannot perform operation
+- [DONE] **Full access** - Can perform operation without restrictions
+- [WARNING] **Partial access** - Limited access with conditions (see notes)
+- [FAILED] **No access** - Cannot perform operation
 
 ---
 

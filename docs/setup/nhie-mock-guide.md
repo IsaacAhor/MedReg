@@ -1,10 +1,10 @@
 # NHIE Mock Server Setup Guide
 
-**Status:** ✅ Ready for Development | **Port:** 8090 | **Database:** PostgreSQL (Port 5433)
+**Status:** [DONE] Ready for Development | **Port:** 8090 | **Database:** PostgreSQL (Port 5433)
 
 ---
 
-## 🚀 Quick Reference
+## [LAUNCH] Quick Reference
 
 ### One-Command Setup
 ```powershell
@@ -32,7 +32,7 @@ ghana.nhie.baseUrl=http://nhie-mock:8080/fhir
 ghana.nhie.oauth.enabled=false
 ```
 
-### Success Criteria ✅
+### Success Criteria [DONE]
 - [x] Docker containers running (nhie-mock + nhie-mock-db)
 - [x] Health check returns CapabilityStatement
 - [x] 10 automated tests passing
@@ -57,7 +57,7 @@ This guide sets up a local NHIE mock server for development and testing. The moc
 
 **Production NHIE Architecture:**
 ```
-Facility EMR → NHIE Gateway (Single Entry Point) → Backend Systems
+Facility EMR -> NHIE Gateway (Single Entry Point) -> Backend Systems
                      ↓
     ┌────────────────┼────────────────┐
     │                │                │
@@ -72,35 +72,35 @@ Facility EMR → NHIE Gateway (Single Entry Point) → Backend Systems
 ```
 
 **NHIE Core Principles (MoH Architecture):**
-- ✅ **Fully interoperable**: HL7/FHIR-compliant APIs, validated code sets (ICD-10, national medicines list)
-- ✅ **Sovereign control**: MoH-controlled authentication/authorization, audit logs, terminology enforcement
-- ✅ **Standards-enforcing**: Validates payloads against FHIR profiles, rejects non-conformant requests
-- ✅ **Vendor-agnostic**: Any EMR meeting MoH conformance criteria can integrate (reference adapters/SDKs provided)
-- ✅ **Multi-system routing**: Single gateway routes to NHIA, DHIMS2, MPI, SHR, ePharmacy, telemedicine
-- ✅ **Zero direct connections**: EMRs **cannot** connect directly to NHIA/MPI - all traffic routes through NHIE
+- [DONE] **Fully interoperable**: HL7/FHIR-compliant APIs, validated code sets (ICD-10, national medicines list)
+- [DONE] **Sovereign control**: MoH-controlled authentication/authorization, audit logs, terminology enforcement
+- [DONE] **Standards-enforcing**: Validates payloads against FHIR profiles, rejects non-conformant requests
+- [DONE] **Vendor-agnostic**: Any EMR meeting MoH conformance criteria can integrate (reference adapters/SDKs provided)
+- [DONE] **Multi-system routing**: Single gateway routes to NHIA, DHIMS2, MPI, SHR, ePharmacy, telemedicine
+- [DONE] **Zero direct connections**: EMRs **cannot** connect directly to NHIA/MPI - all traffic routes through NHIE
 
-**⚠️ IMPORTANT: Our Mock is a Simplified FHIR Server**
+**[WARNING] IMPORTANT: Our Mock is a Simplified FHIR Server**
 
 Our current HAPI FHIR mock simulates **only the NHIE gateway's FHIR endpoints**, not the full middleware architecture.
 
 **What it IS:**
-- ✅ FHIR R4 endpoint for patient/encounter/coverage resources
-- ✅ Validates FHIR resource structure
-- ✅ Supports conditional creates (idempotency)
-- ✅ Returns standard FHIR error codes
-- ✅ Persists data across restarts
+- [DONE] FHIR R4 endpoint for patient/encounter/coverage resources
+- [DONE] Validates FHIR resource structure
+- [DONE] Supports conditional creates (idempotency)
+- [DONE] Returns standard FHIR error codes
+- [DONE] Persists data across restarts
 
 **What it is NOT (production NHIE features):**
-- ❌ No multi-system routing (NHIA/MPI/SHR) - mock stores data locally
-- ❌ No OAuth 2.0 client-credentials authentication
-- ❌ No MoH-controlled audit trail for government compliance
-- ❌ No policy enforcement (rate limits, throttling, request tracing)
-- ❌ No terminology validation (national medicines list, ICD-10 enforcement)
+- [FAILED] No multi-system routing (NHIA/MPI/SHR) - mock stores data locally
+- [FAILED] No OAuth 2.0 client-credentials authentication
+- [FAILED] No MoH-controlled audit trail for government compliance
+- [FAILED] No policy enforcement (rate limits, throttling, request tracing)
+- [FAILED] No terminology validation (national medicines list, ICD-10 enforcement)
 
 **Why This is Acceptable for MVP:**
 - Our `NHIEHttpClient.java` architecture is correct (routes through service layer, ready for OAuth)
 - Real NHIE will be a black box to us (we POST FHIR resources, get responses)
-- Config-based URL swap works (mock → sandbox → production)
+- Config-based URL swap works (mock -> sandbox -> production)
 - **Zero code changes needed when switching to real NHIE** (config-only)
 - Mock provides realistic FHIR R4 responses that match production format
 
@@ -112,11 +112,11 @@ Our current HAPI FHIR mock simulates **only the NHIE gateway's FHIR endpoints**,
 - Unblock development while waiting for MoH sandbox access (30% uptime)
 
 **Strategic Value:**
-- ✅ Unblocks Week 4-5 NHIE integration (no waiting for MoH sandbox)
-- ✅ Enables comprehensive E2E testing (all scenarios: success, errors, retries)
-- ✅ Demo-ready: Mock returns rich FHIR data identical to real NHIE format
-- ✅ Zero code changes when switching to real NHIE (environment config only)
-- ✅ Demonstrates conformance to FHIR R4 standard (MoH requirement)
+- [DONE] Unblocks Week 4-5 NHIE integration (no waiting for MoH sandbox)
+- [DONE] Enables comprehensive E2E testing (all scenarios: success, errors, retries)
+- [DONE] Demo-ready: Mock returns rich FHIR data identical to real NHIE format
+- [DONE] Zero code changes when switching to real NHIE (environment config only)
+- [DONE] Demonstrates conformance to FHIR R4 standard (MoH requirement)
 
 **Technology:**
 - **Current (MVP):** HAPI FHIR JPA Starter - Full FHIR R4 server
@@ -438,9 +438,9 @@ Write-Host "=== Testing NHIE Mock Server ===" -ForegroundColor Cyan
 Write-Host "`n[1] Checking NHIE mock health..." -ForegroundColor Yellow
 $metadata = Invoke-RestMethod -Uri "http://localhost:8090/fhir/metadata" -Method GET
 if ($metadata.resourceType -eq "CapabilityStatement") {
-    Write-Host "✅ NHIE mock is healthy" -ForegroundColor Green
+    Write-Host "[DONE] NHIE mock is healthy" -ForegroundColor Green
 } else {
-    Write-Host "❌ NHIE mock is not responding" -ForegroundColor Red
+    Write-Host "[FAILED] NHIE mock is not responding" -ForegroundColor Red
     exit 1
 }
 
@@ -470,7 +470,7 @@ $response = Invoke-RestMethod -Uri "http://localhost:8090/fhir/Patient" `
     -Headers @{"Content-Type"="application/fhir+json"} `
     -Body $patientPayload
 
-Write-Host "✅ Patient created with ID: $($response.id)" -ForegroundColor Green
+Write-Host "[DONE] Patient created with ID: $($response.id)" -ForegroundColor Green
 
 # 3. Search for patient
 Write-Host "`n[3] Searching for patient by Ghana Card..." -ForegroundColor Yellow
@@ -478,11 +478,11 @@ $searchUrl = "http://localhost:8090/fhir/Patient?identifier=http://moh.gov.gh/fh
 $searchResult = Invoke-RestMethod -Uri $searchUrl -Method GET
 
 if ($searchResult.total -gt 0) {
-    Write-Host "✅ Patient found in NHIE mock" -ForegroundColor Green
+    Write-Host "[DONE] Patient found in NHIE mock" -ForegroundColor Green
     Write-Host "   Patient ID: $($searchResult.entry[0].resource.id)"
     Write-Host "   Name: $($searchResult.entry[0].resource.name[0].given[0]) $($searchResult.entry[0].resource.name[0].family)"
 } else {
-    Write-Host "❌ Patient not found" -ForegroundColor Red
+    Write-Host "[FAILED] Patient not found" -ForegroundColor Red
 }
 
 # 4. Test duplicate prevention
@@ -496,9 +496,9 @@ try {
         } `
         -Body $patientPayload
     
-    Write-Host "✅ Duplicate prevention works (returned existing patient)" -ForegroundColor Green
+    Write-Host "[DONE] Duplicate prevention works (returned existing patient)" -ForegroundColor Green
 } catch {
-    Write-Host "✅ Duplicate detected (expected behavior)" -ForegroundColor Green
+    Write-Host "[DONE] Duplicate detected (expected behavior)" -ForegroundColor Green
 }
 
 Write-Host "`n=== All Tests Passed ===" -ForegroundColor Green
@@ -823,7 +823,7 @@ foreach ($p in $patients) {
         -Method POST -Headers @{"Content-Type"="application/fhir+json"} -Body $payload
 }
 
-Write-Host "✅ Demo data preloaded" -ForegroundColor Green
+Write-Host "[DONE] Demo data preloaded" -ForegroundColor Green
 ```
 
 **Run before demo:**
@@ -842,10 +842,10 @@ Write-Host "✅ Demo data preloaded" -ForegroundColor Green
 ### Why Upgrade?
 
 Current HAPI mock is sufficient for MVP, but adding OpenHIM would:
-- ✅ Show we understand middleware architecture (competitive advantage)
-- ✅ Test OAuth 2.0 flow end-to-end before production
-- ✅ Simulate rate limiting, audit logging, request routing
-- ✅ Handle production-like authentication/authorization
+- [DONE] Show we understand middleware architecture (competitive advantage)
+- [DONE] Test OAuth 2.0 flow end-to-end before production
+- [DONE] Simulate rate limiting, audit logging, request routing
+- [DONE] Handle production-like authentication/authorization
 
 ### Architecture with OpenHIM
 
@@ -890,7 +890,7 @@ keycloak:
 ```
 
 **2. Configure OpenHIM Channel:**
-- Route: `/fhir/*` → HAPI FHIR at `http://nhie-mock:8080/fhir/`
+- Route: `/fhir/*` -> HAPI FHIR at `http://nhie-mock:8080/fhir/`
 - Require OAuth 2.0 bearer token (Keycloak validation)
 - Enable audit logging (store all requests)
 - Set rate limit: 100 req/min per client
@@ -958,11 +958,11 @@ Invoke-RestMethod -Uri "http://localhost:5001/fhir/Patient" `
 
 ## Next Steps
 
-1. ✅ Start NHIE mock server: `docker-compose up -d nhie-mock nhie-mock-db`
-2. ✅ Run test script: `.\scripts\test-nhie-mock.ps1`
-3. ✅ Configure Ghana EMR: Set `ghana.nhie.mode=mock` in properties
+1. [DONE] Start NHIE mock server: `docker-compose up -d nhie-mock nhie-mock-db`
+2. [DONE] Run test script: `.\scripts\test-nhie-mock.ps1`
+3. [DONE] Configure Ghana EMR: Set `ghana.nhie.mode=mock` in properties
 4. ⏭️ Proceed with Task #6: Build NHIEHttpClient.java
-5. ⏭️ Test E2E: Patient registration → FHIR mapping → NHIE submission
+5. ⏭️ Test E2E: Patient registration -> FHIR mapping -> NHIE submission
 
 ---
 

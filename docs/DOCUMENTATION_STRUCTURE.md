@@ -4,7 +4,7 @@
 
 ---
 
-## ⚠️ MANDATORY: Documentation Creation Rule
+## [WARNING] MANDATORY: Documentation Creation Rule
 
 **BEFORE CREATING ANY NEW .md FILE:** Check if existing files can host the content!
 
@@ -37,14 +37,14 @@ See **AGENTS.md** "Documentation Creation Rule (MANDATORY)" section for full pro
 ```
 MedReg/
 ├── IMPLEMENTATION_TRACKER.md ⭐ SOURCE OF TRUTH
-│   ├── Week 1: Foundation ✅
-│   ├── Week 2-3: Patient Registration ✅
-│   ├── Week 4-5: NHIE Patient Sync 🔄 75%
+│   ├── Week 1: Foundation [DONE]
+│   ├── Week 2-3: Patient Registration [DONE]
+│   ├── Week 4-5: NHIE Patient Sync [ACTIVE] 75%
 │   │   ├── Quick Dashboard (embedded)
 │   │   ├── Code Statistics (embedded)
 │   │   ├── Next Tasks (embedded)
 │   │   └── Links to detailed docs ↓
-│   └── Week 6-11: OPD Workflow ⏳
+│   └── Week 6-11: OPD Workflow [PENDING]
 │
 ├── AGENTS.md (Ghana domain rules, NHIE architecture, code patterns)
 ├── README.md (Project overview, quick start)
@@ -204,7 +204,7 @@ MedReg/
 **Create when:**
 - ðŸ”§ New infrastructure component added (Docker, database, etc.)
 - ðŸš€ Deployment process established
-- âš™ï¸ Configuration is non-trivial
+- âš(TM)ï¸ Configuration is non-trivial
 - ðŸ§ª Testing infrastructure needs documentation
 
 **Examples:**
@@ -267,11 +267,11 @@ MedReg/
 - Quick Bookmarks (12 daily-use links + local endpoints)
 
 **Benefits:**
-- ✅ No more searching for "that OpenMRS REST API link"
-- ✅ Eliminates duplicate links across 50+ files
-- ✅ Single place to update when URLs change
-- ✅ Organized by category (OpenMRS, FHIR, Ghana, Tools)
-- ✅ Quick reference card for bookmarks
+- [DONE] No more searching for "that OpenMRS REST API link"
+- [DONE] Eliminates duplicate links across 50+ files
+- [DONE] Single place to update when URLs change
+- [DONE] Organized by category (OpenMRS, FHIR, Ghana, Tools)
+- [DONE] Quick reference card for bookmarks
 
 **Related Documents:**
 - **UGANDA_EMR_REFERENCE.md:** Uganda EMR code adaptation (detailed code examples)

@@ -1,13 +1,20 @@
 "use client";
 import * as React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { TOP_DIAGNOSES } from '@/lib/gh/top-diagnoses';
+import { ESSENTIAL_MEDICINES } from '@/lib/gh/essential-medicines';
+import { COMMON_LAB_TESTS } from '@/lib/gh/common-labs';
+import { consultationSchema, type ConsultationFormData } from '@/lib/schemas/consultation';
+import { useConsultation } from '@/hooks/useConsultation';
 
 export default function ConsultationPage() {
-  const search = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const initialUuid = search?.get('patientUuid') || '';
-  const [patientUuid, setPatientUuid] = React.useState(initialUuid);
+  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const initialUuid = params?.get('patientUuid') || '';
   const [allowed, setAllowed] = React.useState(true);
   React.useEffect(() => {
     try {
@@ -19,51 +26,166 @@ export default function ConsultationPage() {
       setAllowed(ok);
     } catch { setAllowed(true); }
   }, []);
-  const [notes, setNotes] = React.useState('');
-  const [selected, setSelected] = React.useState<{ code: string, display: string }[]>([]);
-  const [status, setStatus] = React.useState<string | null>(null);
 
-  const toggle = (d: { code: string, display: string }) => {
-    setSelected((s) => s.find(x => x.code === d.code) ? s.filter(x => x.code !== d.code) : [...s, d]);
+  const form = useForm<ConsultationFormData>({
+    resolver: zodResolver(consultationSchema),
+    defaultValues: {
+      patientUuid: initialUuid,
+      chiefComplaint: '',
+      diagnoses: [],
+      prescriptions: [],
+      labs: [],
+    },
+  });
+
+  const mutation = useConsultation();
+
+  const onSubmit = (values: ConsultationFormData) => {
+    if (!allowed) return;
+    mutation.mutate(values);
   };
 
-  const submit = async () => {
-    setStatus(null);
-    const res = await fetch('/api/opd/consultation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ patientUuid, diagnoses: selected, notes }),
-    });
-    const data = await res.json();
-    setStatus(res.ok ? 'Saved' : (data?.error || 'Failed'));
+  const toggleDiagnosis = (code: string, display: string) => {
+    const current = form.getValues('diagnoses');
+    const exists = current.find((d: any) => (typeof d === 'string' ? d === code : d.code === code));
+    const next = exists
+      ? current.filter((d: any) => (typeof d === 'string' ? d !== code : d.code !== code))
+      : [...current, { code, display }];
+    form.setValue('diagnoses', next, { shouldValidate: true });
+  };
+
+  const addPrescription = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    const list = form.getValues('prescriptions');
+    if (!list.includes(trimmed)) {
+      form.setValue('prescriptions', [...list, trimmed], { shouldValidate: true });
+    }
+  };
+
+  const removePrescription = (value: string) => {
+    form.setValue('prescriptions', form.getValues('prescriptions').filter(v => v !== value), { shouldValidate: true });
+  };
+
+  const toggleLab = (_code: string, name: string) => {
+    const label = `${name}`;
+    const list = form.getValues('labs');
+    form.setValue('labs', list.includes(label) ? list.filter(v => v !== label) : [...list, label], { shouldValidate: true });
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-4">OPD Consultation</h1>
-      <div className="mb-4">
-        <label className="text-sm text-gray-600">Patient UUID</label>
-        <Input value={patientUuid} onChange={(e) => setPatientUuid(e.target.value)} placeholder="patient-uuid" />
-      </div>
-      <div className="grid md:grid-cols-2 gap-3">
-        {TOP_DIAGNOSES.map(d => (
-          <button key={d.code} onClick={() => toggle(d)}
-                  className={`text-left border rounded px-3 py-2 text-sm ${selected.find(x => x.code === d.code) ? 'border-teal-600 bg-teal-50' : 'border-gray-200'}`}>
-            <div className="font-medium">{d.display}</div>
-            <div className="text-xs text-gray-600">{d.code}</div>
-          </button>
-        ))}
-      </div>
-      <div className="mt-4">
-        <label className="text-sm text-gray-600">Notes</label>
-        <textarea className="w-full border rounded p-2 text-sm" rows={4}
-                  value={notes} onChange={(e) => setNotes(e.target.value)} />
-      </div>
-      <div className="mt-4 flex items-center gap-3">
-        <Button onClick={submit} disabled={!patientUuid || selected.length === 0 || !allowed}>Save Consultation</Button>
-        {!allowed && <span className="text-xs text-amber-600">Insufficient role to save consultation</span>}
-        {status && <span className="text-sm text-gray-600">{status}</span>}
-      </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="patientUuid"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Patient UUID</FormLabel>
+                <FormControl>
+                  <Input placeholder="patient-uuid" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="chiefComplaint"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Chief Complaint</FormLabel>
+                <FormControl>
+                  <Textarea rows={3} placeholder="e.g., Fever and headache for 3 days" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div>
+            <div className="text-sm text-gray-700 mb-2">Diagnoses (quick picks)</div>
+            <div className="grid md:grid-cols-2 gap-3">
+              {TOP_DIAGNOSES.map(d => {
+                const selected = (form.getValues('diagnoses') || []).find((x: any) => (typeof x === 'string' ? x === d.code : x.code === d.code));
+                return (
+                  <button
+                    type="button"
+                    key={d.code}
+                    onClick={() => toggleDiagnosis(d.code, d.display)}
+                    className={`text-left border rounded px-3 py-2 text-sm ${selected ? 'border-teal-600 bg-teal-50' : 'border-gray-200'}`}
+                  >
+                    <div className="font-medium">{d.display}</div>
+                    <div className="text-xs text-gray-600">{d.code}</div>
+                  </button>
+                );
+              })}
+            </div>
+            <FormMessage>{form.formState.errors.diagnoses?.message as any}</FormMessage>
+          </div>
+
+          <div>
+            <div className="text-sm text-gray-700 mb-2">Prescriptions (essential medicines)</div>
+            <div className="flex gap-2 flex-wrap mb-2">
+              {ESSENTIAL_MEDICINES.map(m => {
+                const label = `${m.name}${m.strength ? ` ${m.strength}` : ''}${m.form ? ` ${m.form}` : ''}`.trim();
+                const active = form.getValues('prescriptions').includes(label);
+                return (
+                  <button
+                    type="button"
+                    key={m.code}
+                    className={`text-xs border rounded px-2 py-1 ${active ? 'border-teal-600 bg-teal-50' : 'border-gray-200'}`}
+                    onClick={() => (active ? removePrescription(label) : addPrescription(label))}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Add custom prescription (free text)"
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addPrescription(e.currentTarget.value);
+                    e.currentTarget.value = '';
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="text-sm text-gray-700 mb-2">Lab Orders</div>
+            <div className="flex gap-2 flex-wrap">
+              {COMMON_LAB_TESTS.map(t => {
+                const active = form.getValues('labs').includes(t.name);
+                return (
+                  <button
+                    type="button"
+                    key={t.code}
+                    className={`text-xs border rounded px-2 py-1 ${active ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200'}`}
+                    onClick={() => toggleLab(t.code, t.name)}
+                  >
+                    {t.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Button type="submit" disabled={!allowed || mutation.isPending}>
+              {mutation.isPending ? 'Saving…' : 'Save Consultation'}
+            </Button>
+            {!allowed && <span className="text-xs text-amber-600">Insufficient role to save consultation</span>}
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

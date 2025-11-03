@@ -78,4 +78,40 @@ public class DefaultNHIETransactionLogger implements NHIETransactionLogger {
             log.error("Failed to log NHIE transaction: {}", e.getMessage(), e);
         }
     }
+
+    @Override
+    public void update(String transactionId, int responseStatus, String maskedResponseBody,
+                       int retryCount, String status, String nhieResourceId, String errorMessage) {
+
+        String sql = "UPDATE ghanaemr_nhie_transaction_log SET " +
+                "response_status = ?, response_body = ?, retry_count = ?, status = ?, " +
+                "nhie_resource_id = ?, error_message = ?, updated_at = ? " +
+                "WHERE transaction_id = ?";
+
+        try (Connection connection = Context.getRuntimeProperties().getProperty("connection.url") != null ?
+                java.sql.DriverManager.getConnection(
+                        Context.getRuntimeProperties().getProperty("connection.url"),
+                        Context.getRuntimeProperties().getProperty("connection.username"),
+                        Context.getRuntimeProperties().getProperty("connection.password")
+                ) : null) {
+
+            if (connection != null) {
+                try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                    stmt.setInt(1, responseStatus);
+                    stmt.setString(2, maskedResponseBody);
+                    stmt.setInt(3, retryCount);
+                    stmt.setString(4, status);
+                    stmt.setString(5, nhieResourceId);
+                    stmt.setString(6, errorMessage);
+                    stmt.setTimestamp(7, new Timestamp(new Date().getTime()));
+                    stmt.setString(8, transactionId);
+
+                    stmt.executeUpdate();
+                }
+            }
+        } catch (Exception e) {
+            // Don't fail main flow if logging fails
+            log.error("Failed to update NHIE transaction log: {}", e.getMessage(), e);
+        }
+    }
 }

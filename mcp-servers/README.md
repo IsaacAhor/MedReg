@@ -35,18 +35,18 @@ Model Context Protocol (MCP) is an **open protocol that standardizes how AI appl
 ### Why MCP for Ghana EMR MVP?
 
 Without MCP, AI coding agents like GitHub Copilot or Claude:
-- ❌ Cannot query OpenMRS database to see existing patients
-- ❌ Cannot validate Ghana Card checksums before generating code
-- ❌ Cannot enforce NHIE-only routing (risk of generating direct NHIA API calls)
-- ❌ Generate code blindly without understanding current system state
+- [FAILED] Cannot query OpenMRS database to see existing patients
+- [FAILED] Cannot validate Ghana Card checksums before generating code
+- [FAILED] Cannot enforce NHIE-only routing (risk of generating direct NHIA API calls)
+- [FAILED] Generate code blindly without understanding current system state
 
 **With MCP, AI agents can:**
-- ✅ Query patient database to avoid duplicates
-- ✅ Validate Ghana Cards using Luhn checksum (AGENTS.md rules)
-- ✅ Enforce NHIE middleware architecture (block direct backend calls)
-- ✅ Generate schema-aware migrations (see actual table structure)
-- ✅ Test code against live OpenMRS instance
-- ✅ Mask PII in logs automatically
+- [DONE] Query patient database to avoid duplicates
+- [DONE] Validate Ghana Cards using Luhn checksum (AGENTS.md rules)
+- [DONE] Enforce NHIE middleware architecture (block direct backend calls)
+- [DONE] Generate schema-aware migrations (see actual table structure)
+- [DONE] Test code against live OpenMRS instance
+- [DONE] Mask PII in logs automatically
 
 ### Business Impact
 
@@ -279,11 +279,11 @@ mcp-servers/
 
 **Files (2):**
 1. **`pii_mask.ts`** - PII Masking for Logs
-   - Ghana Card: `GHA-123456789-0` → `GHA-1234****-*`
-   - NHIS: `0123456789` → `0123****`
-   - Names: `Kwame Mensah` → `K***e M****h`
-   - Phones: `+233244123456` → `+233244***`
-   - Email: `user@example.com` → `u***@example.com`
+   - Ghana Card: `GHA-123456789-0` -> `GHA-1234****-*`
+   - NHIS: `0123456789` -> `0123****`
+   - Names: `Kwame Mensah` -> `K***e M****h`
+   - Phones: `+233244123456` -> `+233244***`
+   - Email: `user@example.com` -> `u***@example.com`
 
 2. **`context_loader.ts`** - Load AGENTS.md into AI Context
    - Reads `AGENTS.md` from workspace root
@@ -372,15 +372,15 @@ cd mcp-servers
 Installing dependencies for all MCP servers...
 
 [1/3] Installing OpenMRS MCP Server dependencies...
-✓ OpenMRS MCP Server dependencies installed
+[OK] OpenMRS MCP Server dependencies installed
 
 [2/3] Installing MySQL MCP Server dependencies...
-✓ MySQL MCP Server dependencies installed
+[OK] MySQL MCP Server dependencies installed
 
 [3/3] Installing Shared utilities dependencies...
-✓ Shared utilities dependencies installed
+[OK] Shared utilities dependencies installed
 
-✓ All MCP servers ready!
+[OK] All MCP servers ready!
 ```
 
 **Troubleshooting**: If npm install fails:
@@ -405,15 +405,15 @@ cd ../shared; npm install
 ```
 Verifying MCP Infrastructure Setup...
 
-✓ Node.js 18+ installed (v18.17.0)
-✓ Docker is running
-✓ OpenMRS is accessible (http://localhost:8080)
-✓ MySQL is accessible (port 3307)
-✓ OpenMRS MCP Server builds successfully
-✓ MySQL MCP Server builds successfully
-✓ Shared utilities build successfully
+[OK] Node.js 18+ installed (v18.17.0)
+[OK] Docker is running
+[OK] OpenMRS is accessible (http://localhost:8080)
+[OK] MySQL is accessible (port 3307)
+[OK] OpenMRS MCP Server builds successfully
+[OK] MySQL MCP Server builds successfully
+[OK] Shared utilities build successfully
 
-✓ All checks passed! MCP infrastructure ready.
+[OK] All checks passed! MCP infrastructure ready.
 ```
 
 **Troubleshooting**: See [Troubleshooting](#troubleshooting) section below
@@ -425,9 +425,9 @@ Verifying MCP Infrastructure Setup...
 ### Supported AI Tools
 
 This MCP infrastructure works with:
-1. ✅ **Codex CLI** - TOML config (`~/.codex/config.toml`) - **RECOMMENDED**
-2. ⏳ **GitHub Copilot** - VS Code settings (MCP support coming soon)
-3. ✅ **Claude Desktop** - JSON config (`%APPDATA%\Claude\claude_desktop_config.json`)
+1. [DONE] **Codex CLI** - TOML config (`~/.codex/config.toml`) - **RECOMMENDED**
+2. [PENDING] **GitHub Copilot** - VS Code settings (MCP support coming soon)
+3. [DONE] **Claude Desktop** - JSON config (`%APPDATA%\Claude\claude_desktop_config.json`)
 
 **Important**: As of November 2024, **GitHub Copilot does NOT support MCP yet**. Use Codex CLI or Claude Desktop.
 
@@ -446,10 +446,10 @@ See `configs/README-CONFIGS.md` for detailed instructions for each tool.
 
 ### Why Codex CLI?
 
-- ✅ Native MCP support (works today)
-- ✅ Works alongside GitHub Copilot in VS Code
-- ✅ Command-line interface (fast, scriptable)
-- ✅ TOML config (clean, readable)
+- [DONE] Native MCP support (works today)
+- [DONE] Works alongside GitHub Copilot in VS Code
+- [DONE] Command-line interface (fast, scriptable)
+- [DONE] TOML config (clean, readable)
 
 ### Setup Steps
 
@@ -528,7 +528,7 @@ New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"
 # 2. Copy template config
 Copy-Item .\configs\claude-desktop-config.json "$env:APPDATA\Claude\claude_desktop_config.json"
 
-# 3. Restart Claude Desktop completely (File → Exit, then reopen)
+# 3. Restart Claude Desktop completely (File -> Exit, then reopen)
 ```
 
 ### Configuration Template
@@ -598,7 +598,7 @@ npm run build
 
 After editing `claude_desktop_config.json`:
 
-1. **Quit Claude Desktop** completely (File → Exit)
+1. **Quit Claude Desktop** completely (File -> Exit)
 2. **Restart Claude Desktop**
 3. **Verify Tools Available**: Type "What MCP tools do you have?" in Claude
 
@@ -721,7 +721,7 @@ Ghana MoH Mandate: All facility EMRs must route through NHIE middleware.
 Direct NHIA backend calls are PROHIBITED.
 
 Correct Architecture:
-  Facility EMR → NHIE Middleware → NHIA Backend
+  Facility EMR -> NHIE Middleware -> NHIA Backend
 
 Please use NHIE endpoints instead:
   https://nhie.moh.gov.gh/fhir/Coverage?beneficiary.identifier=...
@@ -1085,16 +1085,16 @@ export function validateGhanaCard(ghanaCard: string): boolean {
 ```
 
 **Test Cases**:
-- ✅ Valid: `GHA-123456789-0` (checksum matches)
-- ❌ Invalid: `GHA-123456789-5` (wrong checksum)
-- ❌ Invalid: `GHA-12345678-0` (too short)
-- ❌ Invalid: `GHA123456789-0` (missing hyphen)
-- ❌ Invalid: `gha-123456789-0` (lowercase, but normalized to uppercase first)
+- [DONE] Valid: `GHA-123456789-0` (checksum matches)
+- [FAILED] Invalid: `GHA-123456789-5` (wrong checksum)
+- [FAILED] Invalid: `GHA-12345678-0` (too short)
+- [FAILED] Invalid: `GHA123456789-0` (missing hyphen)
+- [FAILED] Invalid: `gha-123456789-0` (lowercase, but normalized to uppercase first)
 
 **Normalization**:
-- Lowercase → Uppercase (`gha` → `GHA`)
+- Lowercase -> Uppercase (`gha` -> `GHA`)
 - Strip spaces
-- Auto-insert hyphens if 13 digits provided (`GHA1234567890` → `GHA-123456789-0`)
+- Auto-insert hyphens if 13 digits provided (`GHA1234567890` -> `GHA-123456789-0`)
 
 ---
 
@@ -1115,10 +1115,10 @@ export function validateNHIS(nhisNumber: string): boolean {
 ```
 
 **Test Cases**:
-- ✅ Valid: `0123456789`
-- ❌ Invalid: `012-345-6789` (hyphens)
-- ❌ Invalid: `12345` (too short)
-- ❌ Invalid: `NHIS123456` (letters)
+- [DONE] Valid: `0123456789`
+- [FAILED] Invalid: `012-345-6789` (hyphens)
+- [FAILED] Invalid: `12345` (too short)
+- [FAILED] Invalid: `NHIS123456` (letters)
 
 ---
 
@@ -1189,7 +1189,7 @@ Ghana MoH Mandate: All facility EMRs must route through NHIE middleware.
 Direct NHIA/MPI backend calls are PROHIBITED.
 
 Correct Architecture:
-  Facility EMR → NHIE Middleware → NHIA Backend
+  Facility EMR -> NHIE Middleware -> NHIA Backend
 
 Use NHIE endpoints instead:
   https://nhie.moh.gov.gh/fhir/Coverage?beneficiary.identifier=...
@@ -1201,9 +1201,9 @@ Reference: AGENTS.md section "NHIE Middleware Architecture"
 ```
 
 **Test Cases**:
-- ✅ Allowed: `https://nhie.moh.gov.gh/fhir/Coverage`
-- ❌ Blocked: `https://api.nhia.gov.gh/eligibility`
-- ❌ Blocked: `https://national-mpi.gov.gh/patient`
+- [DONE] Allowed: `https://nhie.moh.gov.gh/fhir/Coverage`
+- [FAILED] Blocked: `https://api.nhia.gov.gh/eligibility`
+- [FAILED] Blocked: `https://national-mpi.gov.gh/patient`
 
 ---
 
@@ -1253,13 +1253,13 @@ function generateFolderNumber(facilityCode: string, regionCode: string): string 
 export function maskGhanaCard(ghanaCard: string): string {
   if (!ghanaCard || ghanaCard.length < 15) return '***';
   return ghanaCard.substring(0, 8) + '****-*';
-  // GHA-123456789-0 → GHA-1234****-*
+  // GHA-123456789-0 -> GHA-1234****-*
 }
 
 export function maskNHIS(nhis: string): string {
   if (!nhis || nhis.length < 10) return '***';
   return nhis.substring(0, 4) + '****';
-  // 0123456789 → 0123****
+  // 0123456789 -> 0123****
 }
 
 export function maskName(name: string): string {
@@ -1268,13 +1268,13 @@ export function maskName(name: string): string {
     if (part.length <= 2) return part;
     return part[0] + '*'.repeat(part.length - 2) + part[part.length - 1];
   }).join(' ');
-  // Kwame Mensah → K***e M****h
+  // Kwame Mensah -> K***e M****h
 }
 
 export function maskPhone(phone: string): string {
   if (!phone || phone.length < 10) return '***';
   return phone.substring(0, phone.length - 3) + '***';
-  // +233244123456 → +233244123***
+  // +233244123456 -> +233244123***
 }
 ```
 
@@ -1347,7 +1347,7 @@ export function validateSQL(sql: string): void {
 
 ### Problem: Claude Desktop doesn't show MCP tools
 
-**Symptoms**: Ask "What MCP tools do you have?" → Claude responds "I don't have any MCP tools available"
+**Symptoms**: Ask "What MCP tools do you have?" -> Claude responds "I don't have any MCP tools available"
 
 **Diagnosis**:
 1. Check `claude_desktop_config.json` exists:
@@ -1360,8 +1360,8 @@ export function validateSQL(sql: string): void {
    ```
 3. Check paths use double backslashes:
    ```json
-   "c:\\temp\\AI\\MedReg\\..."  // ✅ Correct
-   "c:\temp\AI\MedReg\..."       // ❌ Wrong (single backslash)
+   "c:\\temp\\AI\\MedReg\\..."  // [DONE] Correct
+   "c:\temp\AI\MedReg\..."       // [FAILED] Wrong (single backslash)
    ```
 4. Verify `dist/index.js` exists:
    ```powershell
@@ -1489,8 +1489,8 @@ mysql -h localhost -P 3307 -u openmrs_user -popenmrs_password -e "SHOW TABLES;" 
 
 **Diagnosis**:
 1. Check URL being called:
-   - ✅ Allowed: `https://nhie.moh.gov.gh/...`
-   - ❌ Blocked: `https://api.nhia.gov.gh/...`
+   - [DONE] Allowed: `https://nhie.moh.gov.gh/...`
+   - [FAILED] Blocked: `https://api.nhia.gov.gh/...`
 2. Check if code contains blacklisted keywords:
    - `nhia.gov.gh`, `national-health-insurance-authority`, `direct-nhia`
 
@@ -1825,9 +1825,9 @@ describe('Ghana Card Validator', () => {
 ### Common Ghana Cards (Test Data)
 | Ghana Card          | Valid? | Check Digit |
 |---------------------|--------|-------------|
-| GHA-123456789-0     | ✅     | 0 (correct) |
-| GHA-987654321-5     | ✅     | 5 (correct) |
-| GHA-123456789-5     | ❌     | 5 (wrong)   |
+| GHA-123456789-0     | [DONE]     | 0 (correct) |
+| GHA-987654321-5     | [DONE]     | 5 (correct) |
+| GHA-123456789-5     | [FAILED]     | 5 (wrong)   |
 
 ### NHIE Endpoints (Sandbox)
 | Endpoint | Purpose |
@@ -1866,11 +1866,11 @@ MYSQL_DATABASE=openmrs
 ---
 
 **Next Steps**:
-1. ✅ Run `.\scripts\install-all.ps1` (install dependencies)
-2. ✅ Run `.\scripts\verify-mcp.ps1` (verify setup)
-3. ⏳ Configure Claude Desktop (`claude_desktop_config.json`)
-4. ⏳ Test all 6 MCP tools with Claude
-5. ⏳ Document any issues in GitHub Issues
+1. [DONE] Run `.\scripts\install-all.ps1` (install dependencies)
+2. [DONE] Run `.\scripts\verify-mcp.ps1` (verify setup)
+3. [PENDING] Configure Claude Desktop (`claude_desktop_config.json`)
+4. [PENDING] Test all 6 MCP tools with Claude
+5. [PENDING] Document any issues in GitHub Issues
 
 **Week 1 Target**: Nov 8, 2025 - MCP infrastructure operational + tested with Claude Desktop
 

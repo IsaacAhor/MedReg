@@ -15,33 +15,33 @@ You're building with **AI coding agents as your development team** instead of tr
 ### Agent Organization (from 07_AI_Agent_Architecture.md)
 
 **Tier 1: Code Generation Agents (5 agents)**
-1. OpenMRS Backend Agent → Patient registration, encounters, obs, orders
-2. FHIR Converter Agent → OpenMRS ↔ FHIR transformations
-3. NHIE Integration Agent → OAuth, mTLS, retry logic, queue management
-4. Frontend Agent → Next.js UI, forms, dashboards (Option B) or HTML Form Entry (Option A)
-5. Database Agent → MySQL schema, migrations, queries, indexes
+1. OpenMRS Backend Agent -> Patient registration, encounters, obs, orders
+2. FHIR Converter Agent -> OpenMRS ↔ FHIR transformations
+3. NHIE Integration Agent -> OAuth, mTLS, retry logic, queue management
+4. Frontend Agent -> Next.js UI, forms, dashboards (Option B) or HTML Form Entry (Option A)
+5. Database Agent -> MySQL schema, migrations, queries, indexes
 
 **Tier 2: Domain Expert Agents (3 agents)**
-6. Ghana Health Domain Agent → NHIS rules, Ghana Card validation, folder numbers
-7. NHIS Business Rules Agent → Eligibility logic, claims validation, tariff codes
-8. Clinical Workflow Agent → OPD workflows, triage, consultation, pharmacy
+6. Ghana Health Domain Agent -> NHIS rules, Ghana Card validation, folder numbers
+7. NHIS Business Rules Agent -> Eligibility logic, claims validation, tariff codes
+8. Clinical Workflow Agent -> OPD workflows, triage, consultation, pharmacy
 
 **Tier 3: Integration Agents (2 agents)**
-9. API Integration Agent → OpenMRS REST API wrappers, error handling
-10. Security Agent → OAuth 2.0, role-based access, audit logs
+9. API Integration Agent -> OpenMRS REST API wrappers, error handling
+10. Security Agent -> OAuth 2.0, role-based access, audit logs
 
 **Tier 4: Quality Agents (3 agents)**
-11. Testing Agent → Unit tests, integration tests, test data generation
-12. Code Review Agent → Code quality, security vulnerabilities, best practices
-13. Performance Agent → Query optimization, caching, load testing
+11. Testing Agent -> Unit tests, integration tests, test data generation
+12. Code Review Agent -> Code quality, security vulnerabilities, best practices
+13. Performance Agent -> Query optimization, caching, load testing
 
 **Tier 5: Documentation Agents (2 agents)**
-14. Technical Documentation Agent → API docs, deployment guides, runbooks
-15. User Documentation Agent → User manuals, training materials, job aids
+14. Technical Documentation Agent -> API docs, deployment guides, runbooks
+15. User Documentation Agent -> User manuals, training materials, job aids
 
 **Tier 6: Orchestration Agents (2 agents)**
-16. **Project Coordinator Agent** → Task decomposition, dependency management, progress tracking (THIS IS YOUR CENTRAL ORCHESTRATOR)
-17. Deployment Agent → CI/CD, Docker, database migrations, monitoring
+16. **Project Coordinator Agent** -> Task decomposition, dependency management, progress tracking (THIS IS YOUR CENTRAL ORCHESTRATOR)
+17. Deployment Agent -> CI/CD, Docker, database migrations, monitoring
 
 ---
 
@@ -54,21 +54,21 @@ You're building with **AI coding agents as your development team** instead of tr
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  YOU (Human Technical Lead)                                  │
-│  • High-level decisions (architecture, scope, priorities)   │
-│  • Clinical validation with domain experts                   │
-│  • MoH/pilot facility relationships                          │
-│  • Final production deployment approval                      │
+│  * High-level decisions (architecture, scope, priorities)   │
+│  * Clinical validation with domain experts                   │
+│  * MoH/pilot facility relationships                          │
+│  * Final production deployment approval                      │
 └──────────────────┬──────────────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  PROJECT COORDINATOR AGENT (Your AI PM)                      │
-│  • Task decomposition (break Week 1-4 goals into subtasks)  │
-│  • Dependency management (Patient Registration → NHIE Sync) │
-│  • Agent assignment (route tasks to specialized agents)      │
-│  • Progress tracking (what's done, what's blocked)           │
-│  • Integration orchestration (combine agent outputs)         │
-│  • Conflict resolution (when agents produce incompatible code)│
+│  * Task decomposition (break Week 1-4 goals into subtasks)  │
+│  * Dependency management (Patient Registration -> NHIE Sync) │
+│  * Agent assignment (route tasks to specialized agents)      │
+│  * Progress tracking (what's done, what's blocked)           │
+│  * Integration orchestration (combine agent outputs)         │
+│  * Conflict resolution (when agents produce incompatible code)│
 └──────────────────┬──────────────────────────────────────────┘
                    │
          ┌─────────┴────────┬────────────┬───────────┐
@@ -117,16 +117,16 @@ Assign specialized agents and coordinate their work.
 
 **Project Coordinator Agent** decomposes and assigns:
 
-1. **Database Agent** → Create MySQL schema, user privileges, connection config
+1. **Database Agent** -> Create MySQL schema, user privileges, connection config
    - Prompt: "Create MySQL 8.0 database setup script for OpenMRS 2.6.0 with user `openmrs_user`, database `openmrs`, grant privileges, production-ready collation (utf8mb4)"
 
-2. **Deployment Agent** → Create Docker Compose with MySQL + OpenMRS + (Next.js if Option B)
+2. **Deployment Agent** -> Create Docker Compose with MySQL + OpenMRS + (Next.js if Option B)
    - Prompt: "Create Docker Compose file: MySQL 8.0, OpenMRS 2.6.0 Tomcat container, persistent volumes for database and OpenMRS data, environment variables for DB connection"
 
-3. **Deployment Agent** → Set up GitHub Actions for automated testing
+3. **Deployment Agent** -> Set up GitHub Actions for automated testing
    - Prompt: "Create GitHub Actions workflow: run on push to main, build OpenMRS module, run unit tests, report coverage"
 
-4. **Technical Documentation Agent** → Create README.md with setup instructions
+4. **Technical Documentation Agent** -> Create README.md with setup instructions
    - Prompt: "Create README.md: prerequisites (Docker, JDK 8, Maven), clone repo, run `docker-compose up`, access OpenMRS at localhost:8080, default credentials"
 
 **Your Role**: Review Docker Compose file, verify OpenMRS starts successfully, approve README
@@ -156,22 +156,22 @@ Assign specialized agents.
 
 **Project Coordinator Agent** assigns:
 
-1. **Ghana Health Domain Agent** → Generate Ghana Card validation logic
+1. **Ghana Health Domain Agent** -> Generate Ghana Card validation logic
    - Prompt: "Generate Java method `validateGhanaCard(String ghanaCardNumber)` with format validation (GHA-XXXXXXXXX-X), checksum algorithm per Ghana Card spec, throw ValidationException with clear error messages"
 
-2. **Database Agent** → Create patient attributes table for Ghana-specific fields
+2. **Database Agent** -> Create patient attributes table for Ghana-specific fields
    - Prompt: "Create Liquibase changeset: patient_attribute_type for Ghana Card (format text, required), NHIS number (text, optional), Folder number (text, unique), searchable flag true"
 
-3. **OpenMRS Backend Agent** → Create PatientRegistrationService with Ghana logic
+3. **OpenMRS Backend Agent** -> Create PatientRegistrationService with Ghana logic
    - Prompt: "Create Spring service `GhanaPatientRegistrationService`: method `registerPatient(GhanaPatientDTO dto)` that creates OpenMRS Patient, sets Ghana Card attribute, generates folder number, validates NHIS format if provided, returns PatientId"
 
-4. **OpenMRS Backend Agent** → Create REST endpoint for registration
-   - Prompt: "Create Spring REST controller `/api/ghana/patients`: POST endpoint accepts GhanaPatientDTO (name, dob, gender, ghanaCard, nhisNumber, phone, address), calls GhanaPatientRegistrationService, returns 201 with patient resource URL, handles ValidationException → 400 with error details"
+4. **OpenMRS Backend Agent** -> Create REST endpoint for registration
+   - Prompt: "Create Spring REST controller `/api/ghana/patients`: POST endpoint accepts GhanaPatientDTO (name, dob, gender, ghanaCard, nhisNumber, phone, address), calls GhanaPatientRegistrationService, returns 201 with patient resource URL, handles ValidationException -> 400 with error details"
 
-5. **Testing Agent** → Generate unit tests for validation logic
+5. **Testing Agent** -> Generate unit tests for validation logic
    - Prompt: "Create JUnit tests for `validateGhanaCard()`: valid Ghana Card passes, invalid format fails, invalid checksum fails, null input fails, test with 10 real Ghana Card numbers (anonymized)"
 
-6. **Code Review Agent** → Review generated code for security and best practices
+6. **Code Review Agent** -> Review generated code for security and best practices
    - Prompt: "Review GhanaPatientRegistrationService: check for SQL injection (use prepared statements), validate all user inputs, ensure Ghana Card stored encrypted at rest, check error messages don't leak sensitive data"
 
 **Your Role**: 
@@ -203,16 +203,16 @@ Assign specialized agents.
 
 **Project Coordinator Agent** assigns:
 
-1. **Frontend Agent** → Create Zod schema for patient registration form
+1. **Frontend Agent** -> Create Zod schema for patient registration form
    - Prompt: "Create Zod schema `patientRegistrationSchema`: ghanaCard (string, regex GHA-\\d{9}-\\d), nhisNumber (string, optional, regex \\d{10}), name (string, min 2 chars), dob (date, max today, min 1900), gender (enum Male/Female/Other), phone (string, Ghana format), address object (region, district, town)"
 
-2. **Frontend Agent** → Create patient registration form component
+2. **Frontend Agent** -> Create patient registration form component
    - Prompt: "Create Next.js page `app/patients/register/page.tsx`: use shadcn/ui Form + Input + Select + DatePicker + Button, React Hook Form with patientRegistrationSchema, onSubmit calls registerPatient mutation (TanStack Query), displays loading spinner, shows error toast on failure, redirects to /patients/[id] on success"
 
-3. **Frontend Agent** → Create TanStack Query mutation for patient registration
+3. **Frontend Agent** -> Create TanStack Query mutation for patient registration
    - Prompt: "Create `useMutation` hook `useRegisterPatient()`: POST to `/api/ghana/patients` with Axios, headers Content-Type application/json, Authorization Bearer token, on success invalidates patients query cache, on error extracts error message from response"
 
-4. **Testing Agent** → Create frontend tests for registration form
+4. **Testing Agent** -> Create frontend tests for registration form
    - Prompt: "Create Vitest + React Testing Library tests for patient registration form: renders all fields, validates Ghana Card format on blur, shows error message for invalid NHIS number, disables submit button while loading, calls registerPatient on valid submit"
 
 **Your Role**:
@@ -286,7 +286,7 @@ c:\temp\AI\MedReg\
 - **Automatic**: Cursor, Copilot, Aider auto-load AGENTS.md when generating code
 - **Explicit**: Reference in prompts: "Follow AGENTS.md guidelines for Ghana Card validation"
 - **Nested**: Backend agents read `/backend/AGENTS.md` first, then fall back to root
-- **Updates**: Update AGENTS.md when architecture decisions made → all agents instantly see changes
+- **Updates**: Update AGENTS.md when architecture decisions made -> all agents instantly see changes
 
 **Configuration**:
 - **Cursor**: Works automatically (no config needed)
@@ -477,11 +477,11 @@ Status update: What's complete? What's blocked?
 **Project Coordinator Agent Response**:
 ```
 Status:
-✅ Issue #1 (Database Agent): Complete, PR #1 created
-✅ Issue #2 (Deployment Agent): Complete, PR #2 created
-✅ Issue #3 (Deployment Agent): Complete, PR #3 created
-✅ Issue #4 (Technical Documentation Agent): Complete, PR #4 created
-⏳ Issue #5 (Database Agent): In progress (60% done)
+[DONE] Issue #1 (Database Agent): Complete, PR #1 created
+[DONE] Issue #2 (Deployment Agent): Complete, PR #2 created
+[DONE] Issue #3 (Deployment Agent): Complete, PR #3 created
+[DONE] Issue #4 (Technical Documentation Agent): Complete, PR #4 created
+[PENDING] Issue #5 (Database Agent): In progress (60% done)
 
 Action: Review PRs #1-4, provide feedback.
 ```
@@ -569,10 +569,10 @@ All issues created with dependencies mapped. Agents will start Day 2 tasks tomor
 ```
 
 **5:00 PM - Day 1 Complete**:
-- ✅ AGENTS.md created (single source of truth for all agents)
-- ✅ Environment setup done (Docker, CI/CD, README)
-- ✅ Week 1 tasks planned and assigned
-- ✅ Agents ready to work Day 2 (will auto-load AGENTS.md)
+- [DONE] AGENTS.md created (single source of truth for all agents)
+- [DONE] Environment setup done (Docker, CI/CD, README)
+- [DONE] Week 1 tasks planned and assigned
+- [DONE] Agents ready to work Day 2 (will auto-load AGENTS.md)
 
 **Your Day 1 Time**: ~5 hours (setup 2h, reviews 2h, planning 1h)
 **Agent Time**: ~20 hours of work completed (4 agents × 5 hours each, parallelized to fit in 1 day)
@@ -793,19 +793,19 @@ All issues created with dependencies mapped. Agents will start Day 2 tasks tomor
 1. **Agent Productivity <50%** after 4 weeks
    - Many PRs rejected, requiring extensive rewrites
    - Agents frequently blocked, can't complete tasks
-   - → Hire 1 backend developer (part-time) to unblock agents
+   - -> Hire 1 backend developer (part-time) to unblock agents
 
 2. **You're Working >50 hours/week** consistently
    - Spending all day reviewing agent code, no strategic work time
-   - → Hire 1 Technical Lead to share orchestration work
+   - -> Hire 1 Technical Lead to share orchestration work
 
 3. **NHIE Integration Failing** after 8 weeks
    - Complex integration logic beyond agent capabilities
-   - → Hire OpenMRS expert contractor (2-week sprint) to build integration layer
+   - -> Hire OpenMRS expert contractor (2-week sprint) to build integration layer
 
 4. **Pilot Facility Demo Disasters**
    - Features don't work as expected, clinical workflows wrong
-   - → Hire Clinical Informaticist (full-time) to validate workflows
+   - -> Hire Clinical Informaticist (full-time) to validate workflows
 
 **Hybrid Model** (agents + humans):
 - Agents: 70% of work (CRUD, forms, tests, docs)
@@ -856,26 +856,26 @@ All issues created with dependencies mapped. Agents will start Day 2 tasks tomor
 ## Next Steps: Your Week 1 Action Plan with AI Agents
 
 ### Tomorrow (Day 1):
-1. ✅ Create GitHub repo: `ghana-emr-mvp`
-2. ✅ **Create AGENTS.md at root** (comprehensive template provided below)
-3. ✅ Install AI tools (Copilot, Cursor, Claude API)
-4. ✅ Configure tools for AGENTS.md (Cursor auto-works, Aider needs config)
-5. ✅ Set up local OpenMRS + MySQL (or Docker)
-6. ✅ Prompt Project Coordinator Agent: "Week 1 Day 1 environment setup, follow AGENTS.md rules"
-7. ✅ Review agent work, merge PRs
-8. ✅ Plan Week 1 Day 2-5 tasks
+1. [DONE] Create GitHub repo: `ghana-emr-mvp`
+2. [DONE] **Create AGENTS.md at root** (comprehensive template provided below)
+3. [DONE] Install AI tools (Copilot, Cursor, Claude API)
+4. [DONE] Configure tools for AGENTS.md (Cursor auto-works, Aider needs config)
+5. [DONE] Set up local OpenMRS + MySQL (or Docker)
+6. [DONE] Prompt Project Coordinator Agent: "Week 1 Day 1 environment setup, follow AGENTS.md rules"
+7. [DONE] Review agent work, merge PRs
+8. [DONE] Plan Week 1 Day 2-5 tasks
 
 ### Week 1 (Day 2-5):
-1. ✅ Build patient registration backend (agents auto-follow AGENTS.md rules)
-2. ✅ Build patient registration frontend (Option B: Next.js + shadcn/ui)
-3. ✅ Update AGENTS.md as new patterns emerge (Ghana Card edge cases, etc.)
-4. ✅ Test with pilot facility staff (validate workflows)
-5. ✅ Friday demo to stakeholders
+1. [DONE] Build patient registration backend (agents auto-follow AGENTS.md rules)
+2. [DONE] Build patient registration frontend (Option B: Next.js + shadcn/ui)
+3. [DONE] Update AGENTS.md as new patterns emerge (Ghana Card edge cases, etc.)
+4. [DONE] Test with pilot facility staff (validate workflows)
+5. [DONE] Friday demo to stakeholders
 
 ### Week 2-4:
-1. ✅ Continue building per 08_MVP_Build_Strategy.md timeline
-2. ✅ Update AGENTS.md as architecture decisions made (agents auto-sync)
-3. ✅ Week 4 milestone: NHIE patient sync working (first integration proof!)
+1. [DONE] Continue building per 08_MVP_Build_Strategy.md timeline
+2. [DONE] Update AGENTS.md as architecture decisions made (agents auto-sync)
+3. [DONE] Week 4 milestone: NHIE patient sync working (first integration proof!)
 
 **By Week 4**: You'll have proven your AI agent team can build real features, hit milestones, and save 50-80% cost vs human team.
 
@@ -886,22 +886,22 @@ All issues created with dependencies mapped. Agents will start Day 2 tasks tomor
 ## Bottom Line
 
 **Can AI coding agents build Ghana EMR MVP?** 
-✅ **Yes**, with your orchestration and strategic oversight
+[DONE] **Yes**, with your orchestration and strategic oversight
 
 **How do they coordinate?** 
-✅ **You + Project Coordinator Agent** decompose tasks → assign to specialized agents → review outputs → integrate into codebase
+[DONE] **You + Project Coordinator Agent** decompose tasks -> assign to specialized agents -> review outputs -> integrate into codebase
 
 **What's your role?** 
-✅ **Technical Lead + Project Manager** (30-40 hours/week: architecture, decisions, clinical validation, MoH relations, deployment approval)
+[DONE] **Technical Lead + Project Manager** (30-40 hours/week: architecture, decisions, clinical validation, MoH relations, deployment approval)
 
 **What's the outcome?** 
-✅ **16-20 week MVP** for $7-38K (vs $35-69K with humans) with 70-80% of human team velocity
+[DONE] **16-20 week MVP** for $7-38K (vs $35-69K with humans) with 70-80% of human team velocity
 
 **When do you hire humans?** 
-✅ **Fallback plan** if agents <50% productive after 4 weeks, or NHIE integration too complex, or you're working >50 hours/week
+[DONE] **Fallback plan** if agents <50% productive after 4 weeks, or NHIE integration too complex, or you're working >50 hours/week
 
 **Your next action**: 
-✅ **Start Day 1** tomorrow with Project Coordinator Agent + environment setup (see Day 1 Workflow Example)
+[DONE] **Start Day 1** tomorrow with Project Coordinator Agent + environment setup (see Day 1 Workflow Example)
 
 ---
 

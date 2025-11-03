@@ -69,8 +69,8 @@ Before configuring MCP servers, verify:
   - [ ] Saved `~/.codex/config.toml`
 
 - [ ] **Paths use Unix-style forward slashes**
-  - ✅ Correct: `c:/temp/AI/MedReg`
-  - ❌ Wrong: `c:\temp\AI\MedReg`
+  - [DONE] Correct: `c:/temp/AI/MedReg`
+  - [FAILED] Wrong: `c:\temp\AI\MedReg`
 
 - [ ] **Test Codex CLI**
   ```powershell
@@ -80,7 +80,9 @@ Before configuring MCP servers, verify:
   
 - [ ] **Verify MCP tools available**
   - In Codex prompt, ask: "What MCP tools do you have?"
-  - Expected: 6 tools listed (create_patient, search_patient, query, read_schema, list_tables, propose_migration)
+  - Expected (minimum): 24 tools listed
+    - OpenMRS (20): create_patient, search_patient, get_patient, update_patient, verify_session, list_encounter_types, list_visit_types, list_locations, list_providers, list_identifier_types, list_person_attribute_types, list_encounter_roles, list_concepts, find_active_visit, create_visit, close_visit, create_encounter, record_triage_vitals, record_consultation_notes
+    - MySQL (4): query, read_schema, list_tables, propose_migration
 
 - [ ] **Test Ghana Card validation**
   - Ask Codex: "Validate Ghana Card: GHA-123456789-0"
@@ -109,16 +111,16 @@ Before configuring MCP servers, verify:
   ```
 
 - [ ] **Paths use Windows-style double backslashes**
-  - ✅ Correct: `c:\\temp\\AI\\MedReg`
-  - ❌ Wrong: `c:\temp\AI\MedReg` (single backslash)
+  - [DONE] Correct: `c:\\temp\\AI\\MedReg`
+  - [FAILED] Wrong: `c:\temp\AI\MedReg` (single backslash)
 
 - [ ] **Restart Claude Desktop**
-  - File → Exit (completely quit)
+  - File -> Exit (completely quit)
   - Reopen Claude Desktop
 
 - [ ] **Verify MCP tools available**
   - Ask Claude: "What MCP tools do you have?"
-  - Expected: 6 tools listed
+  - Expected (minimum): 24 tools listed (see above)
 
 - [ ] **Test patient creation**
   - Ask Claude: "Create test patient: Kwame Mensah, Ghana Card GHA-123456789-0"
@@ -234,7 +236,7 @@ Before configuring MCP servers, verify:
 ### Issue: Claude Desktop config not loading
 - [ ] Validate JSON syntax: `Get-Content "$env:APPDATA\Claude\claude_desktop_config.json" | ConvertFrom-Json`
 - [ ] Check paths use double backslashes: `c:\\temp\\...`
-- [ ] Completely restart Claude Desktop (File → Exit, not just close window)
+- [ ] Completely restart Claude Desktop (File -> Exit, not just close window)
 
 ---
 
@@ -244,22 +246,22 @@ Before configuring MCP servers, verify:
 |------|--------|-----------------|--------|
 | **Codex CLI** | ☐ Configured | `~/.codex/config.toml` | TOML |
 | **Claude Desktop** | ☐ Configured | `%APPDATA%\Claude\claude_desktop_config.json` | JSON |
-| **GitHub Copilot** | ⏳ Awaiting MCP support | `.vscode/settings.json` | JSONC |
+| **GitHub Copilot** | [PENDING] Awaiting MCP support | `.vscode/settings.json` | JSONC |
 
 ---
 
-## ✅ Success Criteria
+## [DONE] Success Criteria
 
 You're ready when:
-- ✅ At least one AI tool (Codex CLI or Claude Desktop) shows 6 MCP tools
-- ✅ Ghana Card validation works (Luhn checksum enforced)
-- ✅ Database queries work (with PII masking)
-- ✅ NHIE enforcement works (blocks direct NHIA calls)
-- ✅ SQL safety works (blocks destructive queries)
+- [DONE] At least one AI tool (Codex CLI or Claude Desktop) shows 6 MCP tools
+- [DONE] Ghana Card validation works (Luhn checksum enforced)
+- [DONE] Database queries work (with PII masking)
+- [DONE] NHIE enforcement works (blocks direct NHIA calls)
+- [DONE] SQL safety works (blocks destructive queries)
 
 ---
 
-## 🚀 Next Steps After Setup
+## [LAUNCH] Next Steps After Setup
 
 1. **Week 1 Testing** (Target: Nov 8, 2025)
    - Test all 5 scenarios from README.md

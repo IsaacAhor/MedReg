@@ -42,13 +42,18 @@ npm test
 npm run lint
 ```
 
-## Tools
+## Tools (OpenMRS)
 
-### create_patient
+- Patient: `create_patient`, `search_patient`, `get_patient`, `update_patient`
+- Session/Config: `verify_session`, `update_env`
+- Discovery: `list_encounter_types`, `list_visit_types`, `list_locations`, `list_providers`, `list_identifier_types`, `list_person_attribute_types`, `list_encounter_roles`, `list_concepts`
+- Visits: `find_active_visit`, `create_visit`, `close_visit`
+- Encounters: `create_encounter`
+- Opinionated OPD: `record_triage_vitals`, `record_consultation_notes`
 
-Create new patient with Ghana-specific validation.
+### Example: create_patient
 
-**Input:**
+Input:
 ```json
 {
   "ghanaCard": "GHA-123456789-0",
@@ -64,51 +69,32 @@ Create new patient with Ghana-specific validation.
 }
 ```
 
-**Output (PII-masked):**
+Output (PII-masked):
 ```json
 {
   "success": true,
   "patient": {
     "uuid": "abc-123",
-    "ghanaCard": "GHA-1234*****-*",
+    "ghanaCard": "GHA-1234****-*",
     "folderNumber": "GA-KBTH-2025-000123",
-    "nhisNumber": "0123******",
-    "name": "K***e M****h",
-    "gender": "M",
-    "dateOfBirth": "1985-03-15"
+    "gender": "M"
   }
 }
 ```
 
-### search_patient
+### Example: record_triage_vitals
 
-Search patients by identifier or name.
-
-**Input:**
+Input:
 ```json
 {
-  "query": "GHA-123456789-0",
-  "limit": 50
+  "patientUuid": "<uuid>",
+  "vitals": { "temp": 36.9, "weight": 70, "height": 175, "pulse": 72, "systolic": 120, "diastolic": 80 }
 }
 ```
 
-**Output (PII-masked):**
-```json
-{
-  "success": true,
-  "count": 1,
-  "patients": [
-    {
-      "uuid": "abc-123",
-      "ghanaCard": "GHA-1234*****-*",
-      "folderNumber": "GA-KBTH-2025-000123",
-      "name": "K***e M****h",
-      "gender": "M",
-      "age": 40
-    }
-  ]
-}
-```
+Behavior:
+- Ensures active visit (creates if missing) using `OPENMRS_OPD_VISIT_TYPE_UUID` and `OPENMRS_LOCATION_UUID`.
+- Creates an encounter with configured concept UUIDs for vitals.
 
 ## Architecture
 

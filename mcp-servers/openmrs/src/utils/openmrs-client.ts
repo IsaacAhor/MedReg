@@ -163,6 +163,30 @@ export class OpenMRSClient {
   }
 
   /**
+   * Visits API
+   */
+  async findActiveVisit(patientUuid: string): Promise<any | null> {
+    const result = await this.get('/visit', { patient: patientUuid, includeInactive: false, v: 'full' });
+    const visits = result.results || [];
+    return visits.length ? visits[0] : null;
+  }
+
+  async createVisit(patientUuid: string, visitTypeUuid: string, locationUuid: string, startDatetime?: string): Promise<any> {
+    const payload = {
+      patient: patientUuid,
+      visitType: visitTypeUuid,
+      location: locationUuid,
+      startDatetime: startDatetime || new Date().toISOString(),
+    };
+    return await this.post('/visit', payload);
+  }
+
+  async closeVisit(visitUuid: string, stopDatetime?: string): Promise<any> {
+    const payload = { stopDatetime: stopDatetime || new Date().toISOString() } as any;
+    return await this.post(`/visit/${visitUuid}`, payload);
+  }
+
+  /**
    * Get patient identifier types (Ghana Card, NHIS, Folder Number)
    */
   async getIdentifierTypes(): Promise<any[]> {
@@ -176,6 +200,61 @@ export class OpenMRSClient {
   async getPersonAttributeTypes(): Promise<any[]> {
     const result = await this.get('/personattributetype', { v: 'full' });
     return result.results || [];
+  }
+
+  /**
+   * List encounter types (uuid, name, display)
+   */
+  async listEncounterTypes(): Promise<Array<{ uuid: string; name: string; display?: string }>> {
+    const result = await this.get('/encountertype', { v: 'custom:(uuid,name,display)' });
+    return (result.results || []).map((r: any) => ({ uuid: r.uuid, name: r.name, display: r.display }));
+  }
+
+  /**
+   * List visit types (uuid, name, display)
+   */
+  async listVisitTypes(): Promise<Array<{ uuid: string; name: string; display?: string }>> {
+    const result = await this.get('/visittype', { v: 'custom:(uuid,name,display)' });
+    return (result.results || []).map((r: any) => ({ uuid: r.uuid, name: r.name, display: r.display }));
+  }
+
+  /**
+   * List locations (uuid, name, display)
+   */
+  async listLocations(): Promise<Array<{ uuid: string; name: string; display?: string }>> {
+    const result = await this.get('/location', { v: 'custom:(uuid,name,display)' });
+    return (result.results || []).map((r: any) => ({ uuid: r.uuid, name: r.name, display: r.display }));
+  }
+
+  /**
+   * List providers (uuid, identifier, person display)
+   */
+  async listProviders(): Promise<Array<{ uuid: string; identifier?: string; display?: string }>> {
+    const result = await this.get('/provider', { v: 'custom:(uuid,identifier,display,person:(uuid,display))' });
+    return (result.results || []).map((r: any) => ({ uuid: r.uuid, identifier: r.identifier, display: r.display || r.person?.display }));
+  }
+
+  /**
+   * Search concepts by name/code
+   */
+  async listConcepts(query: string): Promise<Array<{ uuid: string; display: string; datatype?: string; conceptClass?: string }>> {
+    const result = await this.get('/concept', { q: query, v: 'custom:(uuid,display,datatype:(display),conceptClass:(display))' });
+    return (result.results || []).map((r: any) => ({ uuid: r.uuid, display: r.display, datatype: r.datatype?.display, conceptClass: r.conceptClass?.display }));
+  }
+
+  /**
+   * List encounter roles
+   */
+  async listEncounterRoles(): Promise<Array<{ uuid: string; name: string; display?: string }>> {
+    const result = await this.get('/encounterrole', { v: 'custom:(uuid,name,display)' });
+    return (result.results || []).map((r: any) => ({ uuid: r.uuid, name: r.name, display: r.display }));
+  }
+
+  /**
+   * Create encounter (basic)
+   */
+  async createEncounter(payload: any): Promise<any> {
+    return await this.post('/encounter', payload);
   }
 
   /**

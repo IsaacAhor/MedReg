@@ -7,7 +7,7 @@ Location-based login ensures that each user session is tied to a specific physic
 
 ### Benefits
 1. **Accurate Queue Management**: System knows exactly which room a patient is in
-2. **Better Patient Flow**: Clear tracking from Registration → Triage → Consultation → Pharmacy
+2. **Better Patient Flow**: Clear tracking from Registration -> Triage -> Consultation -> Pharmacy
 3. **Location-Specific Reports**: "How many patients did Reception process today?"
 4. **Multi-User Coordination**: Multiple staff in different rooms without confusion
 5. **Audit Trails**: "Patient registered by Records Officer at Reception at 9:30 AM"
@@ -16,15 +16,15 @@ Location-based login ensures that each user session is tied to a specific physic
 ```
 Patient arrives
     ↓
-1. RECEPTION (Records Officer) → Patient added to "Reception Queue"
+1. RECEPTION (Records Officer) -> Patient added to "Reception Queue"
     ↓
-2. TRIAGE (Nurse) → Patient moved to "Triage Queue", vitals recorded
+2. TRIAGE (Nurse) -> Patient moved to "Triage Queue", vitals recorded
     ↓
-3. CONSULTATION (Doctor) → Patient moved to "OPD Room 1 Queue", diagnosis + prescription
+3. CONSULTATION (Doctor) -> Patient moved to "OPD Room 1 Queue", diagnosis + prescription
     ↓
-4. PHARMACY (Pharmacist) → Patient moved to "Pharmacy Queue", drugs dispensed
+4. PHARMACY (Pharmacist) -> Patient moved to "Pharmacy Queue", drugs dispensed
     ↓
-5. CASHIER (Cashier) → Patient moved to "Cashier Queue", payment + receipt
+5. CASHIER (Cashier) -> Patient moved to "Cashier Queue", payment + receipt
 ```
 
 ## Implementation Components
@@ -252,4 +252,4 @@ With location-based login implemented, you can now:
 ---
 
 **Implementation Date**: November 2, 2025  
-**Status**: ✅ Complete - Ready for Week 4 (OPD Workflow)
+**Status**: [DONE] Complete - Ready for Week 4 (OPD Workflow)

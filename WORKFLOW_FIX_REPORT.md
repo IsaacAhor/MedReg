@@ -2,7 +2,7 @@
 
 **Date:** 2025-11-03  
 **Issue:** Task completions missing next worker command  
-**Status:** ✅ FIXED  
+**Status:** [DONE] FIXED  
 **Impact:** Prevents future workflow friction  
 
 ---
@@ -12,10 +12,10 @@
 **Root Cause:** AGENTS.md task definition template Step 7 (Notify Human) was incomplete.
 
 **Gap:** Template said "[Template for completion message]" without specifying the REQUIRED format, specifically missing:
-- ✅ Summary structure (what was provided)
-- ✅ Files created/modified (what was provided)
-- ❌ **NEXT WORKER COMMAND** (what was MISSING) ⚠️
-- ❌ Queue status (partially provided)
+- [DONE] Summary structure (what was provided)
+- [DONE] Files created/modified (what was provided)
+- [FAILED] **NEXT WORKER COMMAND** (what was MISSING) [WARNING]
+- [FAILED] Queue status (partially provided)
 
 **Impact:**
 - Workers (Claude, Codex) completed tasks but didn't provide ready-to-use command for next worker
@@ -44,7 +44,7 @@
 **REQUIRED: Use this exact structure in your completion message:**
 
 ```
-✅ Task N Complete: [Task Title]
+[DONE] Task N Complete: [Task Title]
 
 **Summary:**
 - [Key accomplishment 1]
@@ -56,12 +56,12 @@
 - [file2.tsx] - [brief description]
 
 **Verification Results:**
-✅ [Command 1] - SUCCESS
-✅ [Command 2] - SUCCESS
+[DONE] [Command 1] - SUCCESS
+[DONE] [Command 2] - SUCCESS
 
 **Updated Documentation:**
-✅ IMPLEMENTATION_TRACKER.md - [What was updated]
-✅ TASK_HISTORY.md - Task N archived
+[DONE] IMPLEMENTATION_TRACKER.md - [What was updated]
+[DONE] TASK_HISTORY.md - Task N archived
 
 **Queue Status:**
 - Active Tasks: [N]
@@ -76,11 +76,11 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 ```
 
 **Why This Format?**
-- ✅ Provides completion summary (what was done)
-- ✅ Shows verification passed (quality assurance)
-- ✅ Confirms documentation updated (traceability)
-- ✅ Includes ready-to-use next worker command (seamless handoff) ⭐ NEW
-- ✅ Shows queue status (progress visibility)
+- [DONE] Provides completion summary (what was done)
+- [DONE] Shows verification passed (quality assurance)
+- [DONE] Confirms documentation updated (traceability)
+- [DONE] Includes ready-to-use next worker command (seamless handoff) ⭐ NEW
+- [DONE] Shows queue status (progress visibility)
 ```
 
 **Key Addition:** The **NEXT WORKER COMMAND** section is now MANDATORY in all task completion notifications.
@@ -93,12 +93,12 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 
 **Before:**
 ```markdown
-5. ✅ **Notify human** with summary (copy notification template from task)
+5. [DONE] **Notify human** with summary (copy notification template from task)
 ```
 
 **After:**
 ```markdown
-5. ✅ **Notify human with MANDATORY format** (see Step 7 in task template above):
+5. [DONE] **Notify human with MANDATORY format** (see Step 7 in task template above):
    - Completion summary
    - Files created/modified
    - Verification results
@@ -116,13 +116,13 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 **File:** `PROMPT_QUEUE.md` (lines 785-833)
 
 **Added:** Complete Step 10 notification template with all required sections including:
-- ✅ Summary with 3+ key accomplishments
-- ✅ Files created/modified (backend + frontend)
-- ✅ Verification results (8 tests)
-- ✅ Documentation updates (IMPLEMENTATION_TRACKER, TASK_HISTORY, README)
-- ✅ Queue status (active tasks, next task)
-- ✅ **NEXT WORKER COMMAND** (copy & paste ready) ⭐
-- ✅ Milestone achieved section (MVP Milestone 1)
+- [DONE] Summary with 3+ key accomplishments
+- [DONE] Files created/modified (backend + frontend)
+- [DONE] Verification results (8 tests)
+- [DONE] Documentation updates (IMPLEMENTATION_TRACKER, TASK_HISTORY, README)
+- [DONE] Queue status (active tasks, next task)
+- [DONE] **NEXT WORKER COMMAND** (copy & paste ready) ⭐
+- [DONE] Milestone achieved section (MVP Milestone 1)
 
 **Impact:** Next worker executing Task 5 will automatically provide next worker command.
 
@@ -132,12 +132,12 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 
 | Before | After |
 |--------|-------|
-| ❌ Task complete, but "what's next?" | ✅ Task complete with next command ready |
-| ❌ Human asks for next steps | ✅ Human copy-pastes command immediately |
-| ❌ 2-3 message back-and-forth | ✅ Zero back-and-forth, seamless handoff |
-| ❌ Workflow friction | ✅ Smooth workflow |
-| ❌ Template said "[Template...]" | ✅ Template shows exact format with example |
-| ❌ Implicit requirement (missed) | ✅ Explicit requirement (enforced) |
+| [FAILED] Task complete, but "what's next?" | [DONE] Task complete with next command ready |
+| [FAILED] Human asks for next steps | [DONE] Human copy-pastes command immediately |
+| [FAILED] 2-3 message back-and-forth | [DONE] Zero back-and-forth, seamless handoff |
+| [FAILED] Workflow friction | [DONE] Smooth workflow |
+| [FAILED] Template said "[Template...]" | [DONE] Template shows exact format with example |
+| [FAILED] Implicit requirement (missed) | [DONE] Explicit requirement (enforced) |
 
 ---
 
@@ -145,10 +145,10 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 
 **To verify this fix is working, next task completion should include:**
 
-- [ ] ✅ Task N Complete: [Title] header
+- [ ] [DONE] Task N Complete: [Title] header
 - [ ] Summary section (3+ bullet points)
 - [ ] Files Created/Modified section (all files listed)
-- [ ] Verification Results section (all tests listed with ✅)
+- [ ] Verification Results section (all tests listed with [DONE])
 - [ ] Updated Documentation section (IMPLEMENTATION_TRACKER + TASK_HISTORY confirmed)
 - [ ] Queue Status section (Active Tasks: N, Next Task: X)
 - [ ] **NEXT WORKER COMMAND section** (with exact command in code block) ⭐
@@ -161,7 +161,7 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 ### Before (Task 4 Completion - INCOMPLETE)
 
 ```
-✅ Task 4 Complete: API Connection Layer
+[DONE] Task 4 Complete: API Connection Layer
 
 Summary:
 - Created Axios instance with 401 interceptor
@@ -175,22 +175,22 @@ Files Created:
 - [... more files]
 
 Verification:
-✅ TypeScript compilation - 0 errors
-✅ Build successful
+[DONE] TypeScript compilation - 0 errors
+[DONE] Build successful
 
 Documentation:
-✅ IMPLEMENTATION_TRACKER.md updated
-✅ TASK_HISTORY.md updated
+[DONE] IMPLEMENTATION_TRACKER.md updated
+[DONE] TASK_HISTORY.md updated
 ```
 
-**Missing:** NEXT WORKER COMMAND ❌
+**Missing:** NEXT WORKER COMMAND [FAILED]
 
 ---
 
 ### After (Task 5 Completion - COMPLETE EXAMPLE)
 
 ```
-✅ Task 5 Complete: NHIE Patient Sync Integration (Week 4-5)
+[DONE] Task 5 Complete: NHIE Patient Sync Integration (Week 4-5)
 
 **Summary:**
 - GhanaPatientServiceImpl triggers async NHIE sync after registration
@@ -210,33 +210,33 @@ Frontend:
 - frontend/src/components/nhie-status-badge.tsx - Reusable status badge component
 
 **Verification Results:**
-✅ Backend Build (mvn clean package) - SUCCESS
-✅ Frontend Build (npm run build) - SUCCESS
-✅ Integration Test: Success Scenario - PASSED
-✅ Integration Test: Retry Scenario - PASSED
-✅ Integration Test: Duplicate Handling (409) - PASSED
-✅ Manual Test: Patient Registration → NHIE Sync → UI Display - SUCCESS
-✅ Retry Job Scheduled in OpenMRS - VERIFIED
-✅ PII Masking in Logs - VERIFIED
+[DONE] Backend Build (mvn clean package) - SUCCESS
+[DONE] Frontend Build (npm run build) - SUCCESS
+[DONE] Integration Test: Success Scenario - PASSED
+[DONE] Integration Test: Retry Scenario - PASSED
+[DONE] Integration Test: Duplicate Handling (409) - PASSED
+[DONE] Manual Test: Patient Registration -> NHIE Sync -> UI Display - SUCCESS
+[DONE] Retry Job Scheduled in OpenMRS - VERIFIED
+[DONE] PII Masking in Logs - VERIFIED
 
 **Updated Documentation:**
-✅ IMPLEMENTATION_TRACKER.md - Week 4-5 marked COMPLETE (100%)
-✅ TASK_HISTORY.md - Task 5 archived with completion details
-✅ README.md - Added NHIE testing section
+[DONE] IMPLEMENTATION_TRACKER.md - Week 4-5 marked COMPLETE (100%)
+[DONE] TASK_HISTORY.md - Task 5 archived with completion details
+[DONE] README.md - Added NHIE testing section
 
 **Queue Status:**
 - Active Tasks: 0
 - Next Task: Empty - No tasks queued
 
 **Milestone Achieved:**
-🎉 **MVP Milestone 1 COMPLETE**: Patient registration with automatic NHIE sync!
-- ✅ Register patients (Ghana Card + NHIS)
-- ✅ Persist to OpenMRS database
-- ✅ Sync to NHIE with retry logic
-- ✅ Display sync status in UI
-- ✅ Auto-retry failed syncs (8 attempts with exponential backoff)
+[SUCCESS] **MVP Milestone 1 COMPLETE**: Patient registration with automatic NHIE sync!
+- [DONE] Register patients (Ghana Card + NHIS)
+- [DONE] Persist to OpenMRS database
+- [DONE] Sync to NHIE with retry logic
+- [DONE] Display sync status in UI
+- [DONE] Auto-retry failed syncs (8 attempts with exponential backoff)
 
-This unlocks Week 6-11 (OPD workflow) and puts the project 2+ weeks ahead of schedule! 🚀
+This unlocks Week 6-11 (OPD workflow) and puts the project 2+ weeks ahead of schedule! [LAUNCH]
 
 ---
 
@@ -246,7 +246,7 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 ```
 ```
 
-**Present:** NEXT WORKER COMMAND ✅
+**Present:** NEXT WORKER COMMAND [DONE]
 
 ---
 
@@ -265,25 +265,25 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 
 **This fix prevents the issue from happening again by:**
 
-1. ✅ **Explicit Template:** Step 7 now shows EXACT format with example (not just "[Template...]")
-2. ✅ **Mandatory Keyword:** "MANDATORY FORMAT" makes it clear this is non-negotiable
-3. ✅ **Worker Checklist:** Worker Responsibilities section explicitly lists NEXT WORKER COMMAND as required item
-4. ✅ **Why Section:** Template explains WHY this format matters (seamless handoff)
-5. ✅ **Example in Task 5:** Task 5 includes complete example showing how notification should look
-6. ✅ **All Future Tasks:** Any new tasks added to PROMPT_QUEUE.md will use updated template from AGENTS.md
+1. [DONE] **Explicit Template:** Step 7 now shows EXACT format with example (not just "[Template...]")
+2. [DONE] **Mandatory Keyword:** "MANDATORY FORMAT" makes it clear this is non-negotiable
+3. [DONE] **Worker Checklist:** Worker Responsibilities section explicitly lists NEXT WORKER COMMAND as required item
+4. [DONE] **Why Section:** Template explains WHY this format matters (seamless handoff)
+5. [DONE] **Example in Task 5:** Task 5 includes complete example showing how notification should look
+6. [DONE] **All Future Tasks:** Any new tasks added to PROMPT_QUEUE.md will use updated template from AGENTS.md
 
 ---
 
 ## Rollout
 
-**Status:** ✅ COMPLETE
+**Status:** [DONE] COMPLETE
 
 **Next Steps:**
-1. ✅ AGENTS.md updated
-2. ✅ PROMPT_QUEUE.md Task 5 updated
-3. ⏳ Next worker (executing Task 5) will use new template automatically
-4. ⏳ Verify next completion includes NEXT WORKER COMMAND
-5. ⏳ If verified working, document success in TASK_HISTORY.md
+1. [DONE] AGENTS.md updated
+2. [DONE] PROMPT_QUEUE.md Task 5 updated
+3. [PENDING] Next worker (executing Task 5) will use new template automatically
+4. [PENDING] Verify next completion includes NEXT WORKER COMMAND
+5. [PENDING] If verified working, document success in TASK_HISTORY.md
 
 **Timeline:**
 - Fix applied: 2025-11-03
@@ -296,11 +296,11 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 
 **How we'll know this fix worked:**
 
-- ✅ **Immediate:** Task 5 includes Step 10 notification template
-- ✅ **Short-term:** Next task completion includes NEXT WORKER COMMAND
-- ✅ **Long-term:** Zero instances of "how come claude did not generate the command?" questions
-- ✅ **Workflow:** Human can copy-paste command immediately, no back-and-forth needed
-- ✅ **Quality:** All task completions have consistent format (summary, files, verification, command)
+- [DONE] **Immediate:** Task 5 includes Step 10 notification template
+- [DONE] **Short-term:** Next task completion includes NEXT WORKER COMMAND
+- [DONE] **Long-term:** Zero instances of "how come claude did not generate the command?" questions
+- [DONE] **Workflow:** Human can copy-paste command immediately, no back-and-forth needed
+- [DONE] **Quality:** All task completions have consistent format (summary, files, verification, command)
 
 ---
 
@@ -333,4 +333,4 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 
 ---
 
-**Status:** This fix is production-ready. Next task completion will verify it works as intended. 🚀
+**Status:** This fix is production-ready. Next task completion will verify it works as intended. [LAUNCH]

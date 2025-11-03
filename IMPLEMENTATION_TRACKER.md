@@ -13,13 +13,18 @@
 
 ## Timeline Overview (20 Weeks - Option B)
 
-- **Phase 1: Foundation** (Week 1-5) - ✅ **Week 1-2 DONE, Week 3 IN PROGRESS (Nov 2)**
+- **Phase 1: Foundation** (Week 1-5) - [DONE] **Week 1-2 DONE, Week 3 IN PROGRESS (Nov 2)**
 - **Phase 2: OPD Core Workflow** (Week 6-11)
   - Week 7-8: OPD Consultation Backend (IN PROGRESS)
     - Added ConsultationService + implementation
     - Added ConsultationController REST endpoints
     - Extended NHIE integration to submit Encounter
     - Added unit tests for consultation service
+  - Week 8-9: OPD Consultation Frontend (STARTED)
+    - Consultation UI form (complaint, diagnoses, prescriptions, labs)
+    - Zod + RHF validation, TanStack Query mutation
+    - BFF `/api/opd/consultation` forwards to module endpoint
+    - Quick-pick lists (ICD-10, essential medicines, common labs)
 - **Phase 3: NHIS + Billing** (Week 12-14)
 - **Phase 4: Reports + Polish** (Week 15-20)
 
@@ -35,71 +40,71 @@ Deliverables:
 - TanStack Query hooks for API calls
 - BFF API routes for vitals recording/fetching
 
-**🚀 PROGRESS STATUS: 2+ WEEKS AHEAD OF SCHEDULE** 
-- Patient Registration backend complete (Week 1) ✅
-- **OpenMRS module builds successfully (Week 2)** ✅
-- NHIE Mock Server operational (Week 2) ✅
+**[LAUNCH] PROGRESS STATUS: 2+ WEEKS AHEAD OF SCHEDULE** 
+- Patient Registration backend complete (Week 1) [DONE]
+- **OpenMRS module builds successfully (Week 2)** [DONE]
+- NHIE Mock Server operational (Week 2) [DONE]
 
 ---
 
 ## Week 2: OpenMRS Module Build & Compilation (November 2, 2025)
 
-### Status: ✅ COMPLETED (100%)
+### Status: [DONE] COMPLETED (100%)
 
 **Achievement:** Successfully built OpenMRS Ghana EMR module after resolving 30+ compilation errors. Production-ready .omod artifact generated.
 
 ### Critical Issues Resolved
 
-#### Java/Maven Environment Setup ✅
+#### Java/Maven Environment Setup [DONE]
 **Date:** November 2, 2025
 
 1. **Java 8 Installation**
-   - ✅ Eclipse Temurin OpenJDK 8u472-b08 installed
-   - ✅ JAVA_HOME configured: `C:\Program Files\Eclipse Adoptium\jdk-8.0.472.8-hotspot\`
-   - ✅ Verified: `java -version` working
+   - [DONE] Eclipse Temurin OpenJDK 8u472-b08 installed
+   - [DONE] JAVA_HOME configured: `C:\Program Files\Eclipse Adoptium\jdk-8.0.472.8-hotspot\`
+   - [DONE] Verified: `java -version` working
 
 2. **Maven Installation**
-   - ✅ Apache Maven 3.9.9 installed to user profile
-   - ✅ PATH updated: `C:\Users\isaac\maven\apache-maven-3.9.9\bin`
-   - ✅ Verified: `mvn -version` working
+   - [DONE] Apache Maven 3.9.9 installed to user profile
+   - [DONE] PATH updated: `C:\Users\isaac\maven\apache-maven-3.9.9\bin`
+   - [DONE] Verified: `mvn -version` working
 
-#### Compilation Error Fixes (30+ errors resolved) ✅
+#### Compilation Error Fixes (30+ errors resolved) [DONE]
 
 **1. Dependency Issues:**
-- ✅ Mockito version: 5.12.0 → 3.12.4 (Java 8 compatibility)
-- ✅ Removed mockito-inline dependency (doesn't exist in 5.x)
-- ✅ Added Apache HttpClient 4.5.13 dependency
-- ✅ Added OpenMRS Maven repository URL
+- [DONE] Mockito version: 5.12.0 -> 3.12.4 (Java 8 compatibility)
+- [DONE] Removed mockito-inline dependency (doesn't exist in 5.x)
+- [DONE] Added Apache HttpClient 4.5.13 dependency
+- [DONE] Added OpenMRS Maven repository URL
 
 **2. FHIR Class Ambiguity (15+ locations):**
-- ✅ Fixed: `org.openmrs.Patient` vs `org.hl7.fhir.r4.model.Patient`
-- ✅ Fixed: `org.openmrs.Person` vs `org.hl7.fhir.r4.model.Person`
-- ✅ Fixed: `org.openmrs.Address` vs `org.hl7.fhir.r4.model.Address`
-- ✅ Solution: Used fully qualified class names throughout
-- ✅ Files fixed: FhirPatientMapper.java, FhirEncounterMapper.java, NHIEIntegrationServiceImpl.java
+- [DONE] Fixed: `org.openmrs.Patient` vs `org.hl7.fhir.r4.model.Patient`
+- [DONE] Fixed: `org.openmrs.Person` vs `org.hl7.fhir.r4.model.Person`
+- [DONE] Fixed: `org.openmrs.Address` vs `org.hl7.fhir.r4.model.Address`
+- [DONE] Solution: Used fully qualified class names throughout
+- [DONE] Files fixed: FhirPatientMapper.java, FhirEncounterMapper.java, NHIEIntegrationServiceImpl.java
 
 **3. OpenMRS API Method Errors:**
-- ✅ Fixed: `getPatientsByIdentifier(String)` → `getPatients(null, identifier, null, true)`
-- ✅ Fixed: `ConceptReferenceSource` → `ConceptSource` (correct OpenMRS 2.6 API)
-- ✅ Fixed: `Collection<ConceptMap>` type (not `Set<ConceptMap>`)
-- ✅ Files fixed: GhanaPatientServiceImpl.java, GhanaPatientController.java
+- [DONE] Fixed: `getPatientsByIdentifier(String)` -> `getPatients(null, identifier, null, true)`
+- [DONE] Fixed: `ConceptReferenceSource` -> `ConceptSource` (correct OpenMRS 2.6 API)
+- [DONE] Fixed: `Collection<ConceptMap>` type (not `Set<ConceptMap>`)
+- [DONE] Files fixed: GhanaPatientServiceImpl.java, GhanaPatientController.java
 
 **4. Java 8 Compatibility:**
-- ✅ Fixed: Stream method reference `.map(Set::stream)` → `.flatMap(set -> set.stream())`
-- ✅ Fixed: Regex escape character `^\\\d{10}$` → `^\\d{10}$`
-- ✅ Added missing import: `import java.util.Collection;`
+- [DONE] Fixed: Stream method reference `.map(Set::stream)` -> `.flatMap(set -> set.stream())`
+- [DONE] Fixed: Regex escape character `^\\\d{10}$` -> `^\\d{10}$`
+- [DONE] Added missing import: `import java.util.Collection;`
 
 **5. Syntax Errors:**
-- ✅ Fixed: Extra closing parenthesis in SQL queries (4 locations)
-- ✅ Fixed: Duplicate constructor code removed
-- ✅ Fixed: PowerShell regex replacement side effects
+- [DONE] Fixed: Extra closing parenthesis in SQL queries (4 locations)
+- [DONE] Fixed: Duplicate constructor code removed
+- [DONE] Fixed: PowerShell regex replacement side effects
 
 **6. Missing Helper Methods:**
-- ✅ Added: `bad(String, String)` method to ReportsController
-- ✅ Added: `collectDistinct()` method to GhanaPatientController
-- ✅ Added: `maskQuery()` method to GhanaPatientController
+- [DONE] Added: `bad(String, String)` method to ReportsController
+- [DONE] Added: `collectDistinct()` method to GhanaPatientController
+- [DONE] Added: `maskQuery()` method to GhanaPatientController
 
-### Build Success ✅
+### Build Success [DONE]
 
 **Maven Build Results:**
 ```
@@ -115,16 +120,16 @@ Deliverables:
 ```
 
 **Artifacts Generated:**
-- ✅ `api/target/openmrs-module-ghanaemr-api-0.1.0-SNAPSHOT.jar` (API module)
-- ✅ `omod/target/openmrs-module-ghanaemr-omod-0.1.0-SNAPSHOT.jar` (Web module)
-- ✅ **Deployed:** `openmrs-modules/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod` (31KB)
+- [DONE] `api/target/openmrs-module-ghanaemr-api-0.1.0-SNAPSHOT.jar` (API module)
+- [DONE] `omod/target/openmrs-module-ghanaemr-omod-0.1.0-SNAPSHOT.jar` (Web module)
+- [DONE] **Deployed:** `openmrs-modules/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod` (31KB)
 
 **Source Files Compiled:**
 - API Module: 21 Java source files
 - OMOD Module: 7 Java source files
 - **Total:** 28 production source files compiled successfully
 
-### Ready for Docker Deployment ✅
+### Ready for Docker Deployment [DONE]
 
 **Module Structure:**
 ```
@@ -366,79 +371,79 @@ jobs:
 
 ## Week 1: Foundation & Setup (October 30 - November 1, 2025)
 
-### Status: ✅ COMPLETED (100%)
+### Status: [DONE] COMPLETED (100%)
 
 **Achievement:** Full foundation with AI development infrastructure (MCP) operational + **BONUS: Week 2-3 Patient Registration Module completed same day!**
 
 ### Completed Tasks
 
-#### Day 1-2: Environment Setup ✅
+#### Day 1-2: Environment Setup [DONE]
 **Date Completed:** October 31, 2025
 
 1. **Repository Setup**
-   - ✅ Initialized Git repository
-   - ✅ Created GitHub repository: https://github.com/IsaacAhor/MedReg
-   - ✅ First commit pushed: 97 files, 23,077+ lines
-   - ✅ Configured .gitignore for Node.js, Docker, OpenMRS
+   - [DONE] Initialized Git repository
+   - [DONE] Created GitHub repository: https://github.com/IsaacAhor/MedReg
+   - [DONE] First commit pushed: 97 files, 23,077+ lines
+   - [DONE] Configured .gitignore for Node.js, Docker, OpenMRS
 
 2. **Docker & OpenMRS Backend**
-   - ✅ Created `docker-compose.yml` with MySQL 5.7 + OpenMRS 2.11.0
-   - ✅ MySQL 5.7 running healthy (port 3307, utf8mb4, persistent volume)
-   - ✅ OpenMRS Platform 2.6.0 + reference-application-distro:2.11.0 running
-   - ✅ **REST API VERIFIED WORKING**: http://localhost:8080/openmrs/ws/rest/v1
-   - ✅ **Authentication tested**: admin/Admin123 credentials working
-   - ✅ Configured MySQL database (openmrs_user, openmrs database)
-   - ✅ Created `mysql-init/01-init-ghana-emr.sql` for database initialization
-   - ✅ Configured `openmrs-runtime.properties` with facility metadata
-   - ✅ Set Ghana facility code: KBTH (Korle Bu Teaching Hospital)
-   - ✅ Set region code: GA (Greater Accra)
-   - ✅ NHIE sandbox endpoints configured
-   - ✅ All required modules loaded: webservices.rest, reporting, idgen, registration, appointments, emrapi, etc.
+   - [DONE] Created `docker-compose.yml` with MySQL 5.7 + OpenMRS 2.11.0
+   - [DONE] MySQL 5.7 running healthy (port 3307, utf8mb4, persistent volume)
+   - [DONE] OpenMRS Platform 2.6.0 + reference-application-distro:2.11.0 running
+   - [DONE] **REST API VERIFIED WORKING**: http://localhost:8080/openmrs/ws/rest/v1
+   - [DONE] **Authentication tested**: admin/Admin123 credentials working
+   - [DONE] Configured MySQL database (openmrs_user, openmrs database)
+   - [DONE] Created `mysql-init/01-init-ghana-emr.sql` for database initialization
+   - [DONE] Configured `openmrs-runtime.properties` with facility metadata
+   - [DONE] Set Ghana facility code: KBTH (Korle Bu Teaching Hospital)
+   - [DONE] Set region code: GA (Greater Accra)
+   - [DONE] NHIE sandbox endpoints configured
+   - [DONE] All required modules loaded: webservices.rest, reporting, idgen, registration, appointments, emrapi, etc.
    - **Note**: OpenMRS Platform 2.6.0 has no UI by design - perfect for Option B (Next.js frontend)
 
 3. **Frontend Setup (Option B - Next.js)**
-   - ✅ Initialized Next.js 14.2.18 project with App Router
-   - ✅ Configured TypeScript 5.6.3 (strict mode)
-   - ✅ Installed shadcn/ui + Radix UI components
-   - ✅ Configured Tailwind CSS 3.4.14 with teal-600 brand color
-   - ✅ Installed TanStack Query 5.59.0 for server state
-   - ✅ Installed React Hook Form 7.53.0 + Zod 3.23.8 for forms
-   - ✅ Installed Lucide React 0.454.0 for icons
-   - ✅ Total dependencies: 530 npm packages verified working
+   - [DONE] Initialized Next.js 14.2.18 project with App Router
+   - [DONE] Configured TypeScript 5.6.3 (strict mode)
+   - [DONE] Installed shadcn/ui + Radix UI components
+   - [DONE] Configured Tailwind CSS 3.4.14 with teal-600 brand color
+   - [DONE] Installed TanStack Query 5.59.0 for server state
+   - [DONE] Installed React Hook Form 7.53.0 + Zod 3.23.8 for forms
+   - [DONE] Installed Lucide React 0.454.0 for icons
+   - [DONE] Total dependencies: 530 npm packages verified working
 
 4. **Package Manager Migration**
-   - ✅ Switched from pnpm to npm (simpler, no extra installation)
-   - ✅ Updated AGENTS.md: 22+ references changed from pnpm → npm
-   - ✅ Updated README.md: All commands use npm
-   - ✅ Dev server running successfully: `npm run dev`
+   - [DONE] Switched from pnpm to npm (simpler, no extra installation)
+   - [DONE] Updated AGENTS.md: 22+ references changed from pnpm -> npm
+   - [DONE] Updated README.md: All commands use npm
+   - [DONE] Dev server running successfully: `npm run dev`
 
 5. **Landing Page Design**
-   - ✅ Created clean healthcare dashboard for doctors/nurses/staff
-   - ✅ Simple header: MedReg logo + Sign In button
-   - ✅ Main heading: "Ghana EMR System"
-   - ✅ 4 Quick Access Cards:
+   - [DONE] Created clean healthcare dashboard for doctors/nurses/staff
+   - [DONE] Simple header: MedReg logo + Sign In button
+   - [DONE] Main heading: "Ghana EMR System"
+   - [DONE] 4 Quick Access Cards:
      - Patient Registration (teal icon)
      - OPD Workflow (blue icon)
      - Medical Records (purple icon)
      - Appointments (orange icon)
-   - ✅ System Info section: 5 min registration, NHIE compliance, 6 roles
-   - ✅ Minimal footer with Ghana flag 🇬🇭
-   - ✅ Fixed CSS loading issues (cleared .next cache)
-   - ✅ Removed marketing content (focused on functionality)
+   - [DONE] System Info section: 5 min registration, NHIE compliance, 6 roles
+   - [DONE] Minimal footer with Ghana flag 🇬🇭
+   - [DONE] Fixed CSS loading issues (cleared .next cache)
+   - [DONE] Removed marketing content (focused on functionality)
 
-#### Documentation ✅
+#### Documentation [DONE]
 **Date Completed:** October 31, 2025
 
 1. **Core Documentation**
-   - ✅ AGENTS.md: Comprehensive AI agent guide (updated with npm commands)
-   - ✅ README.md: Project overview and setup instructions
-   - ✅ 9 Planning documents (01-09_*.md)
-   - ✅ Ghana_EMR_OpenMRS_Plan.md
-   - ✅ AI_Context_Strategy.md
-   - ✅ Clinical Informaticist.md
+   - [DONE] AGENTS.md: Comprehensive AI agent guide (updated with npm commands)
+   - [DONE] README.md: Project overview and setup instructions
+   - [DONE] 9 Planning documents (01-09_*.md)
+   - [DONE] Ghana_EMR_OpenMRS_Plan.md
+   - [DONE] AI_Context_Strategy.md
+   - [DONE] Clinical Informaticist.md
 
 2. **Technical Specifications**
-   - ✅ docs/specs/: 8 specification files
+   - [DONE] docs/specs/: 8 specification files
      - registration-form-spec.md
      - triage-form-spec.md
      - consultation-spec.md
@@ -450,44 +455,44 @@ jobs:
      - validators.md
 
 3. **Domain Knowledge**
-   - ✅ domain-knowledge/identifiers.md (Ghana Card, NHIS, folder number)
-   - ✅ domain-knowledge/data/diagnosis-value-set.md (ICD-10 codes)
-   - ✅ domain-knowledge/data/lab-value-set.md (LOINC codes)
-   - ✅ domain-knowledge/workflows/opd-workflow.md
+   - [DONE] domain-knowledge/identifiers.md (Ghana Card, NHIS, folder number)
+   - [DONE] domain-knowledge/data/diagnosis-value-set.md (ICD-10 codes)
+   - [DONE] domain-knowledge/data/lab-value-set.md (LOINC codes)
+   - [DONE] domain-knowledge/workflows/opd-workflow.md
 
 4. **Setup & Deployment**
-   - ✅ docs/setup/openmrs-docker-setup.md
-   - ✅ docs/setup/nhie-mock-guide.md
-   - ✅ docs/setup/week1-setup-guide.md
-   - ✅ docs/setup/week1-implementation-summary.md
-   - ✅ docs/deploy/pilot-deployment-guide.md
+   - [DONE] docs/setup/openmrs-docker-setup.md
+   - [DONE] docs/setup/nhie-mock-guide.md
+   - [DONE] docs/setup/week1-setup-guide.md
+   - [DONE] docs/setup/week1-implementation-summary.md
+   - [DONE] docs/deploy/pilot-deployment-guide.md
 
 5. **FHIR Mapping**
-   - ✅ docs/mapping/patient-fhir-mapping.md
-   - ✅ docs/mapping/encounter-observation-fhir-mapping.md
+   - [DONE] docs/mapping/patient-fhir-mapping.md
+   - [DONE] docs/mapping/encounter-observation-fhir-mapping.md
 
 6. **Additional Documentation**
-   - ✅ docs/QUICK_REFERENCE.md
-   - ✅ docs/config/nhie-config-reference.md
-   - ✅ docs/db/liquibase-schema.md
-   - ✅ docs/security/audit-policy.md
-   - ✅ docs/security/privileges-matrix.md
-   - ✅ docs/qa/test-plan.md
-   - ✅ docs/acceptance/pilot-acceptance-criteria.md
-   - ✅ docs/training/user-manual.md
-   - ✅ docs/training/job-aids/README.md
+   - [DONE] docs/QUICK_REFERENCE.md
+   - [DONE] docs/config/nhie-config-reference.md
+   - [DONE] docs/db/liquibase-schema.md
+   - [DONE] docs/security/audit-policy.md
+   - [DONE] docs/security/privileges-matrix.md
+   - [DONE] docs/qa/test-plan.md
+   - [DONE] docs/acceptance/pilot-acceptance-criteria.md
+   - [DONE] docs/training/user-manual.md
+   - [DONE] docs/training/job-aids/README.md
 
-#### Day 5-6: Model Context Protocol (MCP) Infrastructure ✅
+#### Day 5-6: Model Context Protocol (MCP) Infrastructure [DONE]
 **Date Completed:** November 1, 2025
 
 1. **MCP Servers Built (2)**
-   - ✅ **OpenMRS MCP Server**: Patient operations with Ghana domain validation
+   - [DONE] **OpenMRS MCP Server**: Patient operations with Ghana domain validation
      - TypeScript: 700+ LOC, compiled to dist/index.js
      - Tools: create_patient, search_patient
      - Validators: Ghana Card (Luhn checksum), NHIS (10-digit), NHIE enforcer
      - REST client: OpenMRS session management + error handling
      - Dependencies: @modelcontextprotocol/sdk, axios, zod
-   - ✅ **MySQL MCP Server**: Database operations with read-only safety
+   - [DONE] **MySQL MCP Server**: Database operations with read-only safety
      - TypeScript: 600+ LOC, compiled to dist/index.js
      - Tools: query, read_schema, list_tables, propose_migration
      - Validators: SQL safety (blocks DROP/TRUNCATE), SQL injection detection
@@ -495,35 +500,35 @@ jobs:
      - Dependencies: @modelcontextprotocol/sdk, mysql2
 
 2. **Ghana Domain Validators (5)**
-   - ✅ **Ghana Card Validator**: Format `GHA-XXXXXXXXX-X` + Luhn checksum algorithm
-   - ✅ **NHIS Number Validator**: 10-digit format validation (optional at registration)
-   - ✅ **NHIE Enforcer**: Blocks direct calls to `api.nhia.gov.gh`, `mpi.gov.gh` (MoH compliance)
-   - ✅ **SQL Safety Validator**: Prevents destructive queries (DROP, TRUNCATE, DELETE), read-only default
-   - ✅ **SQL Injection Validator**: Pattern detection for common SQL injection attacks
+   - [DONE] **Ghana Card Validator**: Format `GHA-XXXXXXXXX-X` + Luhn checksum algorithm
+   - [DONE] **NHIS Number Validator**: 10-digit format validation (optional at registration)
+   - [DONE] **NHIE Enforcer**: Blocks direct calls to `api.nhia.gov.gh`, `mpi.gov.gh` (MoH compliance)
+   - [DONE] **SQL Safety Validator**: Prevents destructive queries (DROP, TRUNCATE, DELETE), read-only default
+   - [DONE] **SQL Injection Validator**: Pattern detection for common SQL injection attacks
 
 3. **Security & Compliance Utilities**
-   - ✅ **PII Masking**: Auto-mask Ghana Card (`GHA-1234****-*`), NHIS (`0123****`), phone (`+233244***456`), names (`K***e M****h`)
-   - ✅ **Context Loading**: Load AGENTS.md domain knowledge for AI agents
-   - ✅ **Transaction Logging**: Audit trail for all MCP operations
+   - [DONE] **PII Masking**: Auto-mask Ghana Card (`GHA-1234****-*`), NHIS (`0123****`), phone (`+233244***456`), names (`K***e M****h`)
+   - [DONE] **Context Loading**: Load AGENTS.md domain knowledge for AI agents
+   - [DONE] **Transaction Logging**: Audit trail for all MCP operations
 
 4. **AI Tool Integrations (3)**
-   - ✅ **Codex CLI**: Configured in `~/.codex/config.toml` with Ghana EMR MCP servers
-     - Testing Status: ✅ VERIFIED (Ghana Card validation, NHIE enforcement, database queries working)
-   - ✅ **Claude Desktop**: Configuration template ready (`claude-desktop-config.json`)
-   - ✅ **VS Code Copilot**: Configuration prepared (`vscode-settings.json`) for future MCP support
+   - [DONE] **Codex CLI**: Configured in `~/.codex/config.toml` with Ghana EMR MCP servers
+     - Testing Status: [DONE] VERIFIED (Ghana Card validation, NHIE enforcement, database queries working)
+   - [DONE] **Claude Desktop**: Configuration template ready (`claude-desktop-config.json`)
+   - [DONE] **VS Code Copilot**: Configuration prepared (`vscode-settings.json`) for future MCP support
 
 5. **Configuration & Documentation**
-   - ✅ **mcp-servers/README.md**: 50KB comprehensive guide (1,880 lines)
+   - [DONE] **mcp-servers/README.md**: 50KB comprehensive guide (1,880 lines)
      - Architecture diagrams, tool reference, testing procedures
-   - ✅ **mcp-servers/BUILD_PROGRESS.md**: Implementation tracker
-   - ✅ **mcp-servers/configs/**: 3 config files (Codex, Claude, VS Code) + 3 setup guides
-   - ✅ **PowerShell Scripts**: install-all.ps1, configure-codex.ps1, verify-mcp.ps1
+   - [DONE] **mcp-servers/BUILD_PROGRESS.md**: Implementation tracker
+   - [DONE] **mcp-servers/configs/**: 3 config files (Codex, Claude, VS Code) + 3 setup guides
+   - [DONE] **PowerShell Scripts**: install-all.ps1, configure-codex.ps1, verify-mcp.ps1
 
 6. **Build Status**
-   - ✅ TypeScript compilation: Successful for all 3 packages
-   - ✅ Dependencies installed: 1,244 packages total, 0 vulnerabilities
-   - ✅ MCP servers tested with Codex CLI: WORKING ✅
-   - ✅ Git commit + push: Committed b23a0f1, pushed to GitHub
+   - [DONE] TypeScript compilation: Successful for all 3 packages
+   - [DONE] Dependencies installed: 1,244 packages total, 0 vulnerabilities
+   - [DONE] MCP servers tested with Codex CLI: WORKING [DONE]
+   - [DONE] Git commit + push: Committed b23a0f1, pushed to GitHub
 
 ### MCP Infrastructure Statistics
 
@@ -534,13 +539,17 @@ jobs:
 - **Dependencies**: 1,244 npm packages installed
 - **Commit Size**: 68.74 KiB compressed
 
-**MCP Tools Available (6):**
-1. `create_patient` - Register patient with Ghana Card + NHIS validation, auto-generate folder number
-2. `search_patient` - Search by Ghana Card, NHIS, name, or folder number (PII masked in results)
-3. `query` - Execute read-only SQL queries (SELECT only by default)
-4. `read_schema` - Inspect table structure (DESCRIBE table)
-5. `list_tables` - List all database tables
-6. `propose_migration` - Generate Liquibase migration with GitHub issue workflow
+**MCP Tools Available (24):**
+OpenMRS (20):
+- `create_patient`, `search_patient`, `get_patient`, `update_patient`
+- `verify_session`
+- `list_encounter_types`, `list_visit_types`, `list_locations`, `list_providers`, `list_identifier_types`, `list_person_attribute_types`, `list_encounter_roles`, `list_concepts`
+- `find_active_visit`, `create_visit`, `close_visit`
+- `create_encounter`
+- Opinionated: `record_triage_vitals`, `record_consultation_notes`
+
+MySQL (4):
+- `query`, `read_schema`, `list_tables`, `propose_migration`
 
 **AI Development Impact:**
 - **Autonomy Achieved**: 70-85% AI-driven development capability
@@ -572,7 +581,7 @@ jobs:
 - 6 MCP tools operational (patient ops + database queries)
 - 5 domain validators (Ghana Card Luhn, NHIS, NHIE, SQL safety, SQL injection)
 - PII masking utility (auto-mask sensitive data in logs)
-- Codex CLI integration tested and verified ✅
+- Codex CLI integration tested and verified [DONE]
 - 70-85% AI autonomy achieved
 - Ghana domain rules enforced at infrastructure level
 
@@ -635,21 +644,21 @@ jobs:
    - AI understands domain context and answers accurately
    - Direct tool calls less important than loaded knowledge
 
-### Week 1 Summary: COMPLETE ✅
+### Week 1 Summary: COMPLETE [DONE]
 
 **Total Completion:** 100%  
 **Duration:** October 30 - November 1, 2025 (3 days)  
 **Key Milestone:** Full development foundation + AI infrastructure operational
 
 **Major Achievements:**
-1. ✅ Docker + OpenMRS + MySQL running (healthy)
-2. ✅ Next.js frontend scaffolded with shadcn/ui
-3. ✅ Comprehensive documentation (100+ files)
-4. ✅ MCP infrastructure built (2 servers, 6 tools, 5 validators)
-5. ✅ AI development autonomy: 70-85%
-6. ✅ Ghana domain rules enforced at infrastructure level
-7. ✅ Pushed to GitHub: https://github.com/IsaacAhor/MedReg
-8. ✅ **BONUS: Patient Registration Module completed on Day 1!**
+1. [DONE] Docker + OpenMRS + MySQL running (healthy)
+2. [DONE] Next.js frontend scaffolded with shadcn/ui
+3. [DONE] Comprehensive documentation (100+ files)
+4. [DONE] MCP infrastructure built (2 servers, 24 tools, 5 validators)
+5. [DONE] AI development autonomy: 70-85%
+6. [DONE] Ghana domain rules enforced at infrastructure level
+7. [DONE] Pushed to GitHub: https://github.com/IsaacAhor/MedReg
+8. [DONE] **BONUS: Patient Registration Module completed on Day 1!**
 
 **Ready for Week 2:** ~~Patient Registration Module~~ NHIE Patient Sync + OPD Triage
 
@@ -657,9 +666,9 @@ jobs:
 
 ## Week 2-3: Patient Registration Module (November 1, 2025)
 
-### Status: ✅ **COMPLETED IN 1 DAY** (Originally planned for 2 weeks)
+### Status: [DONE] **COMPLETED IN 1 DAY** (Originally planned for 2 weeks)
 
-**🚀 AHEAD OF SCHEDULE: Completed Week 2-3 deliverables on same day as Week 1 setup**
+**[LAUNCH] AHEAD OF SCHEDULE: Completed Week 2-3 deliverables on same day as Week 1 setup**
 
 **Goal:** Build complete patient registration with Ghana Card validation, NHIS number capture, and folder number generation
 
@@ -667,69 +676,69 @@ jobs:
 
 ### Completed Tasks
 
-#### Patient Registration Backend ✅
+#### Patient Registration Backend [DONE]
 **Date Completed:** November 1, 2025
 
 1. **Ghana Metadata Created (via Codex MCP)**
-   - ✅ Ghana Card identifier type created
+   - [DONE] Ghana Card identifier type created
      - UUID: `d3132375-e07a-40f6-8912-384c021ed350`
      - Name: "Ghana Card"
      - Format: `^GHA-\d{9}-\d$`
      - Required: true
-   - ✅ NHIS Number person attribute type created
+   - [DONE] NHIS Number person attribute type created
      - UUID: `f56fc097-e14e-4be6-9632-89ca66127784`
      - Name: "NHIS Number"
      - Format: text (10 digits validated in code)
-   - ✅ Amani Hospital location configured
+   - [DONE] Amani Hospital location configured
      - UUID: `aff27d58-a15c-49a6-9beb-d30dcfc0c66e`
 
 2. **Validators Implemented**
-   - ✅ Ghana Card validator with Luhn checksum algorithm
+   - [DONE] Ghana Card validator with Luhn checksum algorithm
      - File: `frontend/src/lib/validators/ghana-card.ts`
      - Format validation: `^GHA-\d{9}-\d$`
      - Luhn checksum verification
      - Test card generator
-   - ✅ Unit tests written (Vitest)
+   - [DONE] Unit tests written (Vitest)
      - File: `frontend/src/lib/validators/ghana-card.test.ts`
      - Tests: valid/invalid cards, normalization, checksum
 
 3. **API Integration (BFF Pattern)**
-   - ✅ Next.js API route: `/api/patients`
+   - [DONE] Next.js API route: `/api/patients`
      - File: `frontend/src/app/api/patients/route.ts`
      - POST handler creates Person + Patient
      - Ghana Card validation before submission
      - Error handling with detailed logging
      - Session-based auth (server-side credentials)
-   - ✅ TanStack Query hook: `useRegisterPatient`
+   - [DONE] TanStack Query hook: `useRegisterPatient`
      - File: `frontend/src/hooks/useRegisterPatient.ts`
      - Mutation with success/error handling
      - Toast notifications
 
-#### Patient Registration Frontend ✅
+#### Patient Registration Frontend [DONE]
 **Date Completed:** November 1, 2025 (User built form, agent connected to backend)
 
 1. **Registration Form UI**
-   - ✅ Complete registration form with shadcn/ui components
+   - [DONE] Complete registration form with shadcn/ui components
      - File: `frontend/src/app/patients/register/page.tsx`
      - React Hook Form + Zod validation
      - 12 input fields (Ghana Card, NHIS, name, DOB, gender, phone, address)
-   - ✅ Real-time validation
+   - [DONE] Real-time validation
      - Ghana Card format checked on blur
      - NHIS number format (10 digits)
      - Phone format (+233XXXXXXXXX)
      - Required fields enforced
-   - ✅ Error display with FormMessage components
-   - ✅ Submit button with loading state
+   - [DONE] Error display with FormMessage components
+   - [DONE] Submit button with loading state
 
 2. **Integration Working**
-   - ✅ Form → API route → OpenMRS → MySQL
-   - ✅ First patient registered successfully:
+   - [DONE] Form -> API route -> OpenMRS -> MySQL
+   - [DONE] First patient registered successfully:
      - Name: Kwabena Kofi Nyarko
      - Ghana Card: GHA-123456789-7
      - NHIS: 0123456789
      - Gender: Male
      - DOB: 01-Jan-1991 (34 years)
-   - ✅ Database verification:
+   - [DONE] Database verification:
      - Ghana Card stored in `patient_identifier` table
      - NHIS stored in `person_attribute` table
      - Patient visible in OpenMRS UI
@@ -745,11 +754,11 @@ jobs:
 - **Total Development Time**: ~6-8 hours (traditional estimate: 2-3 weeks)
 
 ### Remaining Tasks (Deferred)
-- ⏳ Folder number auto-generation (Week 2 Day 5-6)
-- ⏳ Duplicate Ghana Card check (Week 2 Day 5)
-- ⏳ Photo capture (deferred to v2)
-- ⏳ Advanced patient search UI (basic search works via OpenMRS)
-- ⏳ Print folder label
+- [PENDING] Folder number auto-generation (Week 2 Day 5-6)
+- [PENDING] Duplicate Ghana Card check (Week 2 Day 5)
+- [PENDING] Photo capture (deferred to v2)
+- [PENDING] Advanced patient search UI (basic search works via OpenMRS)
+- [PENDING] Print folder label
 
 **Next Milestone:** NHIE Patient Sync (Week 2 Day 7)
 
@@ -770,23 +779,23 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
 - Logger writes to `ghanaemr_nhie_transaction_log` and populates `creator`; aligned with Liquibase schema.
 - Documentation updated: transaction logging README, Liquibase schema doc, and QA test plan.
 
-### Status: ✅ **COMPLETED** (100% Complete - November 2, 2025)
+### Status: [DONE] **COMPLETED** (100% Complete - November 2, 2025)
 
 **From MVP:** Week 4-5 (Option B) - NHIE Patient Sync + Patient Dashboard UI
 
-**🚀 PROGRESS UPDATE:** NHIE Mock Server fully operational and tested. NHIEHttpClient.java complete with comprehensive test suite (2,210+ lines total). NHIEIntegrationService.java orchestration layer complete (710+ lines: interface + exception + implementation). Ready for unit tests and patient registration integration.
+**[LAUNCH] PROGRESS UPDATE:** NHIE Mock Server fully operational and tested. NHIEHttpClient.java complete with comprehensive test suite (2,210+ lines total). NHIEIntegrationService.java orchestration layer complete (710+ lines: interface + exception + implementation). Ready for unit tests and patient registration integration.
 
 **Quick Dashboard (Week 4-5 Progress):**
-- ✅ NHIE Mock Infrastructure: 100% (HAPI FHIR v7.0.2, PostgreSQL 15, 14 demo patients, PowerShell automation)
-- ✅ FHIR Patient Mapper: 100% (474 lines production + 418 lines tests)
-- ✅ Transaction Logging Schema: 100% (Liquibase schema, 24 SQL queries, 287 lines docs)
-- ✅ NHIE HTTP Client: 100% (710 lines production + 1,500 lines tests, OAuth 2.0, retry flags)
-- ✅ NHIE Integration Service: 100% (710 lines: interface + exception + implementation)
-- ✅ Integration Service Tests: 100% (completed with transaction logger tests)
-- ✅ Patient Registration Integration: 100% (GhanaPatientServiceImpl triggers async NHIE sync)
-- ✅ Background Retry Job: 100% (NHIERetryJob.java with exponential backoff, runs every 60s)
-- ✅ Patient Dashboard UI: 100% (React component with real-time status badges and polling)
-- ✅ REST API Endpoint: 100% (GET /patients/{uuid}/nhie-status for sync status queries)
+- [DONE] NHIE Mock Infrastructure: 100% (HAPI FHIR v7.0.2, PostgreSQL 15, 14 demo patients, PowerShell automation)
+- [DONE] FHIR Patient Mapper: 100% (474 lines production + 418 lines tests)
+- [DONE] Transaction Logging Schema: 100% (Liquibase schema, 24 SQL queries, 287 lines docs)
+- [DONE] NHIE HTTP Client: 100% (710 lines production + 1,500 lines tests, OAuth 2.0, retry flags)
+- [DONE] NHIE Integration Service: 100% (710 lines: interface + exception + implementation)
+- [DONE] Integration Service Tests: 100% (completed with transaction logger tests)
+- [DONE] Patient Registration Integration: 100% (GhanaPatientServiceImpl triggers async NHIE sync)
+- [DONE] Background Retry Job: 100% (NHIERetryJob.java with exponential backoff, runs every 60s)
+- [DONE] Patient Dashboard UI: 100% (React component with real-time status badges and polling)
+- [DONE] REST API Endpoint: 100% (GET /patients/{uuid}/nhie-status for sync status queries)
 
 **Code Statistics (Week 4-5):**
 - Production Code: 2,200+ lines (Mock scripts 0 + FHIR Mapper 474 + Logging 162 + HTTP Client 710 + Integration Service 710 + UI Components 150)
@@ -796,54 +805,54 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
 - Javadoc: 1,200+ lines embedded documentation
 
 **Completed Integration (Nov 2, 2025):**
-1. ✅ **GhanaPatientServiceImpl.java** - Triggers async NHIE sync after patient registration (non-blocking)
-2. ✅ **NHIERetryJob.java** - Background scheduler with exponential backoff (5s → 8h over 8 attempts)
-3. ✅ **GhanaPatientController.java** - REST endpoint GET /patients/{uuid}/nhie-status for status queries
-4. ✅ **Patient Detail Page** - Real-time NHIE sync status with TanStack Query polling (5s interval)
-5. ✅ **NHIE Status API Route** - BFF endpoint proxying OpenMRS transaction log queries
+1. [DONE] **GhanaPatientServiceImpl.java** - Triggers async NHIE sync after patient registration (non-blocking)
+2. [DONE] **NHIERetryJob.java** - Background scheduler with exponential backoff (5s -> 8h over 8 attempts)
+3. [DONE] **GhanaPatientController.java** - REST endpoint GET /patients/{uuid}/nhie-status for status queries
+4. [DONE] **Patient Detail Page** - Real-time NHIE sync status with TanStack Query polling (5s interval)
+5. [DONE] **NHIE Status API Route** - BFF endpoint proxying OpenMRS transaction log queries
 
 **Technical Details:** See [Task #8 Completion Summary](../docs/setup/TASK8_COMPLETION_SUMMARY.md) for deep dive into NHIEIntegrationService design patterns, testing strategy, and integration points.
 
-### Completed Tasks ✅
+### Completed Tasks [DONE]
 
-#### NHIE Mock Server Setup ✅
+#### NHIE Mock Server Setup [DONE]
 **Date Completed:** November 1, 2025
 
 1. **Production-Grade Mock Infrastructure**
-   - ✅ HAPI FHIR JPA Starter v7.0.2 deployed via Docker
-   - ✅ PostgreSQL 15 persistence (port 5433)
-   - ✅ FHIR R4 compliance verified
-   - ✅ Running on port 8090 with health checks
-   - ✅ Web UI accessible: http://localhost:8090/
-   - ✅ Persistent data volume: `nhie_mock_data`
+   - [DONE] HAPI FHIR JPA Starter v7.0.2 deployed via Docker
+   - [DONE] PostgreSQL 15 persistence (port 5433)
+   - [DONE] FHIR R4 compliance verified
+   - [DONE] Running on port 8090 with health checks
+   - [DONE] Web UI accessible: http://localhost:8090/
+   - [DONE] Persistent data volume: `nhie_mock_data`
 
 2. **Docker Compose Integration**
-   - ✅ Added `nhie-mock` service to docker-compose.yml
-   - ✅ Added `nhie-mock-db` PostgreSQL service
-   - ✅ Configured CORS for local development
-   - ✅ Performance tuning (50 max page size, cached results)
-   - ✅ Health checks with 120s startup period
+   - [DONE] Added `nhie-mock` service to docker-compose.yml
+   - [DONE] Added `nhie-mock-db` PostgreSQL service
+   - [DONE] Configured CORS for local development
+   - [DONE] Performance tuning (50 max page size, cached results)
+   - [DONE] Health checks with 120s startup period
 
 3. **Comprehensive Documentation**
-   - ✅ **`docs/setup/nhie-mock-guide.md`** (1000+ lines)
+   - [DONE] **`docs/setup/nhie-mock-guide.md`** (1000+ lines)
      - Complete Docker setup instructions
      - 8 preloaded test scenarios (success, duplicate, invalid, coverage, errors)
      - Sample FHIR requests/responses
      - Monitoring and debugging guide
      - Integration with Ghana EMR
      - Demo day preparation strategy
-   - ✅ **`docs/setup/NHIE_MOCK_COMPLETE.md`** (400+ lines)
+   - [DONE] **`docs/setup/NHIE_MOCK_COMPLETE.md`** (400+ lines)
      - Quick reference guide
      - Success criteria checklist
      - Performance benchmarks
 
 4. **PowerShell Test Scripts**
-   - ✅ **`scripts/setup-nhie-mock.ps1`** (100+ lines)
+   - [DONE] **`scripts/setup-nhie-mock.ps1`** (100+ lines)
      - One-command setup with health checks
      - Automated service startup
      - Interactive demo data preload
      - Next steps guidance
-   - ✅ **`scripts/test-nhie-mock.ps1`** (350+ lines)
+   - [DONE] **`scripts/test-nhie-mock.ps1`** (350+ lines)
      - 10 automated tests
      - Patient CRUD operations
      - Duplicate prevention testing
@@ -851,14 +860,14 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - Invalid request handling
      - Performance testing (<2s)
      - Color-coded pass/fail summary
-   - ✅ **`scripts/preload-demo-data.ps1`** (250+ lines)
+   - [DONE] **`scripts/preload-demo-data.ps1`** (250+ lines)
      - 11 realistic Ghana patients
      - All 10 Ghana regions covered
      - Active + expired NHIS mix
      - Idempotent loading
 
 5. **Demo Data Preloaded (11 Patients)**
-   - ✅ 10 active NHIS patients:
+   - [DONE] 10 active NHIS patients:
      - Kwame Kofi Mensah (Accra, Greater Accra)
      - Ama Abena Asante (Kumasi, Ashanti)
      - Kofi Yaw Owusu (Tamale, Northern)
@@ -869,9 +878,9 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - Akua Efua Osei (Koforidua, Eastern)
      - Kwame Agyeman Danquah (Bolgatanga, Upper East)
      - Adwoa Afia Frimpong (Wa, Upper West)
-   - ✅ 1 expired NHIS patient (for testing):
+   - [DONE] 1 expired NHIS patient (for testing):
      - Nana Kwame Anane (Accra, Greater Accra)
-   - ✅ Each patient includes:
+   - [DONE] Each patient includes:
      - Valid Ghana Card (Luhn checksum compliant)
      - 10-digit NHIS number
      - Full name (authentic Ghana names)
@@ -879,46 +888,46 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - NHIS Coverage resource (active/cancelled)
 
 6. **Mock Endpoints Available**
-   - ✅ Base URL: http://localhost:8090/fhir
-   - ✅ POST /Patient (create patient)
-   - ✅ GET /Patient/{id} (get by ID)
-   - ✅ GET /Patient?identifier={system}|{value} (search)
-   - ✅ GET /Coverage?beneficiary.identifier=... (eligibility check)
-   - ✅ POST /Encounter (submit OPD encounter)
-   - ✅ GET /metadata (capabilities)
+   - [DONE] Base URL: http://localhost:8090/fhir
+   - [DONE] POST /Patient (create patient)
+   - [DONE] GET /Patient/{id} (get by ID)
+   - [DONE] GET /Patient?identifier={system}|{value} (search)
+   - [DONE] GET /Coverage?beneficiary.identifier=... (eligibility check)
+   - [DONE] POST /Encounter (submit OPD encounter)
+   - [DONE] GET /metadata (capabilities)
 
 7. **Configuration Support**
-   - ✅ Environment-based mode switching:
+   - [DONE] Environment-based mode switching:
      - `ghana.nhie.mode=mock` (development)
      - `ghana.nhie.mode=sandbox` (when available)
      - `ghana.nhie.mode=production` (live)
-   - ✅ OAuth toggle: `ghana.nhie.oauth.enabled=false` (mock)
-   - ✅ Base URL configurable per environment
+   - [DONE] OAuth toggle: `ghana.nhie.oauth.enabled=false` (mock)
+   - [DONE] Base URL configurable per environment
 
-#### FHIR Patient Mapper ✅
+#### FHIR Patient Mapper [DONE]
 **Date Completed:** November 1, 2025
 
 1. **Production Code**
-   - ✅ **`FhirPatientMapper.java`** (474 lines)
-   - ✅ Converts OpenMRS Patient → FHIR R4 Patient resource
-   - ✅ Identifier mapping with canonical URIs:
+   - [DONE] **`FhirPatientMapper.java`** (474 lines)
+   - [DONE] Converts OpenMRS Patient -> FHIR R4 Patient resource
+   - [DONE] Identifier mapping with canonical URIs:
      - Ghana Card: `http://moh.gov.gh/fhir/identifier/ghana-card`
      - NHIS: `http://moh.gov.gh/fhir/identifier/nhis`
      - Folder Number: `http://moh.gov.gh/fhir/identifier/folder-number`
-   - ✅ Gender mapping (M→male, F→female, O→other, U→unknown)
-   - ✅ Name mapping (given/middle/family)
-   - ✅ Telecom mapping (phone)
-   - ✅ Address mapping (city, district, state, country)
-   - ✅ JSON serialization (toJson/fromJson)
-   - ✅ Validation (validate() method)
-   - ✅ PII masking for logs (maskIdentifier, maskPhone)
+   - [DONE] Gender mapping (M->male, F->female, O->other, U->unknown)
+   - [DONE] Name mapping (given/middle/family)
+   - [DONE] Telecom mapping (phone)
+   - [DONE] Address mapping (city, district, state, country)
+   - [DONE] JSON serialization (toJson/fromJson)
+   - [DONE] Validation (validate() method)
+   - [DONE] PII masking for logs (maskIdentifier, maskPhone)
 
 2. **Unit Tests**
-   - ✅ **`FhirPatientMapperTest.java`** (418 lines)
-   - ✅ 20 JUnit test methods
-   - ✅ Mockito mocks for OpenMRS objects
-   - ✅ Test coverage: >90% target
-   - ✅ Tests include:
+   - [DONE] **`FhirPatientMapperTest.java`** (418 lines)
+   - [DONE] 20 JUnit test methods
+   - [DONE] Mockito mocks for OpenMRS objects
+   - [DONE] Test coverage: >90% target
+   - [DONE] Tests include:
      - Complete patient mapping
      - 4 gender mapping tests
      - Minimal patient mapping
@@ -927,43 +936,43 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - JSON serialization tests
 
 3. **Documentation**
-   - ✅ **`backend/.../api/fhir/README.md`**
-   - ✅ Complete usage guide
-   - ✅ FHIR R4 compliance notes
-   - ✅ Performance considerations
-   - ✅ Security notes (PII masking)
+   - [DONE] **`backend/.../api/fhir/README.md`**
+   - [DONE] Complete usage guide
+   - [DONE] FHIR R4 compliance notes
+   - [DONE] Performance considerations
+   - [DONE] Security notes (PII masking)
 
-#### NHIE Transaction Logging ✅
+#### NHIE Transaction Logging [DONE]
 **Date Completed:** November 1, 2025
 
 1. **Liquibase Database Schema**
-   - ✅ **`backend/.../api/resources/liquibase.xml`** (162 lines)
-   - ✅ Changeset: `ghanaemr-nhie-transaction-log-1`
+   - [DONE] **`backend/.../api/resources/liquibase.xml`** (162 lines)
+   - [DONE] Changeset: `ghanaemr-nhie-transaction-log-1`
      - Table: `ghanaemr_nhie_transaction_log` (18 columns)
      - Columns: id, transaction_id (UUID PK), patient_id (FK), encounter_id (FK), resource_type, http_method, endpoint, request_body (TEXT masked PII), response_status (INT), response_body (TEXT masked), retry_count (INT default 0), status (PENDING/SUCCESS/FAILED/DLQ), error_message, nhie_resource_id, created_at, updated_at, next_retry_at, creator (FK)
      - 6 indexes: patient_id, encounter_id, status, created_at, retry_queue (composite), transaction_id
      - 3 foreign keys: patient, encounter, creator
-   - ✅ Changeset: `ghanaemr-nhie-coverage-cache-1`
+   - [DONE] Changeset: `ghanaemr-nhie-coverage-cache-1`
      - Table: `ghanaemr_nhie_coverage_cache` (9 columns)
      - Columns: id, nhis_number (UNIQUE), status, valid_from, valid_to, coverage_json, cached_at, expires_at (24-hour TTL), creator (FK)
      - 2 indexes: nhis_number, expires_at
      - 1 foreign key: creator
 
 2. **Technical Documentation**
-   - ✅ **`README-TRANSACTION-LOGGING.md`** (287 lines)
-   - ✅ Database schema specifications
-   - ✅ Transaction status enum (PENDING/SUCCESS/FAILED/DLQ)
-   - ✅ Resource types (PATIENT/ENCOUNTER/OBSERVATION/COVERAGE/CLAIM)
-   - ✅ PII masking rules with Java implementation
-   - ✅ Retry logic with exponential backoff table
-   - ✅ HTTP status decision matrix (14 status codes)
-   - ✅ 5 usage examples (Java + SQL)
-   - ✅ NHIS coverage cache examples (3 scenarios)
-   - ✅ Monitoring section (5 key SQL metrics)
+   - [DONE] **`README-TRANSACTION-LOGGING.md`** (287 lines)
+   - [DONE] Database schema specifications
+   - [DONE] Transaction status enum (PENDING/SUCCESS/FAILED/DLQ)
+   - [DONE] Resource types (PATIENT/ENCOUNTER/OBSERVATION/COVERAGE/CLAIM)
+   - [DONE] PII masking rules with Java implementation
+   - [DONE] Retry logic with exponential backoff table
+   - [DONE] HTTP status decision matrix (14 status codes)
+   - [DONE] 5 usage examples (Java + SQL)
+   - [DONE] NHIS coverage cache examples (3 scenarios)
+   - [DONE] Monitoring section (5 key SQL metrics)
 
 3. **SQL Query Library**
-   - ✅ **`queries.sql`** (350+ lines)
-   - ✅ 24 production-ready queries:
+   - [DONE] **`queries.sql`** (350+ lines)
+   - [DONE] 24 production-ready queries:
      - Transaction log queries (10)
      - NHIS coverage cache queries (4)
      - Monitoring & alerting queries (5)
@@ -972,110 +981,110 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - Performance queries (1)
 
 4. **AGENTS.md Updated**
-   - ✅ Added complete NHIE Mock Server section (400+ lines)
-   - ✅ Architecture diagram
-   - ✅ Docker services specification
-   - ✅ Configuration examples (mock/sandbox/production)
-   - ✅ Setup commands
-   - ✅ Mock endpoints table
-   - ✅ Test scenarios
-   - ✅ Demo data profiles
-   - ✅ Integration code examples
+   - [DONE] Added complete NHIE Mock Server section (400+ lines)
+   - [DONE] Architecture diagram
+   - [DONE] Docker services specification
+   - [DONE] Configuration examples (mock/sandbox/production)
+   - [DONE] Setup commands
+   - [DONE] Mock endpoints table
+   - [DONE] Test scenarios
+   - [DONE] Demo data profiles
+   - [DONE] Integration code examples
 
-#### NHIE Mock Testing & Validation ✅
+#### NHIE Mock Testing & Validation [DONE]
 **Date Completed:** November 2, 2025
 
 1. **Automated Testing (10/10 Tests Passing)**
-   - ✅ Health check (HAPI FHIR metadata endpoint)
-   - ✅ Patient creation (201 Created with FHIR JSON)
-   - ✅ Patient search by Ghana Card identifier
-   - ✅ Duplicate prevention (If-None-Exist header working)
-   - ✅ NHIS coverage check (active: valid until 2025-12-31)
-   - ✅ NHIS coverage check (expired: cancelled 2024-12-31)
-   - ✅ Invalid request handling (400/409 expected)
-   - ✅ Patient search by NHIS number
-   - ✅ Coverage search by beneficiary.identifier
-   - ✅ Performance validation (<2s for 10 patients)
+   - [DONE] Health check (HAPI FHIR metadata endpoint)
+   - [DONE] Patient creation (201 Created with FHIR JSON)
+   - [DONE] Patient search by Ghana Card identifier
+   - [DONE] Duplicate prevention (If-None-Exist header working)
+   - [DONE] NHIS coverage check (active: valid until 2025-12-31)
+   - [DONE] NHIS coverage check (expired: cancelled 2024-12-31)
+   - [DONE] Invalid request handling (400/409 expected)
+   - [DONE] Patient search by NHIS number
+   - [DONE] Coverage search by beneficiary.identifier
+   - [DONE] Performance validation (<2s for 10 patients)
 
 2. **Manual Web UI Testing (User Demonstrated)**
-   - ✅ Navigated HAPI FHIR Web UI (http://localhost:8090/)
-   - ✅ Searched patients by family name ("Mensah" → 2 results)
-   - ✅ Viewed Patient/4 complete FHIR JSON (Kwame Kofi Mensah with Ghana Card + NHIS)
-   - ✅ Listed all Coverage resources (12 total)
-   - ✅ Viewed Coverage/11 details (active NHIS 1112223334, valid 2025-01-01 to 2025-12-31)
-   - ✅ Searched Patient by NHIS number (5556667778 → Patient/8 Kofi Yaw Owusu)
-   - ✅ Verified FHIR identifier search syntax (System + Value + pipe format)
+   - [DONE] Navigated HAPI FHIR Web UI (http://localhost:8090/)
+   - [DONE] Searched patients by family name ("Mensah" -> 2 results)
+   - [DONE] Viewed Patient/4 complete FHIR JSON (Kwame Kofi Mensah with Ghana Card + NHIS)
+   - [DONE] Listed all Coverage resources (12 total)
+   - [DONE] Viewed Coverage/11 details (active NHIS 1112223334, valid 2025-01-01 to 2025-12-31)
+   - [DONE] Searched Patient by NHIS number (5556667778 -> Patient/8 Kofi Yaw Owusu)
+   - [DONE] Verified FHIR identifier search syntax (System + Value + pipe format)
 
 3. **PowerShell Interactive Demonstrations**
-   - ✅ Search all patients (13 found, each with unique NHIS)
-   - ✅ Search by Ghana Card (Patient/4 with complete demographics)
-   - ✅ Check NHIS coverage by number (Coverage/5 active until 2025-12-31)
-   - ✅ Create test patient + duplicate prevention (idempotent If-None-Exist header)
-   - ✅ Two-step workflow demo (Coverage → Patient reference → Patient details)
-   - ✅ Demonstrated Patient vs Coverage resource differences
+   - [DONE] Search all patients (13 found, each with unique NHIS)
+   - [DONE] Search by Ghana Card (Patient/4 with complete demographics)
+   - [DONE] Check NHIS coverage by number (Coverage/5 active until 2025-12-31)
+   - [DONE] Create test patient + duplicate prevention (idempotent If-None-Exist header)
+   - [DONE] Two-step workflow demo (Coverage -> Patient reference -> Patient details)
+   - [DONE] Demonstrated Patient vs Coverage resource differences
 
 4. **Documentation Consolidation**
-   - ✅ Deleted redundant `NHIE_MOCK_COMPLETE.md` (400 lines)
-   - ✅ Enhanced `nhie-mock-guide.md` with Quick Reference section
-   - ✅ Updated AGENTS.md to reference single consolidated guide
+   - [DONE] Deleted redundant `NHIE_MOCK_COMPLETE.md` (400 lines)
+   - [DONE] Enhanced `nhie-mock-guide.md` with Quick Reference section
+   - [DONE] Updated AGENTS.md to reference single consolidated guide
 
 5. **Production Readiness Validation**
-   - ✅ FHIR R4 standard compliance verified
-   - ✅ Canonical identifier URIs working
-   - ✅ Idempotent operations (If-None-Exist header)
-   - ✅ Active/cancelled NHIS statuses, date ranges, Patient-Coverage linkage
-   - ✅ Mock returns identical structure to real NHIE expectations
+   - [DONE] FHIR R4 standard compliance verified
+   - [DONE] Canonical identifier URIs working
+   - [DONE] Idempotent operations (If-None-Exist header)
+   - [DONE] Active/cancelled NHIS statuses, date ranges, Patient-Coverage linkage
+   - [DONE] Mock returns identical structure to real NHIE expectations
 
 6. **Environment Switching Strategy Confirmed**
-   - ✅ Mock mode: OAuth disabled, http://nhie-mock:8080/fhir
-   - ✅ Sandbox mode: OAuth enabled, https://nhie-sandbox.moh.gov.gh/fhir
-   - ✅ Production mode: OAuth enabled, https://nhie.moh.gov.gh/fhir
-   - ✅ Zero code changes needed (config-only switch)
+   - [DONE] Mock mode: OAuth disabled, http://nhie-mock:8080/fhir
+   - [DONE] Sandbox mode: OAuth enabled, https://nhie-sandbox.moh.gov.gh/fhir
+   - [DONE] Production mode: OAuth enabled, https://nhie.moh.gov.gh/fhir
+   - [DONE] Zero code changes needed (config-only switch)
 
-#### NHIE HTTP Client Implementation ✅
+#### NHIE HTTP Client Implementation [DONE]
 **Date Completed:** November 2, 2025
 
 1. **Production Code (630+ lines)**
-   - ✅ **`NHIEHttpClient.java`** (630+ lines)
-   - ✅ OAuth 2.0 client credentials flow with token caching
+   - [DONE] **`NHIEHttpClient.java`** (630+ lines)
+   - [DONE] OAuth 2.0 client credentials flow with token caching
      - Lazy token acquisition (only when needed)
      - Proactive token refresh (5 minutes before expiry)
      - Reactive token refresh on 401 (one retry)
      - Thread-safe token storage (ConcurrentHashMap)
-   - ✅ FHIR R4 HTTP operations
+   - [DONE] FHIR R4 HTTP operations
      - POST /Patient (create patient with If-None-Exist header)
      - GET /Patient?identifier={system}|{value} (search)
      - GET /Coverage?beneficiary.identifier={system}|{value} (eligibility)
      - POST /Encounter (submit OPD encounter - future)
-   - ✅ Error handling with retry flags
-     - 401 Unauthorized → retryable (token refresh)
-     - 409 Conflict → not retryable (duplicate patient)
-     - 422 Unprocessable → not retryable (validation error)
-     - 429 Rate Limited → retryable (exponential backoff)
-     - 5xx Server Error → retryable (temporary failure)
-   - ✅ PII masking for logs
+   - [DONE] Error handling with retry flags
+     - 401 Unauthorized -> retryable (token refresh)
+     - 409 Conflict -> not retryable (duplicate patient)
+     - 422 Unprocessable -> not retryable (validation error)
+     - 429 Rate Limited -> retryable (exponential backoff)
+     - 5xx Server Error -> retryable (temporary failure)
+   - [DONE] PII masking for logs
      - Ghana Card: `GHA-1234****-*`
      - NHIS: `0123******`
      - Names: `K***e M****h`
-   - ✅ Environment switching
+   - [DONE] Environment switching
      - Mock mode: OAuth disabled, http://nhie-mock:8080/fhir
      - Sandbox mode: OAuth enabled, https://nhie-sandbox.moh.gov.gh/fhir
      - Production mode: OAuth enabled, https://nhie.moh.gov.gh/fhir
-   - ✅ Configuration via openmrs-runtime.properties
+   - [DONE] Configuration via openmrs-runtime.properties
      - `ghana.nhie.mode` (mock/sandbox/production)
      - `ghana.nhie.baseUrl`, `ghana.nhie.oauth.*`
 
 2. **DTO Class (80 lines)**
-   - ✅ **`NHIEResponse.java`** (80 lines)
-   - ✅ Fields: statusCode, responseBody, success, errorMessage, retryable, nhieResourceId
-   - ✅ 3 constructors (success, error with retry flag, error without status)
-   - ✅ 7 getters, 1 toString(), equals(), hashCode()
-   - ✅ Comprehensive Javadoc
+   - [DONE] **`NHIEResponse.java`** (80 lines)
+   - [DONE] Fields: statusCode, responseBody, success, errorMessage, retryable, nhieResourceId
+   - [DONE] 3 constructors (success, error with retry flag, error without status)
+   - [DONE] 7 getters, 1 toString(), equals(), hashCode()
+   - [DONE] Comprehensive Javadoc
 
 3. **Unit Tests (600+ lines, 50+ tests)**
-   - ✅ **`NHIEHttpClientTest.java`** (600+ lines)
-   - ✅ Mockito mocks for HttpClient, CloseableHttpResponse, HttpEntity
-   - ✅ Test coverage:
+   - [DONE] **`NHIEHttpClientTest.java`** (600+ lines)
+   - [DONE] Mockito mocks for HttpClient, CloseableHttpResponse, HttpEntity
+   - [DONE] Test coverage:
      - OAuth token acquisition (success, error, null response)
      - OAuth token caching (reuse, expiry, refresh)
      - OAuth token refresh on 401
@@ -1085,29 +1094,29 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - Error handling (network errors, timeouts, malformed JSON)
      - PII masking in logs
      - Environment switching (mock/sandbox/production)
-   - ✅ Target: >90% code coverage
+   - [DONE] Target: >90% code coverage
 
 4. **Integration Tests (500+ lines, 20+ tests)**
-   - ✅ **`NHIEHttpClientIntegrationTest.java`** (500+ lines)
-   - ✅ Tests against NHIE mock (localhost:8090)
-   - ✅ @Ignore by default (run manually with mock server)
-   - ✅ Test scenarios:
+   - [DONE] **`NHIEHttpClientIntegrationTest.java`** (500+ lines)
+   - [DONE] Tests against NHIE mock (localhost:8090)
+   - [DONE] @Ignore by default (run manually with mock server)
+   - [DONE] Test scenarios:
      - Complete patient lifecycle (create, search, duplicate)
      - NHIS coverage checks (active, expired, not found)
      - Invalid requests (400 Bad Request)
      - Performance (<2s for 10 patients)
-   - ✅ Cleanup @After (delete test data)
+   - [DONE] Cleanup @After (delete test data)
 
 5. **DTO Tests (400+ lines, 40+ tests)**
-   - ✅ **`NHIEResponseTest.java`** (400+ lines)
-   - ✅ 100% DTO coverage:
+   - [DONE] **`NHIEResponseTest.java`** (400+ lines)
+   - [DONE] 100% DTO coverage:
      - Success constructor (201/200 with resource ID)
      - Error constructor (4xx/5xx with retry flags)
      - Getters, toString(), equals(), hashCode()
      - Edge cases (null values, empty strings)
 
 6. **Configuration Properties (12 properties)**
-   - ✅ Added to `openmrs-runtime.properties`:
+   - [DONE] Added to `openmrs-runtime.properties`:
      - `ghana.nhie.mode` (mock/sandbox/production)
      - `ghana.nhie.baseUrl` (environment-specific)
      - `ghana.nhie.oauth.enabled` (true/false)
@@ -1116,44 +1125,44 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - `ghana.nhie.retry.maxAttempts`, `initialDelayMs`
 
 7. **Key Design Patterns**
-   - ✅ OAuth token caching (avoid repeated token requests)
-   - ✅ Retry flags in response DTO (decouple HTTP client from retry logic)
-   - ✅ PII masking utility methods (never log full identifiers)
-   - ✅ Environment abstraction (config-based switching)
-   - ✅ If-None-Exist header (idempotent patient creation)
-   - ✅ Thread-safe implementation (ConcurrentHashMap for tokens)
+   - [DONE] OAuth token caching (avoid repeated token requests)
+   - [DONE] Retry flags in response DTO (decouple HTTP client from retry logic)
+   - [DONE] PII masking utility methods (never log full identifiers)
+   - [DONE] Environment abstraction (config-based switching)
+   - [DONE] If-None-Exist header (idempotent patient creation)
+   - [DONE] Thread-safe implementation (ConcurrentHashMap for tokens)
 
 8. **Testing Infrastructure**
-   - ✅ JUnit 4.13.2 (OpenMRS standard)
-   - ✅ Mockito 5.12.0 for unit test mocks
-   - ✅ NHIE mock server for integration tests (localhost:8090)
-   - ✅ PowerShell test automation (`scripts/test-nhie-mock.ps1`)
+   - [DONE] JUnit 4.13.2 (OpenMRS standard)
+   - [DONE] Mockito 5.12.0 for unit test mocks
+   - [DONE] NHIE mock server for integration tests (localhost:8090)
+   - [DONE] PowerShell test automation (`scripts/test-nhie-mock.ps1`)
 
 9. **Production Readiness Checklist**
-   - ✅ Error handling for all HTTP status codes (14 scenarios)
-   - ✅ Retry logic flags (retryable vs non-retryable errors)
-   - ✅ PII protection in logs (Ghana Card, NHIS, names masked)
-   - ✅ OAuth 2.0 with token caching and refresh
-   - ✅ Environment switching (mock/sandbox/production)
-   - ✅ Configuration externalized (openmrs-runtime.properties)
-   - ✅ Unit tests (50+ tests, >90% coverage target)
-   - ✅ Integration tests (20+ tests against mock server)
-   - ✅ Thread-safe implementation
-   - ✅ FHIR R4 compliance (canonical URIs, resource structure)
-   - ✅ Comprehensive Javadoc (300+ lines)
+   - [DONE] Error handling for all HTTP status codes (14 scenarios)
+   - [DONE] Retry logic flags (retryable vs non-retryable errors)
+   - [DONE] PII protection in logs (Ghana Card, NHIS, names masked)
+   - [DONE] OAuth 2.0 with token caching and refresh
+   - [DONE] Environment switching (mock/sandbox/production)
+   - [DONE] Configuration externalized (openmrs-runtime.properties)
+   - [DONE] Unit tests (50+ tests, >90% coverage target)
+   - [DONE] Integration tests (20+ tests against mock server)
+   - [DONE] Thread-safe implementation
+   - [DONE] FHIR R4 compliance (canonical URIs, resource structure)
+   - [DONE] Comprehensive Javadoc (300+ lines)
 
-#### NHIE Integration Service (Orchestration Layer) ✅
+#### NHIE Integration Service (Orchestration Layer) [DONE]
 **Date Completed:** November 2, 2025
 
 1. **Service Interface (100+ lines)**
-   - ✅ **`NHIEIntegrationService.java`** (100+ lines)
-   - ✅ 5 methods defined:
-     - `syncPatientToNHIE(Patient patient)`: Main sync workflow (FHIR conversion → HTTP submit → log → store ID)
+   - [DONE] **`NHIEIntegrationService.java`** (100+ lines)
+   - [DONE] 5 methods defined:
+     - `syncPatientToNHIE(Patient patient)`: Main sync workflow (FHIR conversion -> HTTP submit -> log -> store ID)
      - `handleDuplicatePatient(Patient patient, NHIEResponse conflictResponse)`: Handle 409 Conflict
      - `getNHIEPatientId(Patient patient)`: Retrieve stored NHIE ID from patient_attribute
      - `storeNHIEPatientId(Patient patient, String nhiePatientId)`: Store NHIE ID as person attribute
      - `isPatientSyncedToNHIE(Patient patient)`: Check sync status
-   - ✅ Comprehensive Javadoc (200+ lines):
+   - [DONE] Comprehensive Javadoc (200+ lines):
      - Workflow description (5 steps)
      - Error handling (8 response codes: 201/200/409/401/422/429/5xx)
      - Transaction logging (PII masked)
@@ -1162,57 +1171,57 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - @see tags for related classes
 
 2. **Custom Exception Class (50+ lines)**
-   - ✅ **`NHIEIntegrationException.java`** (50+ lines)
-   - ✅ Extends RuntimeException with serialVersionUID
-   - ✅ Fields:
+   - [DONE] **`NHIEIntegrationException.java`** (50+ lines)
+   - [DONE] Extends RuntimeException with serialVersionUID
+   - [DONE] Fields:
      - `Integer httpStatusCode`: HTTP status from NHIE response
      - `boolean retryable`: Flag for retry eligibility
-   - ✅ 4 constructor overloads:
+   - [DONE] 4 constructor overloads:
      - Basic: message only
      - With cause: message + Throwable
      - With HTTP details: message + statusCode + retryable
      - Complete: message + cause + statusCode + retryable
-   - ✅ Getters: getHttpStatusCode(), isRetryable()
-   - ✅ Javadoc for common scenarios (network, auth, validation, business rules, rate limit, server errors)
+   - [DONE] Getters: getHttpStatusCode(), isRetryable()
+   - [DONE] Javadoc for common scenarios (network, auth, validation, business rules, rate limit, server errors)
 
 3. **Service Implementation (560+ lines)**
-   - ✅ **`NHIEIntegrationServiceImpl.java`** (560+ lines)
-   - ✅ @Service annotation: `nhieIntegrationService`
-   - ✅ @Transactional: All operations in database transactions
-   - ✅ Dependencies:
+   - [DONE] **`NHIEIntegrationServiceImpl.java`** (560+ lines)
+   - [DONE] @Service annotation: `nhieIntegrationService`
+   - [DONE] @Transactional: All operations in database transactions
+   - [DONE] Dependencies:
      - FhirPatientMapper (constructor injection for testing)
      - NHIEHttpClient (constructor injection for testing)
      - ObjectMapper (FHIR JSON serialization)
      - OpenMRS Context services (PatientService, PersonService)
-   - ✅ syncPatientToNHIE implementation:
+   - [DONE] syncPatientToNHIE implementation:
      - Validate Ghana Card identifier exists
      - Check if already synced (idempotent)
-     - Convert OpenMRS Patient → FHIR R4 JSON (FhirPatientMapper)
+     - Convert OpenMRS Patient -> FHIR R4 JSON (FhirPatientMapper)
      - Log transaction as PENDING
      - Submit to NHIE via NHIEHttpClient
      - Handle responses:
-       - 201 Created: Extract NHIE ID from Location header → Store → Log SUCCESS
-       - 200 OK: Extract NHIE ID from response body → Store → Log SUCCESS
-       - 409 Conflict: Call handleDuplicatePatient → Reconcile IDs → Log SUCCESS
-       - 4xx/5xx: Log FAILED with retry flag → Throw NHIEIntegrationException
-     - Network/IO errors: Log FAILED (retryable) → Throw exception
-   - ✅ handleDuplicatePatient implementation:
+       - 201 Created: Extract NHIE ID from Location header -> Store -> Log SUCCESS
+       - 200 OK: Extract NHIE ID from response body -> Store -> Log SUCCESS
+       - 409 Conflict: Call handleDuplicatePatient -> Reconcile IDs -> Log SUCCESS
+       - 4xx/5xx: Log FAILED with retry flag -> Throw NHIEIntegrationException
+     - Network/IO errors: Log FAILED (retryable) -> Throw exception
+   - [DONE] handleDuplicatePatient implementation:
      - Extract existing NHIE ID from 409 response body (parse FHIR JSON "id" field)
      - Get current stored NHIE ID from patient_attribute
      - Reconcile inconsistencies (NHIE is source of truth)
      - Store/update NHIE ID as person attribute
      - Return existing NHIE ID
-   - ✅ getNHIEPatientId implementation:
+   - [DONE] getNHIEPatientId implementation:
      - Query PersonService for "NHIE Patient ID" attribute type
      - Return attribute value or null
-   - ✅ storeNHIEPatientId implementation:
+   - [DONE] storeNHIEPatientId implementation:
      - Get "NHIE Patient ID" attribute type (throw if not configured)
      - Check if attribute already exists
      - Create new or update existing person attribute
      - Save patient (cascades to person attributes)
-   - ✅ isPatientSyncedToNHIE implementation:
+   - [DONE] isPatientSyncedToNHIE implementation:
      - Return true if getNHIEPatientId returns non-null
-   - ✅ Helper methods (12 methods):
+   - [DONE] Helper methods (12 methods):
      - getGhanaCardIdentifier(): Extract Ghana Card from patient identifiers
      - getNHIEPatientIdAttributeType(): Get attribute type via PersonService
      - serializeFhirPatient(): Convert FHIR Patient to JSON string
@@ -1220,20 +1229,20 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - logTransaction(): Insert/update nhie_transaction_log table (direct JDBC)
      - maskPII(): Mask Ghana Card, NHIS, names in JSON bodies
      - maskIdentifier(): Mask identifiers in log statements
-   - ✅ Transaction logging:
+   - [DONE] Transaction logging:
      - Direct JDBC (avoids Hibernate complexity)
      - ON DUPLICATE KEY UPDATE for retry scenarios
      - PII masking before database insert
      - Error handling (don't fail transaction if logging fails)
-   - ✅ PII masking patterns:
+   - [DONE] PII masking patterns:
      - Ghana Card: `GHA-1234****-*`
      - NHIS: `0123******`
      - Names: `K***e M****h`
-   - ✅ Thread safety:
+   - [DONE] Thread safety:
      - @Transactional ensures database atomicity
      - NHIEHttpClient uses thread-safe token caching
      - FhirPatientMapper is stateless
-   - ✅ Error recovery:
+   - [DONE] Error recovery:
      - 401 Unauthorized: NHIEHttpClient auto-refreshes token
      - 429 Rate Limited: Logs FAILED (retryable), NHIERetryJob will retry
      - 5xx Server Error: Logs FAILED (retryable), exponential backoff
@@ -1241,24 +1250,24 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - 422 Unprocessable: Logs FAILED (not retryable), manual intervention
 
 4. **Design Patterns**
-   - ✅ Interface-based service design (testability)
-   - ✅ Constructor injection for dependencies (testing support)
-   - ✅ Custom exception with retry flags (sophisticated error handling)
-   - ✅ Direct JDBC for transaction logging (performance)
-   - ✅ PII masking utility methods (security)
-   - ✅ Idempotency checks (prevent duplicate syncs)
-   - ✅ NHIE as source of truth (reconcile conflicts)
+   - [DONE] Interface-based service design (testability)
+   - [DONE] Constructor injection for dependencies (testing support)
+   - [DONE] Custom exception with retry flags (sophisticated error handling)
+   - [DONE] Direct JDBC for transaction logging (performance)
+   - [DONE] PII masking utility methods (security)
+   - [DONE] Idempotency checks (prevent duplicate syncs)
+   - [DONE] NHIE as source of truth (reconcile conflicts)
 
 5. **Production Readiness**
-   - ✅ All interface methods implemented
-   - ✅ Error handling for all scenarios (201/200/409/401/422/429/5xx, network errors)
-   - ✅ Transaction logging with PII masking
-   - ✅ NHIE patient ID lifecycle management (create/read/update attributes)
-   - ✅ Idempotency (check if already synced before submitting)
-   - ✅ Conflict resolution (409 → extract existing ID → reconcile)
-   - ✅ Thread safety (@Transactional, thread-safe dependencies)
-   - ✅ Comprehensive logging (SLF4J Logger with PII masking)
-   - ✅ Javadoc for all public methods (400+ lines total)
+   - [DONE] All interface methods implemented
+   - [DONE] Error handling for all scenarios (201/200/409/401/422/429/5xx, network errors)
+   - [DONE] Transaction logging with PII masking
+   - [DONE] NHIE patient ID lifecycle management (create/read/update attributes)
+   - [DONE] Idempotency (check if already synced before submitting)
+   - [DONE] Conflict resolution (409 -> extract existing ID -> reconcile)
+   - [DONE] Thread safety (@Transactional, thread-safe dependencies)
+   - [DONE] Comprehensive logging (SLF4J Logger with PII masking)
+   - [DONE] Javadoc for all public methods (400+ lines total)
 
 **Total Code Created (Task #8):**
 - Production code: 710+ lines (interface 100 + exception 50 + implementation 560)
@@ -1268,23 +1277,23 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
 ### Remaining Tasks (35% to 100%)
 
 #### Pending (Week 4-5)
-   - ✅ **NHIEHttpClient.java** (630+ lines)
+   - [DONE] **NHIEHttpClient.java** (630+ lines)
      - Location: `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/`
      - Environment-based URL switching (mock/sandbox/production via config)
      - OAuth 2.0 client credentials flow with token caching (ConcurrentHashMap)
      - Proactive token refresh (5-minute buffer before expiry)
-     - Comprehensive error handling (401→auth refresh, 403→forbidden, 409→duplicate, 422→business rule, 429→rate limit, 5xx→retry)
+     - Comprehensive error handling (401->auth refresh, 403->forbidden, 409->duplicate, 422->business rule, 429->rate limit, 5xx->retry)
      - PII masking in logs (Ghana Card: `GHA-1234****-*`, NHIS: `0123******`)
      - Idempotent patient creation (If-None-Exist header for duplicate prevention)
      - Configurable timeouts (30s connect, 60s read via properties)
      - Optional mTLS support (feature flag)
      - HTTP methods: submitPatient (POST /Patient), getPatient (GET /Patient/{id}), searchPatientByIdentifier (GET /Patient?identifier=), checkCoverage (GET /Coverage?beneficiary.identifier=)
-   - ✅ **NHIEResponse.java** (80 lines)
+   - [DONE] **NHIEResponse.java** (80 lines)
      - DTO wrapper with statusCode, responseBody, success, errorMessage, retryable, nhieResourceId
      - Retry flags for exponential backoff logic (401/429/5xx retryable, 403/404/409/422 not retryable)
 
 2. **Unit Tests (1,500+ lines, 110+ test methods)**
-   - ✅ **NHIEHttpClientTest.java** (600+ lines, 50+ tests)
+   - [DONE] **NHIEHttpClientTest.java** (600+ lines, 50+ tests)
      - Environment URL switching (mock/sandbox/production modes)
      - OAuth 2.0 token caching (valid token reuse, expired token refresh, 5-min buffer proactive refresh)
      - Error handling (all HTTP status codes: 200/201/401/403/404/409/422/429/5xx)
@@ -1293,7 +1302,7 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - Timeout configuration (connectMs, readMs)
      - Edge cases (null inputs, very large JSON, malformed JSON, multiple close calls)
      - Target: >90% code coverage
-   - ✅ **NHIEHttpClientIntegrationTest.java** (500+ lines, 20+ tests)
+   - [DONE] **NHIEHttpClientIntegrationTest.java** (500+ lines, 20+ tests)
      - Tests against live NHIE mock on localhost:8090
      - Patient submission (201 Created, duplicate handling with If-None-Exist)
      - Patient retrieval (GET /Patient/{id}, 404 for non-existent)
@@ -1303,56 +1312,56 @@ Update (Nov 2, 2025): NHIE Integration Tests + Logger
      - Network error handling (server down, timeout)
      - Edge cases (special characters, Unicode Twi/Akan names)
      - Tests marked @Ignore by default (run with: `mvn test -Dtest=NHIEHttpClientIntegrationTest`)
-   - ✅ **NHIEResponseTest.java** (400+ lines, 40+ tests)
+   - [DONE] **NHIEResponseTest.java** (400+ lines, 40+ tests)
      - Constructor initialization
      - All getters/setters (statusCode, responseBody, success, errorMessage, retryable, nhieResourceId)
      - Success flag derivation (2xx status codes)
-     - Retryable flag logic (401/429/5xx→true, 403/404/409/422→false)
+     - Retryable flag logic (401/429/5xx->true, 403/404/409/422->false)
      - toString() output validation
      - Edge cases (null values, negative status codes, very large JSON)
      - Target: 100% DTO coverage
 
 3. **Configuration Properties Defined**
-   - ✅ `ghana.nhie.mode` = mock | sandbox | production
-   - ✅ `ghana.nhie.baseUrl` = (optional override URL)
-   - ✅ `ghana.nhie.oauth.enabled` = true | false
-   - ✅ `ghana.nhie.oauth.tokenUrl` = OAuth 2.0 token endpoint
-   - ✅ `ghana.nhie.oauth.clientId` = Client ID
-   - ✅ `ghana.nhie.oauth.clientSecret` = Client secret (never commit to Git)
-   - ✅ `ghana.nhie.timeout.connectMs` = 30000 (default 30 seconds)
-   - ✅ `ghana.nhie.timeout.readMs` = 60000 (default 60 seconds)
-   - ✅ `ghana.nhie.tls.enabled` = false (mTLS feature flag)
-   - ✅ `ghana.nhie.tls.keystore.path` = Path to keystore.jks (if mTLS enabled)
-   - ✅ `ghana.nhie.tls.keystore.password` = Keystore password (if mTLS enabled)
+   - [DONE] `ghana.nhie.mode` = mock | sandbox | production
+   - [DONE] `ghana.nhie.baseUrl` = (optional override URL)
+   - [DONE] `ghana.nhie.oauth.enabled` = true | false
+   - [DONE] `ghana.nhie.oauth.tokenUrl` = OAuth 2.0 token endpoint
+   - [DONE] `ghana.nhie.oauth.clientId` = Client ID
+   - [DONE] `ghana.nhie.oauth.clientSecret` = Client secret (never commit to Git)
+   - [DONE] `ghana.nhie.timeout.connectMs` = 30000 (default 30 seconds)
+   - [DONE] `ghana.nhie.timeout.readMs` = 60000 (default 60 seconds)
+   - [DONE] `ghana.nhie.tls.enabled` = false (mTLS feature flag)
+   - [DONE] `ghana.nhie.tls.keystore.path` = Path to keystore.jks (if mTLS enabled)
+   - [DONE] `ghana.nhie.tls.keystore.password` = Keystore password (if mTLS enabled)
 
 4. **Key Design Patterns Applied**
-   - ✅ Thread-safe token caching (ConcurrentHashMap, single token key)
-   - ✅ Proactive token refresh (5-minute buffer prevents 401 mid-request)
-   - ✅ Idempotency pattern (If-None-Exist header for conditional creates)
-   - ✅ Strategy pattern (environment-based URL switching via config)
-   - ✅ Builder-style response construction (NHIEResponse with fluent setters)
-   - ✅ PII protection (maskIdentifier utility for log sanitization)
-   - ✅ Fail-fast validation (IllegalArgumentException for null/empty params)
-   - ✅ Graceful degradation (fallback to default timeouts on invalid config)
+   - [DONE] Thread-safe token caching (ConcurrentHashMap, single token key)
+   - [DONE] Proactive token refresh (5-minute buffer prevents 401 mid-request)
+   - [DONE] Idempotency pattern (If-None-Exist header for conditional creates)
+   - [DONE] Strategy pattern (environment-based URL switching via config)
+   - [DONE] Builder-style response construction (NHIEResponse with fluent setters)
+   - [DONE] PII protection (maskIdentifier utility for log sanitization)
+   - [DONE] Fail-fast validation (IllegalArgumentException for null/empty params)
+   - [DONE] Graceful degradation (fallback to default timeouts on invalid config)
 
 5. **Testing Infrastructure Ready**
-   - ✅ Unit tests run without dependencies (Mockito mocks OpenMRS Context + HttpClient)
-   - ✅ Integration tests require NHIE mock (docker-compose up -d nhie-mock)
-   - ✅ Tests marked @Ignore by default (remove to enable integration tests)
-   - ✅ Run commands:
+   - [DONE] Unit tests run without dependencies (Mockito mocks OpenMRS Context + HttpClient)
+   - [DONE] Integration tests require NHIE mock (docker-compose up -d nhie-mock)
+   - [DONE] Tests marked @Ignore by default (remove to enable integration tests)
+   - [DONE] Run commands:
      - `mvn test -Dtest=NHIEHttpClientTest,NHIEResponseTest` (unit tests, no mock needed)
      - `mvn test -Dtest=NHIEHttpClientIntegrationTest` (integration tests, requires mock)
-   - ✅ **Testing note**: Full test execution deferred until backend module compilation ready
+   - [DONE] **Testing note**: Full test execution deferred until backend module compilation ready
 
-#### Architecture Notes ✅
+#### Architecture Notes [DONE]
 **Date:** November 2, 2025
 
 **NHIE Mock Infrastructure Clarification:**
 
 Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
-- ✅ **What it provides**: FHIR R4 endpoints, resource validation, idempotency, persistence
-- ❌ **Middleware gaps**: No OpenHIM routing, no OAuth 2.0, no audit trail, no rate limiting, no DLQ
-- ✅ **Why acceptable for MVP**: NHIEHttpClient architecture is correct, config-based URL swap, zero code changes for real NHIE
+- [DONE] **What it provides**: FHIR R4 endpoints, resource validation, idempotency, persistence
+- [FAILED] **Middleware gaps**: No OpenHIM routing, no OAuth 2.0, no audit trail, no rate limiting, no DLQ
+- [DONE] **Why acceptable for MVP**: NHIEHttpClient architecture is correct, config-based URL swap, zero code changes for real NHIE
 - 📝 **Optional upgrade (Week 12-14)**: Add OpenHIM + Keycloak layer if MoH wants deeper middleware demonstration (2-3 days effort)
 
 **Strategic Decision:**
@@ -1368,39 +1377,39 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 
 ### Week 2 Retrospective
      - `mvn test -Dtest=NHIEHttpClientIntegrationTest` (requires localhost:8090 mock)
-   - ✅ Expected coverage: >90% for NHIEHttpClient, 100% for NHIEResponse
+   - [DONE] Expected coverage: >90% for NHIEHttpClient, 100% for NHIEResponse
 
 6. **Production Readiness Checklist**
-   - ✅ OAuth 2.0 client credentials flow implemented
-   - ✅ Token caching prevents excessive token requests
-   - ✅ Comprehensive error handling with retry flags
-   - ✅ PII masking prevents Ghana Card/NHIS leakage in logs
-   - ✅ Idempotency prevents duplicate patient creation
-   - ✅ Configurable timeouts prevent hanging requests
-   - ✅ Environment switching (mock→sandbox→production) config-only
-   - ✅ mTLS support ready (feature flag, requires keystore)
-   - ✅ Integration tests validate real FHIR R4 responses
-   - ⏳ Unit test execution pending (next step)
-   - ⏳ Integration with NHIEIntegrationService pending (Task #8)
-   - ✅ Monitoring commands
-   - ✅ Demo day strategy
-   - ✅ Performance benchmarks
-   - ✅ Known limitations
-   - ✅ Switching instructions
+   - [DONE] OAuth 2.0 client credentials flow implemented
+   - [DONE] Token caching prevents excessive token requests
+   - [DONE] Comprehensive error handling with retry flags
+   - [DONE] PII masking prevents Ghana Card/NHIS leakage in logs
+   - [DONE] Idempotency prevents duplicate patient creation
+   - [DONE] Configurable timeouts prevent hanging requests
+   - [DONE] Environment switching (mock->sandbox->production) config-only
+   - [DONE] mTLS support ready (feature flag, requires keystore)
+   - [DONE] Integration tests validate real FHIR R4 responses
+   - [PENDING] Unit test execution pending (next step)
+   - [PENDING] Integration with NHIEIntegrationService pending (Task #8)
+   - [DONE] Monitoring commands
+   - [DONE] Demo day strategy
+   - [DONE] Performance benchmarks
+   - [DONE] Known limitations
+   - [DONE] Switching instructions
 
-### In Progress Tasks 🔄
+### In Progress Tasks [ACTIVE]
 
 #### Week 4: NHIE HTTP Client Backend
-- [x] FHIR R4 Patient resource mapper (OpenMRS → FHIR) ✅
+- [x] FHIR R4 Patient resource mapper (OpenMRS -> FHIR) [DONE]
 - [ ] `NHIEHttpClient` with OAuth 2.0 client credentials flow
 - [ ] Token caching (in-memory, 5-minute proactive refresh)
 - [ ] mTLS configuration (if required by NHIE - feature flag)
 - [ ] Submit patient to NHIE: `POST https://nhie.moh.gov.gh/fhir/Patient`
 - [ ] Handle 409 Conflict (patient exists) - fetch NHIE patient ID
 - [ ] Store NHIE patient ID in OpenMRS (PersonAttribute or PatientIdentifier)
-- [x] Transaction logging table: `nhie_transaction_log` ✅
-  - [x] Columns: transaction_id, patient_id, resource_type, http_method, endpoint, request_body, response_status, response_body, retry_count, status, created_at, updated_at ✅
-  - [x] Mask PII in logs (Ghana Card, NHIS, names) ✅
+- [x] Transaction logging table: `nhie_transaction_log` [DONE]
+  - [x] Columns: transaction_id, patient_id, resource_type, http_method, endpoint, request_body, response_status, response_body, retry_count, status, created_at, updated_at [DONE]
+  - [x] Mask PII in logs (Ghana Card, NHIS, names) [DONE]
 - [ ] Background retry job (exponential backoff: 5s, 30s, 2m, 10m, 1h, 2h, 4h)
 - [ ] Dead-letter queue after 8 failed attempts
 
@@ -1422,7 +1431,7 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 - [ ] **NHIERetryJob.java** (background job with exponential backoff)
   - Extend AbstractTask (OpenMRS scheduler)
   - Query nhie_transaction_log WHERE status='FAILED' AND retry_count<8
-  - Calculate exponential backoff (5s→30s→2m→10m→1h→2h→4h)
+  - Calculate exponential backoff (5s->30s->2m->10m->1h->2h->4h)
   - Retry via NHIEIntegrationService.syncPatientToNHIE()
   - Update retry_count, status, next_retry_at
   - Move to DLQ after 8 failures
@@ -1431,27 +1440,27 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 **Priority 2 (Nice to Have):**
 - [ ] **PatientDashboard UI** (`src/app/patients/[uuid]/page.tsx`)
   - Display patient demographics with shadcn/ui Card components
-  - NHIE sync status badge (✅ Synced=green, ⏳ Pending=yellow, ❌ Failed=red)
+  - NHIE sync status badge ([DONE] Synced=green, [PENDING] Pending=yellow, [FAILED] Failed=red)
   - Show NHIE patient ID (masked)
   - Recent encounters list (Table component)
   - Manual retry button for failed syncs (admin only)
 - [ ] **E2E tests** (Playwright)
-  - Patient registration → NHIE sync flow
-  - Open form → Fill data → Submit → Verify creation → Wait for sync → Verify status badge
+  - Patient registration -> NHIE sync flow
+  - Open form -> Fill data -> Submit -> Verify creation -> Wait for sync -> Verify status badge
 
 **Progress Metrics (Week 4-5):**
-- ✅ NHIE Mock Infrastructure: 100% (Docker + PostgreSQL + demo data + tests)
-- ✅ FHIR Patient Mapper: 100% (474 lines production + 418 lines tests)
-- ✅ Transaction Logging Schema: 100% (Liquibase + queries.sql + documentation)
-- ✅ NHIE HTTP Client: 100% (630 lines + 80 lines DTO + 1,500 lines tests)
-- ✅ NHIE Integration Service: 100% (710 lines interface+exception+implementation)
-- ⏳ Integration Service Tests: 0% (pending)
-- ⏳ Patient Registration Integration: 0% (pending)
-- ⏳ Background Retry Job: 0% (pending)
-- ⏳ Patient Dashboard UI: 0% (pending)
-- ⏳ E2E Tests: 0% (pending)
+- [DONE] NHIE Mock Infrastructure: 100% (Docker + PostgreSQL + demo data + tests)
+- [DONE] FHIR Patient Mapper: 100% (474 lines production + 418 lines tests)
+- [DONE] Transaction Logging Schema: 100% (Liquibase + queries.sql + documentation)
+- [DONE] NHIE HTTP Client: 100% (630 lines + 80 lines DTO + 1,500 lines tests)
+- [DONE] NHIE Integration Service: 100% (710 lines interface+exception+implementation)
+- [PENDING] Integration Service Tests: 0% (pending)
+- [PENDING] Patient Registration Integration: 0% (pending)
+- [PENDING] Background Retry Job: 0% (pending)
+- [PENDING] Patient Dashboard UI: 0% (pending)
+- [PENDING] E2E Tests: 0% (pending)
 
-**Overall Week 4-5 Progress: 100% COMPLETE ✅**
+**Overall Week 4-5 Progress: 100% COMPLETE [DONE]**
 
 ---
 
@@ -1467,17 +1476,17 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 - ? Database Schema (Vitals Concepts): 100% (Task 6)
 - ? REST API Endpoints: 100% (Task 6)
 - ?? Frontend Vitals Form: 0% (Task 7 queued)
-- ⏳ BMI Calculation: 0% (Task 7 queued)
+- [PENDING] BMI Calculation: 0% (Task 7 queued)
 
 **Queued Tasks:**
-- 🔵 **Task 6:** OPD Triage Module - Backend & Database (HIGH PRIORITY)
+- [QUEUED] **Task 6:** OPD Triage Module - Backend & Database (HIGH PRIORITY)
   - Liquibase schema for vitals concepts
   - TriageService interface + implementation
   - Vitals validation (BP 60-250, Temp 30-45, Weight 1-300, Height 50-250)
   - REST endpoints (POST /vitals, GET /vitals/{uuid})
   - Unit tests (>80% coverage)
 
-- 🔵 **Task 7:** OPD Triage Module - Frontend Vitals Form (HIGH PRIORITY)
+- [QUEUED] **Task 7:** OPD Triage Module - Frontend Vitals Form (HIGH PRIORITY)
   - shadcn/ui form components
   - React Hook Form + Zod validation
   - Real-time BMI calculation
@@ -1486,11 +1495,11 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 
 **Technical Architecture:**
 - **Backend:** OpenMRS Encounter (type: "Triage") with Observations for each vital sign
-- **Vitals:** BP Systolic, BP Diastolic, Temperature (°C), Weight (kg), Height (cm), BMI (calculated)
+- **Vitals:** BP Systolic, BP Diastolic, Temperature (DEGC), Weight (kg), Height (cm), BMI (calculated)
 - **Validation Ranges:** 
   - BP Systolic: 60-250 mmHg
   - BP Diastolic: 40-150 mmHg
-  - Temperature: 30-45°C
+  - Temperature: 30-45DEGC
   - Weight: 1-300 kg
   - Height: 50-250 cm
 - **BMI Categories:** 
@@ -1521,12 +1530,12 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
   - Show drug details (name, dosage, frequency, duration)
   - Instructions
   - Confirm dispense Button
-- [ ] Mark as dispensed → update Order status
+- [ ] Mark as dispensed -> update Order status
 - [ ] Print prescription label (HTML print view)
 
 #### Week 10-11: NHIE Encounter Sync
 **Backend:**
-- [ ] FHIR R4 Encounter resource mapper (OpenMRS Encounter → FHIR)
+- [ ] FHIR R4 Encounter resource mapper (OpenMRS Encounter -> FHIR)
   - Map Encounter type (OPD)
   - Map period (start/end timestamps)
   - Map subject (Patient reference with Ghana Card identifier)
@@ -1545,13 +1554,13 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 - [ ] Retry button for FAILED transactions (admin only)
 - [ ] View request/response bodies (masked PII)
 
-**Milestone 2:** Complete 50 end-to-end test encounters (registration → triage → consultation → pharmacy → NHIE sync to sandbox)
+**Milestone 2:** Complete 50 end-to-end test encounters (registration -> triage -> consultation -> pharmacy -> NHIE sync to sandbox)
 
 ---
 
 ## Week 12-14: NHIS + Billing (January 16 - February 5, 2026)
 
-### Status: ⏳ NOT STARTED
+### Status: [PENDING] NOT STARTED
 
 **From MVP:** Week 12-14 (Option B) - NHIS Eligibility Check, Billing/Cashier, NHIS Claims Export
 
@@ -1568,8 +1577,8 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 - [ ] Add NHIS eligibility check to registration form
 - [ ] Button: "Check NHIS Eligibility" (triggers API call)
 - [ ] shadcn/ui Badge component for status:
-  - ACTIVE (green badge): "✓ NHIS Active until [date]"
-  - EXPIRED (red badge): "✗ NHIS Expired since [date]"
+  - ACTIVE (green badge): "[OK] NHIS Active until [date]"
+  - EXPIRED (red badge): "[NOT] NHIS Expired since [date]"
   - NOT FOUND (yellow badge): "⚠ NHIS Number Not Found"
 - [ ] Display eligibility status on patient dashboard
 - [ ] Manual refresh button (admin only, if cached >24 hours)
@@ -1619,16 +1628,16 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 
 **Backend - Admin Dashboard APIs (NEW - CRITICAL FOR DEMO DAY):**
 - [ ] **StatsController.java** (`/api/v1/ghana/stats`):
-  - GET /stats → System KPIs (today's registrations, encounters, revenue, NHIE sync status)
+  - GET /stats -> System KPIs (today's registrations, encounters, revenue, NHIE sync status)
   - Real-time queries: COUNT(*) with date filters
 - [ ] **ReportsController.java** (`/api/v1/ghana/reports`):
-  - GET /opd-register → OPD register with filters (date range, payment type, pagination)
-  - GET /nhis-vs-cash → NHIS vs Cash summary (aggregation by payment type)
-  - GET /top-diagnoses → Top 10 diagnoses (GROUP BY diagnosis, ORDER BY count DESC)
+  - GET /opd-register -> OPD register with filters (date range, payment type, pagination)
+  - GET /nhis-vs-cash -> NHIS vs Cash summary (aggregation by payment type)
+  - GET /top-diagnoses -> Top 10 diagnoses (GROUP BY diagnosis, ORDER BY count DESC)
 - [ ] **NHIETransactionController.java** (`/api/v1/ghana/nhie`):
-  - GET /transactions?status=PENDING,FAILED → Pending/failed NHIE transactions
-  - POST /retry/{id} → Retry failed transaction (update status to PENDING, schedule retry job)
-  - GET /stats → NHIE stats (pending count, success 24h, failed count, success rate)
+  - GET /transactions?status=PENDING,FAILED -> Pending/failed NHIE transactions
+  - POST /retry/{id} -> Retry failed transaction (update status to PENDING, schedule retry job)
+  - GET /stats -> NHIE stats (pending count, success 24h, failed count, success rate)
 
 **Frontend - Claims Export (Option B):**
 - [ ] Claims export page: `src/app/claims/export/page.tsx`
@@ -1677,7 +1686,7 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 
 ## Week 15-20: Reports + Polish (February 6 - March 20, 2026)
 
-### Status: ⏳ NOT STARTED
+### Status: [PENDING] NOT STARTED
 
 **From MVP:** Week 15-20 (Option B) - Essential Reports, Testing, Training, Pilot Deployment
 
@@ -1712,7 +1721,7 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 **Frontend - Admin Dashboard Polish (Option B - NEW):**
 - [ ] User Management UI: `src/app/admin/users/page.tsx`
   - User list Table (username, name, roles, status)
-  - "Create User" button → modal with React Hook Form
+  - "Create User" button -> modal with React Hook Form
   - Create user form: username, password, person name, select roles (multi-select)
   - "Disable User" button (mark as retired)
   - Role assignment: checkboxes for 8 roles (Platform Admin, Facility Admin, Doctor, Nurse, Pharmacist, Records, Cashier, NHIS Officer)
@@ -1721,7 +1730,7 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
   - Region (select from 16 Ghana regions)
   - NHIE mode (select: mock/sandbox/production)
   - NHIE base URL (text input, validated URL format)
-  - Save button → POST /api/v1/ghana/settings
+  - Save button -> POST /api/v1/ghana/settings
 - [ ] Audit Log Viewer: `src/app/admin/audit-log/page.tsx`
   - Audit log Table (timestamp, user, action, patient Ghana Card masked, result)
   - Date range filter
@@ -1759,7 +1768,7 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 #### Week 17: Testing + Bug Fixes (Option B)
 - [ ] End-to-end testing with Playwright:
   - Patient registration flow
-  - OPD workflow (triage → consultation → pharmacy → billing)
+  - OPD workflow (triage -> consultation -> pharmacy -> billing)
   - NHIS eligibility check
   - NHIE sync (mock if sandbox down)
   - Claims export
@@ -1841,13 +1850,13 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
   - Day 1: Classroom training (all workflows, hands-on practice)
   - Day 2: Go-live support (on-site assistance, troubleshooting)
 - [ ] Go-live checklist:
-  - ✅ All services running (OpenMRS, MySQL, frontend)
-  - ✅ SSL certificate valid
-  - ✅ Printer working (receipts, labels)
-  - ✅ 3+ staff trained
-  - ✅ Test patient registered and completed OPD workflow
-  - ✅ NHIE sandbox sync tested (or mock NHIE if unavailable)
-  - ✅ Backup script configured (daily mysqldump to cloud storage)
+  - [DONE] All services running (OpenMRS, MySQL, frontend)
+  - [DONE] SSL certificate valid
+  - [DONE] Printer working (receipts, labels)
+  - [DONE] 3+ staff trained
+  - [DONE] Test patient registered and completed OPD workflow
+  - [DONE] NHIE sandbox sync tested (or mock NHIE if unavailable)
+  - [DONE] Backup script configured (daily mysqldump to cloud storage)
 
 **Milestone 4:** Pilot facility live, 100+ patients registered, 200+ encounters in first week
 
@@ -1855,15 +1864,15 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 
 ## Key Metrics & Goals
 
-### Week 1 Metrics ✅
+### Week 1 Metrics [DONE]
 - **Tasks Completed:** 100% (5/5 core tasks)
 - **Files Created:** 97 files
 - **Code Lines:** 23,077+ lines
 - **Documentation:** 50+ files
 - **Dependencies Verified:** 530 npm packages
 - **Git Commits:** 1 initial commit
-- **Build Status:** ✅ Compiling successfully
-- **Dev Server:** ✅ Running on port 3009
+- **Build Status:** [DONE] Compiling successfully
+- **Dev Server:** [DONE] Running on port 3009
 
 ### MVP Success Criteria (Week 20 - March 2026)
 - [ ] 50+ patients registered
@@ -1981,59 +1990,59 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 1. **NHIE Specs Unavailable**
    - **Impact:** Can't finalize FHIR mapping
    - **Mitigation:** Use Kenya HIE specs as proxy, refactor later
-   - **Status:** ⚠️ Monitoring
+   - **Status:** [WARNING] Monitoring
 
 2. **MoH Approval Delays**
    - **Impact:** Can't deploy to pilot facility
    - **Mitigation:** Start with private facility, transition later
-   - **Status:** ⚠️ Monitoring
+   - **Status:** [WARNING] Monitoring
 
 3. **OpenMRS Performance Issues**
    - **Impact:** Slow user experience (>5s page loads)
    - **Mitigation:** Optimize queries, add caching, consider Elasticsearch
-   - **Status:** ✅ Acceptable for MVP
+   - **Status:** [DONE] Acceptable for MVP
 
 ### Medium Risks
 1. **Package Manager Choice**
    - **Impact:** Inconsistent developer experience
    - **Mitigation:** Switched to npm (standard, widely used)
-   - **Status:** ✅ Resolved (Week 1)
+   - **Status:** [DONE] Resolved (Week 1)
 
 2. **Frontend Design Complexity**
    - **Impact:** Over-engineered UI for healthcare workers
    - **Mitigation:** Simplified to functional dashboard (no marketing)
-   - **Status:** ✅ Resolved (Week 1)
+   - **Status:** [DONE] Resolved (Week 1)
 
 3. **NHIE Sandbox Instability**
    - **Impact:** Can't test NHIE integration
    - **Mitigation:** Mock NHIE responses, use retry logic in production
-   - **Status:** ⚠️ Monitoring
+   - **Status:** [WARNING] Monitoring
 
 ### Low Risks
 1. **CSS Loading Issues**
    - **Impact:** Unstyled pages during development
    - **Mitigation:** Clear .next cache, restart dev server
-   - **Status:** ✅ Resolved (Week 1)
+   - **Status:** [DONE] Resolved (Week 1)
 
 ---
 
 ## Change Log
 
 ### October 31, 2025
-- ✅ Created IMPLEMENTATION_TRACKER.md
-- ✅ Completed Week 1 setup (100%)
-- ✅ Pushed first commit to GitHub (97 files)
-- ✅ Fixed landing page design (healthcare dashboard)
-- ✅ Switched from pnpm to npm
-- ✅ Updated AGENTS.md with npm commands
-- ✅ Cleared webpack cache issues
+- [DONE] Created IMPLEMENTATION_TRACKER.md
+- [DONE] Completed Week 1 setup (100%)
+- [DONE] Pushed first commit to GitHub (97 files)
+- [DONE] Fixed landing page design (healthcare dashboard)
+- [DONE] Switched from pnpm to npm
+- [DONE] Updated AGENTS.md with npm commands
+- [DONE] Cleared webpack cache issues
 
 ### October 30, 2025
-- ✅ Project kickoff
-- ✅ Repository initialization
-- ✅ Docker + OpenMRS setup
-- ✅ Next.js frontend initialization
-- ✅ Documentation structure created
+- [DONE] Project kickoff
+- [DONE] Repository initialization
+- [DONE] Docker + OpenMRS setup
+- [DONE] Next.js frontend initialization
+- [DONE] Documentation structure created
 
 ---
 
@@ -2050,7 +2059,7 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
    ```
 
 2. **Configure User Roles**
-   - Navigate to: Administration → Manage Roles
+   - Navigate to: Administration -> Manage Roles
    - Create 6 roles with appropriate privileges (see Week 1, Day 3-4 tasks)
    - Test role-based access
 
@@ -2069,10 +2078,10 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
 
 ---
 
-**End of Week 1 Report** ✅  
+**End of Week 1 Report** [DONE]  
 **Timeline:** 20 weeks (Option B: Next.js Frontend) - **5% Complete**  
-**Progress: ON TRACK** 🚀  
-**Next Milestone:** User Roles & Authentication (Week 1, Day 3-4) ⏳  
+**Progress: ON TRACK** [LAUNCH]  
+**Next Milestone:** User Roles & Authentication (Week 1, Day 3-4) [PENDING]  
 **Target Completion:** March 20, 2026 (Pilot Deployment)
 
 - Dashboard NHIE monitor widget added (via /api/nhie/status) � shows Connected/Degraded state.
@@ -2149,11 +2158,11 @@ Current HAPI FHIR mock is a **FHIR server**, not a **middleware layer**:
   - Mutations invalidate related queries (auto-refresh after changes)
   - Toast notifications using Sonner for success/error feedback
   - Patients page migrated from fetch() to usePatients hook
-  - Verification: TypeScript ✅, Linting ✅ (warnings only), Build ✅
+  - Verification: TypeScript [DONE], Linting [DONE] (warnings only), Build [DONE]
   - Completed: 2025-11-02
 
 **Week 3 Status: COMPLETE (4/4 tasks done)**
-- ✅ Task 1: Auth endpoints (Nov 2)
-- ✅ Task 2: Backend report stubs (Nov 3)
-- ✅ Task 3: Frontend pages (Nov 3)
-- ✅ Task 4: API connection layer (Nov 2)
+- [DONE] Task 1: Auth endpoints (Nov 2)
+- [DONE] Task 2: Backend report stubs (Nov 3)
+- [DONE] Task 3: Frontend pages (Nov 3)
+- [DONE] Task 4: API connection layer (Nov 2)

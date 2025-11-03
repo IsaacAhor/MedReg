@@ -69,10 +69,10 @@ docker-compose logs -f openmrs
    ```
 
 **Success Criteria:**
-- ✅ OpenMRS platform page shows "Running!"
-- ✅ REST API `/session` endpoint returns JSON
-- ✅ Authentication with admin/Admin123 returns authenticated=true
-- ✅ MySQL queries execute successfully
+- [DONE] OpenMRS platform page shows "Running!"
+- [DONE] REST API `/session` endpoint returns JSON
+- [DONE] Authentication with admin/Admin123 returns authenticated=true
+- [DONE] MySQL queries execute successfully
 
 #### Troubleshooting Backend
 
@@ -179,7 +179,7 @@ npm run dev
 #### Access OpenMRS Admin Panel
 
 1. Login to http://localhost:8080/openmrs (admin/Admin123)
-2. Navigate to: System Administration → Manage Roles
+2. Navigate to: System Administration -> Manage Roles
 3. Create the following roles:
 
 #### Role 1: Admin
@@ -271,7 +271,7 @@ npm run dev
 #### Setup Facility Configuration in OpenMRS
 
 1. Login to OpenMRS admin panel
-2. Navigate to: System Administration → Settings → Facility Configuration
+2. Navigate to: System Administration -> Settings -> Facility Configuration
 3. Set the following:
 
 ```
@@ -295,7 +295,7 @@ Get-Content openmrs-runtime.properties
 
 ---
 
-### ⚠️ IMPORTANT: Hardcoded UUIDs in API Route
+### [WARNING] IMPORTANT: Hardcoded UUIDs in API Route
 
 The patient registration API route (`frontend/src/app/api/patients/route.ts`) contains **3 hardcoded UUIDs** that were created and verified during Week 2 development:
 
@@ -317,13 +317,13 @@ location: 'aff27d58-a15c-49a6-9beb-d30dcfc0c66e'
 These UUIDs were created via **Codex MCP** during initial setup:
 
 1. **NHIS Number Attribute Type** (`f56fc097-e14e-4be6-9632-89ca66127784`)
-   - Created via: Codex MCP → OpenMRS REST API
+   - Created via: Codex MCP -> OpenMRS REST API
    - Name: "NHIS Number"
    - Format: text (10 digits)
    - Used to store patient NHIS number as person attribute
 
 2. **Ghana Card Identifier Type** (`d3132375-e07a-40f6-8912-384c021ed350`)
-   - Created via: Codex MCP → OpenMRS REST API
+   - Created via: Codex MCP -> OpenMRS REST API
    - Name: "Ghana Card"
    - Format: `^GHA-\d{9}-\d$`
    - Required: true (set by Codex to make Ghana Card the primary identifier)
@@ -343,9 +343,9 @@ codex
 # Then ask: "Show me all person attribute types and identifier types with UUIDs"
 
 # Or via OpenMRS UI
-# Navigate to: Admin → Person Attributes → NHIS Number (check UUID)
-# Navigate to: Admin → Patient Identifier Types → Ghana Card (check UUID)
-# Navigate to: Admin → Locations → Amani Hospital (check UUID)
+# Navigate to: Admin -> Person Attributes -> NHIS Number (check UUID)
+# Navigate to: Admin -> Patient Identifier Types -> Ghana Card (check UUID)
+# Navigate to: Admin -> Locations -> Amani Hospital (check UUID)
 ```
 
 #### If UUIDs Don't Match

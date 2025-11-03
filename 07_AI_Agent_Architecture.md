@@ -102,7 +102,7 @@ Output: Complete GhanaFolderNumberService with:
 **Inputs**:
 - Source type (OpenMRS Patient, Encounter, Obs)
 - Target FHIR resource (Patient, Encounter, Observation)
-- Required mappings (Ghana Card → identifier, NHIS number → Coverage)
+- Required mappings (Ghana Card -> identifier, NHIS number -> Coverage)
 - Extension definitions (Ghana-specific fields)
 
 **Outputs**:
@@ -256,11 +256,11 @@ Input: "Generate tests for GhanaCardValidator.validate(String ghanaCard)
 that should accept format GHA-XXXXXXXXX-X and reject invalid formats"
 
 Output: Complete test class with:
-- Test valid Ghana Card (GHA-123456789-1) → passes
-- Test missing prefix (123456789-1) → fails
-- Test wrong format (GHA-12345-1) → fails
-- Test null input → fails gracefully
-- Test empty string → fails
+- Test valid Ghana Card (GHA-123456789-1) -> passes
+- Test missing prefix (123456789-1) -> fails
+- Test wrong format (GHA-12345-1) -> fails
+- Test null input -> fails gracefully
+- Test empty string -> fails
 - Parameterized tests for multiple valid/invalid cases
 ```
 
@@ -369,7 +369,7 @@ Output:
 
 IMPORTANT: This is LOCAL validation. Actual claim submission goes:
 1. Pass local validation rules (this agent)
-2. Submit via NHIE Integration Agent → NHIE middleware
+2. Submit via NHIE Integration Agent -> NHIE middleware
 3. NHIE routes internally to NHIA backend
 4. NHIA adjudicates and returns via NHIE
 ```
@@ -388,7 +388,7 @@ IMPORTANT: This is LOCAL validation. Actual claim submission goes:
 
 **Knowledge Base**:
 - Facility-specific workflows (teaching hospital vs health center vs CHPS)
-- Standard workflows (OPD registration → consultation → pharmacy → billing)
+- Standard workflows (OPD registration -> consultation -> pharmacy -> billing)
 - ANC visit schedules (4-visit model)
 - Immunization schedules (Ghana EPI)
 - Emergency pathways
@@ -465,10 +465,10 @@ Facility EMR (OpenMRS)
     ↓ (FHIR/REST)
 NHIE Middleware (OpenHIM + Client Registry + SHR)
     ↓ (routes to appropriate backend)
-    ├─→ NHIA (for claims/eligibility)
-    ├─→ National MPI (for patient identity)
-    ├─→ SHR (for encounter history)
-    └─→ Terminology Service
+    ├─-> NHIA (for claims/eligibility)
+    ├─-> National MPI (for patient identity)
+    ├─-> SHR (for encounter history)
+    └─-> Terminology Service
 ```
 
 **Knowledge Base**:
@@ -476,7 +476,7 @@ NHIE Middleware (OpenHIM + Client Registry + SHR)
 - NHIE exposes: Patient search, encounter submission, eligibility queries, claim submission
 - NHIE routes internally to: NHIA (claims), MPI (identity), SHR (clinical data)
 - HL7 FHIR R4 profiles for Ghana NHIE
-- OAuth 2.0 client credentials flow (facility → NHIE authentication)
+- OAuth 2.0 client credentials flow (facility -> NHIE authentication)
 - Mutual TLS (mTLS) certificate handling
 - NHIE error codes and retry strategies
 - Idempotency patterns
@@ -490,7 +490,7 @@ NHIE Middleware (OpenHIM + Client Registry + SHR)
 
 **Outputs**:
 - NHIE client service (HTTP client with OAuth for NHIE endpoints)
-- Request/response handlers (facility → NHIE communication only)
+- Request/response handlers (facility -> NHIE communication only)
 - Error handling and retry logic (for NHIE middleware failures)
 - Idempotency key management
 - Transaction logging (all NHIE middleware calls)
@@ -506,10 +506,10 @@ Output:
   - OAuth token manager (authenticate with NHIE middleware)
   - POST method to NHIE endpoint (NHIE routes internally to MPI)
   - Idempotency key generation (prevent duplicate registrations)
-  - 409 Conflict handler (NHIE says patient exists → search via NHIE instead)
-  - 422 handler (NHIE validation error → log and alert)
+  - 409 Conflict handler (NHIE says patient exists -> search via NHIE instead)
+  - 422 handler (NHIE validation error -> log and alert)
   - Retry on 500/503 (NHIE middleware or backend system down)
-  - Transaction log to nhie_transaction_log table (facility → NHIE calls only)
+  - Transaction log to nhie_transaction_log table (facility -> NHIE calls only)
   - Unit tests with mocked HTTP client
   - Integration test with NHIE sandbox
 
@@ -523,10 +523,10 @@ IMPORTANT: Never attempt direct connection to NHIA or MPI - all calls go through
 - Sends integration patterns to Technical Documentation Agent
 
 **Critical Constraints**:
-- ❌ NO direct connections to NHIA for claims
-- ❌ NO direct connections to National MPI for patient identity
-- ✅ ALL integrations route through NHIE middleware
-- ✅ NHIE handles routing to appropriate backend systems internally
+- [FAILED] NO direct connections to NHIA for claims
+- [FAILED] NO direct connections to National MPI for patient identity
+- [DONE] ALL integrations route through NHIE middleware
+- [DONE] NHIE handles routing to appropriate backend systems internally
 
 ---
 
@@ -563,9 +563,9 @@ connectivity restored"
 
 Output:
 - OfflineQueueService with:
-  - enqueue(Encounter, operation="submit") → saves to local queue table
+  - enqueue(Encounter, operation="submit") -> saves to local queue table
   - Connectivity monitor (ping NHIE every 60 seconds)
-  - When online: processQueue() → submit queued encounters with idempotency keys
+  - When online: processQueue() -> submit queued encounters with idempotency keys
   - Success: Remove from queue
   - Failure: Increment retry_count, exponential backoff
   - Max retries: Flag for manual review
@@ -609,10 +609,10 @@ Output:
 Input: Code review for GhanaNHISService.checkEligibility()
 
 Output:
-✅ PASS: Uses Context.getService() correctly
-❌ CRITICAL: No null check on patient.getAttribute("NHIS Number") - will throw NPE if attribute missing
-⚠️ MAJOR: Missing privilege check - should verify user has "Check NHIS Eligibility" privilege
-⚠️ MINOR: Method is 45 lines - consider extracting validation logic to separate method
+[DONE] PASS: Uses Context.getService() correctly
+[FAILED] CRITICAL: No null check on patient.getAttribute("NHIS Number") - will throw NPE if attribute missing
+[WARNING] MAJOR: Missing privilege check - should verify user has "Check NHIS Eligibility" privilege
+[WARNING] MINOR: Method is 45 lines - consider extracting validation logic to separate method
 💡 SUGGESTION: Add @Cacheable annotation - eligibility unlikely to change within hour
 ```
 
@@ -652,20 +652,20 @@ Output:
 Input: Audit NHIE integration code for security vulnerabilities
 
 Output:
-❌ CRITICAL: OAuth client secret stored in plaintext in config.xml
+[FAILED] CRITICAL: OAuth client secret stored in plaintext in config.xml
   Fix: Move to encrypted properties or environment variables
 
-❌ HIGH: No rate limiting on patient search endpoint - vulnerable to DoS
+[FAILED] HIGH: No rate limiting on patient search endpoint - vulnerable to DoS
   Fix: Implement rate limiting (100 requests/minute per user)
 
-⚠️ MEDIUM: Patient data logged in debug statements
+[WARNING] MEDIUM: Patient data logged in debug statements
   Fix: Remove PHI from logs, use patient ID only
 
-⚠️ MEDIUM: No audit log for NHIE transaction failures
+[WARNING] MEDIUM: No audit log for NHIE transaction failures
   Fix: Log all NHIE calls to audit table with user, action, timestamp
 
-✅ PASS: All NHIE calls use TLS 1.3
-✅ PASS: Passwords hashed with bcrypt
+[DONE] PASS: All NHIE calls use TLS 1.3
+[DONE] PASS: Passwords hashed with bcrypt
 ```
 
 **Integration Points**:
@@ -705,11 +705,11 @@ Output:
 Input: Patient search by name taking 3 seconds (requirement: <500ms)
 
 Output:
-❌ BOTTLENECK: Full table scan on person_name table (450,000 rows)
+[FAILED] BOTTLENECK: Full table scan on person_name table (450,000 rows)
   Cause: No index on given_name and family_name columns
   Fix: CREATE INDEX idx_person_name ON person_name(family_name, given_name)
 
-❌ BOTTLENECK: Loading all patient attributes (15 queries per patient)
+[FAILED] BOTTLENECK: Loading all patient attributes (15 queries per patient)
   Cause: Lazy loading triggers separate query for each attribute
   Fix: Use JOIN FETCH in query to eager load attributes
 
@@ -718,7 +718,7 @@ Output:
   TTL: 1 hour
   Expected: 90%+ cache hit rate, <50ms cached response
 
-Projected improvement: 3000ms → 300ms (10x faster)
+Projected improvement: 3000ms -> 300ms (10x faster)
 ```
 
 **Integration Points**:
@@ -859,7 +859,7 @@ Output:
 
 4. **Check NHIS Status**
    - Click "Verify NHIS" button
-   - System displays: ✅ ACTIVE or ❌ EXPIRED
+   - System displays: [DONE] ACTIVE or [FAILED] EXPIRED
    - If EXPIRED: Inform patient to renew before services covered
    
    [SCREENSHOT: NHIS status screen showing active membership]
@@ -937,10 +937,10 @@ Input: Sprint Goal - "Complete NHIE patient registration integration"
 Output:
 Task Breakdown:
 1. [Ghana Health Domain Agent] Document Ghana Card and NHIS identifier formats
-   Status: ✅ Complete | Output: ghana-identifiers.md
+   Status: [DONE] Complete | Output: ghana-identifiers.md
 
-2. [FHIR Converter Agent] Generate Patient → FHIR Patient converter
-   Status: 🔄 In Progress | Depends on: #1 | ETA: 2 hours
+2. [FHIR Converter Agent] Generate Patient -> FHIR Patient converter
+   Status: [ACTIVE] In Progress | Depends on: #1 | ETA: 2 hours
 
 3. [NHIE Integration Agent] Create NHIE patient registration client
    Status: ⏸️ Blocked | Depends on: #2 | Blocker: Waiting for NHIE sandbox credentials
@@ -957,7 +957,7 @@ Task Breakdown:
 7. [Technical Documentation Agent] Document patient registration flow
    Status: 📋 Queued | Depends on: #6
 
-⚠️ RISK ALERT: Task #3 blocked on NHIE sandbox access. Action: Project Manager to follow up with MoH Digital Health Unit.
+[WARNING] RISK ALERT: Task #3 blocked on NHIE sandbox access. Action: Project Manager to follow up with MoH Digital Health Unit.
 
 Progress: 15% complete (1/7 tasks done)
 ```
@@ -1015,22 +1015,22 @@ Task Breakdown:
 - [Test Generator Agent] Generate eligibility check tests (active, expired, not found)
 
 Acceptance Criteria:
-✅ When receptionist clicks "Verify NHIS", system displays status within 2 seconds
-✅ Active membership shows green checkmark and expiry date
-✅ Expired membership shows red X and message to renew
-✅ Not found shows yellow warning and prompt to verify number
-✅ Network error shows error message and allows retry
+[DONE] When receptionist clicks "Verify NHIS", system displays status within 2 seconds
+[DONE] Active membership shows green checkmark and expiry date
+[DONE] Expired membership shows red X and message to renew
+[DONE] Not found shows yellow warning and prompt to verify number
+[DONE] Network error shows error message and allows retry
 
 Definition of Done:
-✅ Code reviewed and merged
-✅ Unit tests pass (>80% coverage)
-✅ Integration test with NHIE sandbox passes
-✅ Manual QA by receptionist at pilot facility
-✅ Documentation updated
+[DONE] Code reviewed and merged
+[DONE] Unit tests pass (>80% coverage)
+[DONE] Integration test with NHIE sandbox passes
+[DONE] Manual QA by receptionist at pilot facility
+[DONE] Documentation updated
 
 Risk Assessment:
-⚠️ MEDIUM: NHIE may not have Coverage endpoint yet (mitigation: use mock for now, integrate when available)
-⚠️ LOW: Network latency in rural areas (mitigation: offline queue, retry logic)
+[WARNING] MEDIUM: NHIE may not have Coverage endpoint yet (mitigation: use mock for now, integrate when available)
+[WARNING] LOW: Network latency in rural areas (mitigation: offline queue, retry logic)
 ```
 
 **Integration Points**:
@@ -1067,9 +1067,9 @@ Technical Documentation Agent
 ```
 Requirement Analyzer Agent
   ↓ [task specification]
-  ├─→ FHIR Converter Agent (Patient)
-  ├─→ FHIR Converter Agent (Encounter)
-  └─→ FHIR Converter Agent (Observation)
+  ├─-> FHIR Converter Agent (Patient)
+  ├─-> FHIR Converter Agent (Encounter)
+  └─-> FHIR Converter Agent (Observation)
     ↓ [all complete]
 Code Review Agent (batch review)
   ↓
@@ -1101,17 +1101,17 @@ NHIS Business Rules Agent (validate NHIS steps)
 ```
 Project Coordinator Agent (orchestrate)
   ↓
-  ├─→ Ghana Health Domain Agent (identifier formats)
+  ├─-> Ghana Health Domain Agent (identifier formats)
   │     ↓
-  ├─→ FHIR Converter Agent (Patient converter)
+  ├─-> FHIR Converter Agent (Patient converter)
   │     ↓
-  ├─→ NHIE Integration Agent (registration client)
+  ├─-> NHIE Integration Agent (registration client)
   │     ↓
-  ├─→ OpenMRS Service Generator (wrapper service)
+  ├─-> OpenMRS Service Generator (wrapper service)
   │     ↓
-  ├─→ REST API Builder Agent (API endpoint)
+  ├─-> REST API Builder Agent (API endpoint)
   │     ↓
-  └─→ Test Generator Agent (integration tests)
+  └─-> Test Generator Agent (integration tests)
         ↓
 Code Review Agent (review all outputs)
   ↓
@@ -1190,7 +1190,7 @@ Technical Documentation Agent (document feature)
 ### Productivity Metrics
 
 **Tasks Completed by Agents**
-- Target: 70%+ of tasks fully automated (requirements → tested code)
+- Target: 70%+ of tasks fully automated (requirements -> tested code)
 - Measure: # of tasks completed without human coding / total tasks
 
 **Time Savings**
@@ -1399,7 +1399,7 @@ Technical Documentation Agent (document feature)
 ### Success Metrics
 
 **Week 4**: 3 priority agents operational, generating 50%+ of boilerplate code
-**Week 8**: 6 agents operational, end-to-end feature generation (requirement → tested code)
+**Week 8**: 6 agents operational, end-to-end feature generation (requirement -> tested code)
 **Week 12**: Full agent pipeline, 70%+ automation rate, human review only
 
 ### Critical Success Factors

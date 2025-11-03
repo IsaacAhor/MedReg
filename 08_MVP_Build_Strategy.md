@@ -32,7 +32,7 @@ Build a **working EMR in 20 weeks** (Option B: Next.js + shadcn/ui frontend) tha
 - **NHIE Integration**: Submit encounter to NHIE after consultation completed
 
 **3. NHIS Integration (Week 8-10)**
-- Eligibility check at registration (query NHIE → NHIA)
+- Eligibility check at registration (query NHIE -> NHIA)
 - Display ACTIVE/EXPIRED/NOT FOUND status prominently
 - Flag encounter as "NHIS" or "Cash" during billing
 - Claims batch generation (monthly export in NHIE-compliant format)
@@ -71,15 +71,15 @@ Build a **working EMR in 20 weeks** (Option B: Next.js + shadcn/ui frontend) tha
 
 ### What Goes OUT of MVP (Defer to v2+)
 
-❌ **IPD/Admissions**: Complex, low volume, defer
-❌ **ANC Module**: Specialized workflow, build after OPD proven
-❌ **Lab Results Entry**: Labs can use paper for MVP, focus on ordering
-❌ **Appointment Scheduling**: Manual appointment books work for now
-❌ **SMS Notifications**: Nice-to-have, not essential
-❌ **Advanced Reporting**: MoH DHIMS2 integration, custom dashboards—defer
-❌ **Offline Mode**: Start online-only, add offline sync in v2 if needed
-❌ **Multi-facility**: Single facility first, scale after pilot success
-❌ **Referral Management**: Paper referral letters work for MVP
+[FAILED] **IPD/Admissions**: Complex, low volume, defer
+[FAILED] **ANC Module**: Specialized workflow, build after OPD proven
+[FAILED] **Lab Results Entry**: Labs can use paper for MVP, focus on ordering
+[FAILED] **Appointment Scheduling**: Manual appointment books work for now
+[FAILED] **SMS Notifications**: Nice-to-have, not essential
+[FAILED] **Advanced Reporting**: MoH DHIMS2 integration, custom dashboards—defer
+[FAILED] **Offline Mode**: Start online-only, add offline sync in v2 if needed
+[FAILED] **Multi-facility**: Single facility first, scale after pilot success
+[FAILED] **Referral Management**: Paper referral letters work for MVP
 
 ---
 
@@ -87,63 +87,63 @@ Build a **working EMR in 20 weeks** (Option B: Next.js + shadcn/ui frontend) tha
 
 ### Phase 1: Foundation (Week 1-5 Option B)
 
-**Week 1: Setup + User Management** ✅ **COMPLETED (Nov 1, 2025)**
-- ✅ Day 1-2: OpenMRS 2.6.0 installation, MySQL 8.0, Docker Compose setup
-- ✅ Day 1-2 (Option B): Next.js 14 project setup, TypeScript 5.x strict mode, shadcn/ui installed
-- ✅ Day 3-4: User roles available (using OpenMRS defaults: Admin, Doctor, Nurse, etc.)
-- ✅ Day 3-4 (Option B): Authentication flow (OpenMRS session-based, BFF pattern implemented)
-- ✅ Day 5: Facility metadata (using Amani Hospital as default location)
-- ✅ **BONUS**: MCP infrastructure (OpenMRS + MySQL MCP servers with 6 tools, 5 validators)
+**Week 1: Setup + User Management** [DONE] **COMPLETED (Nov 1, 2025)**
+- [DONE] Day 1-2: OpenMRS 2.6.0 installation, MySQL 8.0, Docker Compose setup
+- [DONE] Day 1-2 (Option B): Next.js 14 project setup, TypeScript 5.x strict mode, shadcn/ui installed
+- [DONE] Day 3-4: User roles available (using OpenMRS defaults: Admin, Doctor, Nurse, etc.)
+- [DONE] Day 3-4 (Option B): Authentication flow (OpenMRS session-based, BFF pattern implemented)
+- [DONE] Day 5: Facility metadata (using Amani Hospital as default location)
+- [DONE] **BONUS**: MCP infrastructure (OpenMRS + MySQL MCP servers with 24 tools, 5 validators)
 
-**Week 2: Patient Registration** ✅ **COMPLETED (Nov 1, 2025) - AHEAD BY 1 WEEK**
-- ✅ **Option B Implementation**: 
-  - ✅ shadcn/ui form components (Input, Select, DatePicker, Button, Form)
-  - ✅ React Hook Form + Zod validation (Ghana Card format + Luhn checksum, NHIS 10-digit format)
-  - ✅ TanStack Query 5.x for mutations (useRegisterPatient hook)
-  - ✅ Axios HTTP client via Next.js API route (BFF pattern)
-- ✅ Ghana Card validation logic (frontend Luhn checksum + backend format validation)
-- ✅ NHIS number validation (10 digits, stored as person attribute)
-- ✅ Patient demographics (name, DOB, gender, phone +233XXXXXXXXX, address with region codes)
-- ✅ Next.js API route (`/api/patients`) - creates Person + Patient via OpenMRS REST
-- ✅ Patient search working (visible in OpenMRS admin UI)
-- ⏳ Folder number auto-generation (deferred to Week 2 Day 5-6)
-- ⏳ Photo capture (deferred to v2)
-- ⏳ Advanced patient search UI (basic search works via OpenMRS UI)
+**Week 2: Patient Registration** [DONE] **COMPLETED (Nov 1, 2025) - AHEAD BY 1 WEEK**
+- [DONE] **Option B Implementation**: 
+  - [DONE] shadcn/ui form components (Input, Select, DatePicker, Button, Form)
+  - [DONE] React Hook Form + Zod validation (Ghana Card format + Luhn checksum, NHIS 10-digit format)
+  - [DONE] TanStack Query 5.x for mutations (useRegisterPatient hook)
+  - [DONE] Axios HTTP client via Next.js API route (BFF pattern)
+- [DONE] Ghana Card validation logic (frontend Luhn checksum + backend format validation)
+- [DONE] NHIS number validation (10 digits, stored as person attribute)
+- [DONE] Patient demographics (name, DOB, gender, phone +233XXXXXXXXX, address with region codes)
+- [DONE] Next.js API route (`/api/patients`) - creates Person + Patient via OpenMRS REST
+- [DONE] Patient search working (visible in OpenMRS admin UI)
+- [PENDING] Folder number auto-generation (deferred to Week 2 Day 5-6)
+- [PENDING] Photo capture (deferred to v2)
+- [PENDING] Advanced patient search UI (basic search works via OpenMRS UI)
 
-**Week 3 (Option B): Frontend Integration & Backend APIs** 🔄 **IN PROGRESS (Nov 2-3, 2025)**
-- ✅ Auth endpoints (login, logout, session, location) - **COMPLETE Nov 2**
+**Week 3 (Option B): Frontend Integration & Backend APIs** [ACTIVE] **IN PROGRESS (Nov 2-3, 2025)**
+- [DONE] Auth endpoints (login, logout, session, location) - **COMPLETE Nov 2**
   - Next.js API routes with secure cookie handling (HttpOnly, SameSite=Lax, 8-hour expiry)
   - OpenMRS session management via BFF pattern
   - Role-based authentication (8 roles: Platform Admin, Facility Admin, Doctor, Nurse, Pharmacist, Records Officer, Cashier, NHIS Officer)
   - Location-based login for OPD workflow
-- ✅ Backend report stubs (opd-register, nhis-vs-cash, top-diagnoses, revenue) - **COMPLETE Nov 3**
+- [DONE] Backend report stubs (opd-register, nhis-vs-cash, top-diagnoses, revenue) - **COMPLETE Nov 3**
   - ReportsController.java with 4 endpoints
   - JSON and CSV export support
   - Authentication checks via Context.isAuthenticated()
   - Ready for frontend consumption
-- ⏳ Frontend pages (login, dashboard, patient list)
+- [PENDING] Frontend pages (login, dashboard, patient list)
   - shadcn/ui components (Button, Card, Table, Form)
   - TanStack Query integration for data fetching
   - Responsive layout with role-aware navigation
-- ⏳ Connect frontend to backend APIs
-  - Patient registration form → POST /api/patients
-  - Login form → POST /api/auth/login
-  - Dashboard → GET /api/reports/*
+- [PENDING] Connect frontend to backend APIs
+  - Patient registration form -> POST /api/patients
+  - Login form -> POST /api/auth/login
+  - Dashboard -> GET /api/reports/*
   - Real-time OPD metrics display
 
-**Week 4 (Option A) / Week 4-5 (Option B): NHIE Patient Sync** ⏳ **SCHEDULED**
-- ⏳ OpenMRS → FHIR Patient converter (backend)
-- ⏳ NHIE HTTP client (OAuth 2.0 + mTLS if required)
-- ⏳ Patient submission to NHIE
-- ⏳ Handle 409 conflicts (patient exists), fetch NHIE ID
-- ⏳ Transaction logging (nhie_transaction_log table)
-- ⏳ **Option B**: Patient dashboard UI with NHIE sync status indicators
+**Week 4 (Option A) / Week 4-5 (Option B): NHIE Patient Sync** [PENDING] **SCHEDULED**
+- [PENDING] OpenMRS -> FHIR Patient converter (backend)
+- [PENDING] NHIE HTTP client (OAuth 2.0 + mTLS if required)
+- [PENDING] Patient submission to NHIE
+- [PENDING] Handle 409 conflicts (patient exists), fetch NHIE ID
+- [PENDING] Transaction logging (nhie_transaction_log table)
+- [PENDING] **Option B**: Patient dashboard UI with NHIE sync status indicators
 
-**Milestone 1**: ✅ **ACHIEVED (Nov 1, 2025)** - Register patients with Ghana Card + NHIS, persist to OpenMRS database
-- ✅ First patient registered: Kwabena Kofi Nyarko (Ghana Card: GHA-123456789-7, NHIS: 0123456789)
-- ✅ Database verified: Ghana Card identifier + NHIS attribute stored correctly
-- ✅ OpenMRS UI verified: Patient visible with all demographics
-- ⏳ NHIE sync pending (Week 2 Day 7)
+**Milestone 1**: [DONE] **ACHIEVED (Nov 1, 2025)** - Register patients with Ghana Card + NHIS, persist to OpenMRS database
+- [DONE] First patient registered: Kwabena Kofi Nyarko (Ghana Card: GHA-123456789-7, NHIS: 0123456789)
+- [DONE] Database verified: Ghana Card identifier + NHIS attribute stored correctly
+- [DONE] OpenMRS UI verified: Patient visible with all demographics
+- [PENDING] NHIE sync pending (Week 2 Day 7)
 
 ---
 
@@ -174,12 +174,12 @@ Build a **working EMR in 20 weeks** (Option B: Next.js + shadcn/ui frontend) tha
 - Inventory/stock tracking deferred to v2
 
 **Week 10-11 (Option B): NHIE Encounter Sync**
-- **Backend**: OpenMRS Encounter → FHIR Encounter/Observation converter
+- **Backend**: OpenMRS Encounter -> FHIR Encounter/Observation converter
 - Submit to NHIE after consultation saved
 - Background job (every 5 minutes) to retry failed submissions
 - **Option B Week 11**: NHIE sync status dashboard, retry UI for failed transactions
 
-**Milestone 2**: Complete 50 end-to-end test encounters (registration → triage → consultation → pharmacy → NHIE sync)
+**Milestone 2**: Complete 50 end-to-end test encounters (registration -> triage -> consultation -> pharmacy -> NHIE sync)
 
 ---
 
@@ -504,14 +504,14 @@ Build a **working EMR in 20 weeks** (Option B: Next.js + shadcn/ui frontend) tha
 
 ### 4. Ruthless Scope Management
 - Every feature request: "Does this block go-live at pilot facility?"
-- If NO → Defer to v2
+- If NO -> Defer to v2
 - Track "v2 Feature Backlog" but don't build now
 - **Remember**: Working system with 5 features > perfect system with 20 features that's not done
 
 ### 5. Weekly Demos
 - Every Friday: Demo working features to stakeholders (pilot facility, advisors, investors if any)
 - Forces prioritization, catches issues early, builds momentum
-- Record demos → Marketing material for EOI submission
+- Record demos -> Marketing material for EOI submission
 
 ---
 
@@ -618,11 +618,11 @@ If you're starting today (October 30, 2025):
 - [ ] Weekly demo #3 (show NHIE integration working!)
 
 **By Week 4**: You should have:
-- ✅ 4-6 person team recruited
-- ✅ Pilot facility committed (signed MOU)
-- ✅ Patient registration working (with modern UI if Option B)
-- ✅ NHIE integration proven (patients syncing to sandbox)
-- ✅ Clear path to OPD workflow build
+- [DONE] 4-6 person team recruited
+- [DONE] Pilot facility committed (signed MOU)
+- [DONE] Patient registration working (with modern UI if Option B)
+- [DONE] NHIE integration proven (patients syncing to sandbox)
+- [DONE] Clear path to OPD workflow build
 
 ---
 
@@ -647,7 +647,7 @@ If you're starting today (October 30, 2025):
   - 409: conflict — fetch server representation, reconcile, mark resolved.
   - 422: business rule (e.g., invalid tariff) — do not retry automatically, move to DLQ.
   - 429/5xx/timeouts: transient — retry with backoff.
-- Backoff: 5s → 30s → 2m → 10m → 1h (cap). `maxAttempts = 8` then DLQ.
+- Backoff: 5s -> 30s -> 2m -> 10m -> 1h (cap). `maxAttempts = 8` then DLQ.
 - Operator actions: requeue DLQ, edit payload root-causes (where safe), download error report.
 
 ### Minimal Concept Pack (Liquibase seeder)
@@ -684,7 +684,7 @@ If you're starting today (October 30, 2025):
 - Claim submitted; `ClaimResponse` displayed; reject shows reason.
 - Queue survives 72h outage; auto-resumes; no duplicate submissions post-replay.
 - Privilege checks enforced for all sensitive actions.
-- Demo path: Registration → Eligibility → OPD → Claim → simulate outage → replay.
+- Demo path: Registration -> Eligibility -> OPD -> Claim -> simulate outage -> replay.
 
 ### Next Steps
 - Scaffold Dockerized dev stack and pin module versions.

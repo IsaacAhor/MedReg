@@ -127,7 +127,10 @@ public class ConsultationServiceImpl implements ConsultationService {
         if (dose != null) order.setDose(dose);
         if (durationDays != null) {
             order.setDuration(durationDays);
-            order.setDurationUnits(orderService.getDurationUnits());
+            List<Concept> durationUnits = orderService.getDurationUnits();
+            if (durationUnits != null && !durationUnits.isEmpty()) {
+                order.setDurationUnits(durationUnits.get(0));
+            }
         }
         return (DrugOrder) orderService.saveOrder(order, null);
     }
@@ -186,7 +189,7 @@ public class ConsultationServiceImpl implements ConsultationService {
         EncounterService es = Context.getEncounterService();
         EncounterRole role = es.getEncounterRoleByUuid(EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID);
         if (role == null) {
-            List<EncounterRole> all = es.getAllEncounterRoles();
+            List<EncounterRole> all = es.getAllEncounterRoles(false);
             if (all != null && !all.isEmpty()) return all.get(0);
         }
         return role;

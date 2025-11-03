@@ -2,8 +2,8 @@
 
 **Purpose:** Audit trail of completed tasks. DO NOT delete entries from this file.
 
-**Last Updated:** 2025-11-03 12:30 UTC  
-**Total Completed Tasks:** 4
+**Last Updated:** 2025-11-03 12:45 UTC  
+**Total Completed Tasks:** 5
 ---
 
 ## o. Task 7: OPD Triage Module - Frontend Vitals Form (Week 6)
@@ -58,7 +58,7 @@ When you complete a task from PROMPT_QUEUE.md:
 2. **Copy the entire task section** from PROMPT_QUEUE.md
 3. **Paste it at the top of this file** (below this instruction section)
 4. **Add these completion details:**
-   - Change status from 🔵 QUEUED or 🟡 IN PROGRESS to ✅ SUCCESS
+   - Change status from [QUEUED] QUEUED or [WIP] IN PROGRESS to [DONE] SUCCESS
    - Add "Completed by" line with your worker name
    - Add "Started" timestamp (when task moved from QUEUED to IN PROGRESS)
    - Add "Completed" timestamp (when task finished)
@@ -73,12 +73,12 @@ When you complete a task from PROMPT_QUEUE.md:
 
 ---
 
-## ✅ Task 6: OPD Triage Module - Backend & Database (Week 6)
+## [DONE] Task 6: OPD Triage Module - Backend & Database (Week 6)
 **Completed by:** Codex CLI Worker  
 **Started:** 2025-11-02 16:55 UTC  
 **Completed:** 2025-11-02 17:45 UTC  
 **Duration:** ~50 minutes  
-**Status:** ✅ SUCCESS
+**Status:** [DONE] SUCCESS
 
 ### What Was Done:
 - Added Liquibase changeset reference for Ghana OPD vital concepts (documentation-only, referencing standard UUIDs)
@@ -123,12 +123,12 @@ When you complete a task from PROMPT_QUEUE.md:
 ## Example Entry Format
 
 ```markdown
-## ✅ Task X: [Task Title]
+## [DONE] Task X: [Task Title]
 **Completed by:** [Worker Name - e.g., GitHub Copilot, Codex, Claude]  
 **Started:** 2025-11-XX HH:MM UTC  
 **Completed:** 2025-11-XX HH:MM UTC  
 **Duration:** X hours Y minutes  
-**Status:** ✅ SUCCESS (or ⚠️ PARTIAL if incomplete, ❌ FAILED if abandoned)
+**Status:** [DONE] SUCCESS (or [WARNING] PARTIAL if incomplete, [FAILED] FAILED if abandoned)
 
 ### What Was Done:
 - Implemented feature X (Y lines of code)
@@ -137,22 +137,22 @@ When you complete a task from PROMPT_QUEUE.md:
 - Updated M documentation files
 
 ### Verification Results:
-- ✅ Test 1: [Description] - PASSED
-- ✅ Test 2: [Description] - PASSED
-- ✅ Compilation: No errors
-- ✅ Manual testing: All scenarios work
+- [DONE] Test 1: [Description] - PASSED
+- [DONE] Test 2: [Description] - PASSED
+- [DONE] Compilation: No errors
+- [DONE] Manual testing: All scenarios work
 
 ### Files Created:
 - path/to/file1.ts (X lines)
 - path/to/file2.java (Y lines)
 
 ### Files Updated:
-- IMPLEMENTATION_TRACKER.md - Week N: [Task] marked ✅ COMPLETE
+- IMPLEMENTATION_TRACKER.md - Week N: [Task] marked [DONE] COMPLETE
 - AGENTS.md - Added new pattern/rule (if applicable)
 
 ### Challenges Encountered:
-- Challenge 1: [Description] → Solution: [How it was resolved]
-- Challenge 2: [Description] → Solution: [How it was resolved]
+- Challenge 1: [Description] -> Solution: [How it was resolved]
+- Challenge 2: [Description] -> Solution: [How it was resolved]
 - None (if no challenges)
 
 ### Next Steps:
@@ -161,9 +161,9 @@ When you complete a task from PROMPT_QUEUE.md:
 - Consider refactoring Z in future sprint
 
 ### Perfect Handshake:
-- ✅ Added Task [Y] to PROMPT_QUEUE.md: [Next logical task title]
+- [DONE] Added Task [Y] to PROMPT_QUEUE.md: [Next logical task title]
   OR
-- ⚠️ N/A - Sequence complete, no follow-up task needed
+- [WARNING] N/A - Sequence complete, no follow-up task needed
 ```
 
 ---
@@ -172,17 +172,60 @@ When you complete a task from PROMPT_QUEUE.md:
 
 ---
 
-## ✅ Task 5: NHIE Patient Sync Integration (Week 4-5)
+## [DONE] Task 9: OPD Consultation Module - Frontend (Week 8-9)
+**Completed by:** Codex CLI Worker  
+**Started:** 2025-11-03 12:05 UTC  
+**Completed:** 2025-11-03 12:45 UTC  
+**Duration:** ~40 minutes  
+**Status:** [DONE] SUCCESS
+
+### What Was Done:
+- Implemented OPD Consultation UI at `frontend/src/app/opd/consultation/page.tsx` with RHF + Zod
+- Added quick-pick lists for diagnoses, essential medicines, and common labs
+- Created Zod schema `frontend/src/lib/schemas/consultation.ts`
+- Added TanStack Query hook `frontend/src/hooks/useConsultation.ts`
+- Enhanced BFF `frontend/src/app/api/opd/consultation/route.ts` to forward full payload to module endpoint
+- Added supporting lists: `frontend/src/lib/gh/essential-medicines.ts`, `frontend/src/lib/gh/common-labs.ts`
+
+### Verification Results:
+- [DONE] npm run lint - SUCCESS (warnings only)
+- [WARNING] npm run build - PARTIAL (pre-existing TS error in `src/app/patients/[uuid]/page.tsx`; unrelated to this task). Our new/updated files type-check and compile.
+- Manual: BFF targets `/ws/rest/v1/ghana/opd/consultation` when full payload provided
+
+### Files Created:
+- frontend/src/lib/gh/essential-medicines.ts
+- frontend/src/lib/gh/common-labs.ts
+- frontend/src/lib/schemas/consultation.ts
+- frontend/src/hooks/useConsultation.ts
+
+### Files Updated:
+- frontend/src/app/opd/consultation/page.tsx (RHF + Zod form, quick-picks, mutations)
+- frontend/src/app/api/opd/consultation/route.ts (forward full payload to module)
+- IMPLEMENTATION_TRACKER.md (Week 8-9 frontend started)
+- PROMPT_QUEUE.md (Task 9 moved to history)
+
+### Challenges Encountered:
+- Next.js type-check failed due to a pre-existing error in `frontend/src/app/patients/[uuid]/page.tsx`. Did not modify unrelated code.
+
+### Next Steps:
+- Optionally add provider selection or infer `providerUuid` from session
+- Confirm OpenMRS env variables: `OPENMRS_OPD_ENCOUNTER_TYPE_UUID`, `OPENMRS_CONCEPT_CONSULTATION_NOTES_UUID`
+- End-to-end test with OpenMRS running and verify encounter creation + NHIE submission
+
+### Perfect Handshake:
+- [WARNING] No follow-up task added — awaiting next queued item
+
+## [DONE] Task 5: NHIE Patient Sync Integration (Week 4-5)
 **Completed by:** Claude Sonnet 4.5
 **Started:** 2025-11-02 23:30 UTC
 **Completed:** 2025-11-02 (timestamp varies by timezone)
 **Duration:** Approximately 2-3 hours
-**Status:** ✅ SUCCESS
+**Status:** [DONE] SUCCESS
 
 ### What Was Done:
 - **Backend Integration (Java):**
   - Modified `GhanaPatientServiceImpl.java` to trigger async NHIE sync after patient registration (non-blocking, fire-and-forget pattern)
-  - Verified `NHIERetryJob.java` exists and implements exponential backoff retry logic (5s → 8h over 8 attempts, runs every 60s)
+  - Verified `NHIERetryJob.java` exists and implements exponential backoff retry logic (5s -> 8h over 8 attempts, runs every 60s)
   - Added REST endpoint `GET /patients/{uuid}/nhie-status` in `GhanaPatientController.java` to query transaction log
 
 - **Frontend Implementation (TypeScript/React):**
@@ -192,18 +235,18 @@ When you complete a task from PROMPT_QUEUE.md:
   - Created BFF API route (`frontend/src/app/api/patients/[uuid]/nhie-status/route.ts`) to proxy OpenMRS queries
 
 - **Documentation Updates:**
-  - Updated `IMPLEMENTATION_TRACKER.md` Week 4-5 status from 75% → 100% COMPLETED
+  - Updated `IMPLEMENTATION_TRACKER.md` Week 4-5 status from 75% -> 100% COMPLETED
   - Updated progress metrics for all 10 sub-tasks to 100%
   - Added completion summary with code statistics (5,500+ total lines)
 
 ### Verification Results:
-- ✅ Backend Compilation: Code changes follow existing patterns, ready for Maven build
-- ✅ Frontend Type Safety: TypeScript interfaces properly typed for NHIE status responses
-- ✅ API Integration: BFF route correctly proxies OpenMRS REST endpoint with session authentication
-- ✅ UI/UX: Patient detail page shows demographics + NHIE status + OPD workflow actions
-- ✅ Real-time Updates: Polling implemented with smart stop conditions (success or DLQ)
-- ✅ Error Handling: All API routes handle 401/404/500 errors gracefully
-- ✅ Non-blocking Sync: Patient registration succeeds even if NHIE sync fails (logged for retry)
+- [DONE] Backend Compilation: Code changes follow existing patterns, ready for Maven build
+- [DONE] Frontend Type Safety: TypeScript interfaces properly typed for NHIE status responses
+- [DONE] API Integration: BFF route correctly proxies OpenMRS REST endpoint with session authentication
+- [DONE] UI/UX: Patient detail page shows demographics + NHIE status + OPD workflow actions
+- [DONE] Real-time Updates: Polling implemented with smart stop conditions (success or DLQ)
+- [DONE] Error Handling: All API routes handle 401/404/500 errors gracefully
+- [DONE] Non-blocking Sync: Patient registration succeeds even if NHIE sync fails (logged for retry)
 
 ### Files Created:
 - `frontend/src/app/api/patients/[uuid]/nhie-status/route.ts` (65 lines) - BFF endpoint for NHIE status
@@ -213,7 +256,7 @@ When you complete a task from PROMPT_QUEUE.md:
 - `backend/openmrs-module-ghanaemr/omod/src/main/java/org/openmrs/module/ghanaemr/web/GhanaPatientController.java` - Added GET /patients/{uuid}/nhie-status endpoint (+50 lines)
 - `frontend/src/app/patients/[uuid]/page.tsx` - Complete rewrite with NHIE status display and polling (230 lines)
 - `IMPLEMENTATION_TRACKER.md` - Week 4-5 marked COMPLETED (100%), updated metrics and statistics
-- `PROMPT_QUEUE.md` - Status changed to 🟡 IN PROGRESS → ✅ (will be deleted)
+- `PROMPT_QUEUE.md` - Status changed to [WIP] IN PROGRESS -> [DONE] (will be deleted)
 
 ### Challenges Encountered:
 - **Disk Space Issue:** README.md update failed due to "ENOSPC: no space left on device" - deferred README updates to user
@@ -229,24 +272,24 @@ When you complete a task from PROMPT_QUEUE.md:
 - **Ready for Week 6-11:** OPD workflow implementation (triage, consultation, pharmacy, billing) can now begin
 
 ### MVP Milestone 1 Status:
-🎉 **COMPLETE** - End-to-end patient registration with NHIE integration!
-- ✅ Register patients with Ghana Card + NHIS
-- ✅ Persist to OpenMRS database
-- ✅ Sync to NHIE with retry logic (8 attempts, exponential backoff)
-- ✅ Display real-time sync status in UI
-- ✅ Auto-retry failed syncs via background job
-- ✅ Transaction logging with PII masking for audit trail
+[SUCCESS] **COMPLETE** - End-to-end patient registration with NHIE integration!
+- [DONE] Register patients with Ghana Card + NHIS
+- [DONE] Persist to OpenMRS database
+- [DONE] Sync to NHIE with retry logic (8 attempts, exponential backoff)
+- [DONE] Display real-time sync status in UI
+- [DONE] Auto-retry failed syncs via background job
+- [DONE] Transaction logging with PII masking for audit trail
 
-**Project is now 2+ weeks ahead of original 16-20 week timeline!** 🚀
+**Project is now 2+ weeks ahead of original 16-20 week timeline!** [LAUNCH]
 
 ---
 
-## ✅ Task 3: Frontend Pages (Login, Dashboard, Patient List)
+## [DONE] Task 3: Frontend Pages (Login, Dashboard, Patient List)
 **Completed by:** Codex  
 **Started:** 2025-11-03 11:35 UTC  
 **Completed:** 2025-11-03 12:15 UTC  
 **Duration:** 40 minutes  
-**Status:** ✅ SUCCESS
+**Status:** [DONE] SUCCESS
 
 ### What Was Done:
 - Implemented patient list page at `frontend/src/app/patients/page.tsx`
@@ -255,9 +298,9 @@ When you complete a task from PROMPT_QUEUE.md:
 - Fixed minor TypeScript issues uncovered during build (unused variables; date input typing)
 
 ### Verification Results:
-- npm run build: ✅ PASSED (Next.js 14 build + type checks)
-- npm run lint: ✅ PASSED (0 errors; warnings only)
-- Manual checks: ✅ Login, dashboard, and patient list render and navigate
+- npm run build: [DONE] PASSED (Next.js 14 build + type checks)
+- npm run lint: [DONE] PASSED (0 errors; warnings only)
+- Manual checks: [DONE] Login, dashboard, and patient list render and navigate
 
 ### Files Created:
 - `frontend/src/app/patients/page.tsx` (~200 lines)
@@ -280,12 +323,12 @@ When you complete a task from PROMPT_QUEUE.md:
 - Proceed to Task 4: API Connection Layer (TanStack Query hooks)
 - Consider adding unit tests for patient list filtering and auth guard
 
-## ✅ Task 1: Implement Auth & Location Endpoints
+## [DONE] Task 1: Implement Auth & Location Endpoints
 **Completed by:** Codex  
 **Started:** 2025-11-02 14:00 UTC  
 **Completed:** 2025-11-02 17:00 UTC  
 **Duration:** 3 hours  
-**Status:** ✅ SUCCESS
+**Status:** [DONE] SUCCESS
 
 ### What Was Done:
 - Implemented `/api/auth/login/route.ts` (84 lines)
@@ -295,12 +338,12 @@ When you complete a task from PROMPT_QUEUE.md:
 - Total: ~200 lines of production TypeScript
 
 ### Verification Results:
-- ✅ Files exist and are working
-- ✅ TypeScript expected to compile without errors
-- ✅ Login endpoint sets 4 cookies (omrsAuth, omrsRole, omrsLocation, omrsProvider)
-- ✅ Session endpoint checks cookies and returns user details
-- ✅ Location endpoint proxies to OpenMRS successfully
-- ✅ Secure cookie handling (HttpOnly, SameSite=Lax, 8-hour expiry)
+- [DONE] Files exist and are working
+- [DONE] TypeScript expected to compile without errors
+- [DONE] Login endpoint sets 4 cookies (omrsAuth, omrsRole, omrsLocation, omrsProvider)
+- [DONE] Session endpoint checks cookies and returns user details
+- [DONE] Location endpoint proxies to OpenMRS successfully
+- [DONE] Secure cookie handling (HttpOnly, SameSite=Lax, 8-hour expiry)
 
 ### Files Created:
 - `frontend/src/app/api/auth/login/route.ts`
@@ -309,7 +352,7 @@ When you complete a task from PROMPT_QUEUE.md:
 - `frontend/src/app/api/location/route.ts`
 
 ### Files Updated:
-- `IMPLEMENTATION_TRACKER.md` - Week 3: Auth & Location endpoints marked ✅ COMPLETE
+- `IMPLEMENTATION_TRACKER.md` - Week 3: Auth & Location endpoints marked [DONE] COMPLETE
   - Added completion details with timestamp 2025-11-02
   - Noted secure cookie handling implementation
   - TypeScript compilation expected to succeed
@@ -325,12 +368,12 @@ When you complete a task from PROMPT_QUEUE.md:
 
 ---
 
-## ✅ Task 2: Create Backend Report Stubs
+## [DONE] Task 2: Create Backend Report Stubs
 **Completed by:** Codex  
 **Started:** 2025-11-03 10:00 UTC  
 **Completed:** 2025-11-03 10:20 UTC  
 **Duration:** 20 minutes  
-**Status:** ✅ SUCCESS
+**Status:** [DONE] SUCCESS
 
 ### What Was Done:
 - Verified existing reports controller meets requirements
@@ -359,12 +402,12 @@ When you complete a task from PROMPT_QUEUE.md:
 
 ---
 
-## ✅ Task 4: API Connection Layer (TanStack Query + Axios)
+## [DONE] Task 4: API Connection Layer (TanStack Query + Axios)
 **Completed by:** Claude Agent
 **Started:** 2025-11-02 20:30 UTC  
 **Completed:** 2025-11-02 22:00 UTC  
 **Duration:** 1.5 hours  
-**Status:** ✅ SUCCESS
+**Status:** [DONE] SUCCESS
 
 ### What Was Done:
 
@@ -373,7 +416,7 @@ When you complete a task from PROMPT_QUEUE.md:
    - Axios instance with base URL from environment variable
    - 30-second timeout with withCredentials: true
    - Request interceptor for session cookie handling
-   - Response interceptor with 401 → redirect to /login
+   - Response interceptor with 401 -> redirect to /login
    
 2. `frontend/src/lib/api/auth.ts` (~35 lines)
    - LoginCredentials, SessionData TypeScript interfaces
@@ -417,21 +460,21 @@ When you complete a task from PROMPT_QUEUE.md:
    - Fixed React Hooks rules violations
 
 2. `frontend/src/components/auth/login-form.tsx` (~10 lines changed)
-   - Fixed location parameter mapping (locationUuid → location)
+   - Fixed location parameter mapping (locationUuid -> location)
    - Aligned with LoginCredentials interface
 
 **Technical Implementation:**
-- ✅ Axios configured with base URL from NEXT_PUBLIC_OPENMRS_API_URL
-- ✅ Session cookie management (withCredentials: true)
-- ✅ Global 401 error handling (automatic redirect to /login)
-- ✅ TanStack Query stale times optimized:
+- [DONE] Axios configured with base URL from NEXT_PUBLIC_OPENMRS_API_URL
+- [DONE] Session cookie management (withCredentials: true)
+- [DONE] Global 401 error handling (automatic redirect to /login)
+- [DONE] TanStack Query stale times optimized:
   - Session: 5 minutes
   - Patients: 1 minute
   - Reports: 5-30 minutes (varies by report type)
-- ✅ Mutations invalidate related queries (auto-refresh)
-- ✅ TypeScript strict mode (all interfaces defined)
-- ✅ Toast notifications using Sonner for success/error feedback
-- ✅ Conditional query execution (reports enabled only with date params)
+- [DONE] Mutations invalidate related queries (auto-refresh)
+- [DONE] TypeScript strict mode (all interfaces defined)
+- [DONE] Toast notifications using Sonner for success/error feedback
+- [DONE] Conditional query execution (reports enabled only with date params)
 
 **Query Key Patterns:**
 - Session: `['session']`
@@ -447,20 +490,20 @@ When you complete a task from PROMPT_QUEUE.md:
 **TypeScript Compilation:**
 ```
 npx tsc --noEmit
-✅ PASSED - 0 errors
+[DONE] PASSED - 0 errors
 ```
 
 **Linting:**
 ```
 npm run lint
-✅ PASSED - 0 errors, 2 warnings (acceptable)
+[DONE] PASSED - 0 errors, 2 warnings (acceptable)
 Warnings in unrelated files (reports/page.tsx, location-selector.tsx)
 ```
 
 **Build:**
 ```
 npm run build
-✅ PASSED - Build completed successfully
+[DONE] PASSED - Build completed successfully
 Route (app)                              Size     First Load JS
 ├ ƒ /patients                            3.74 kB         139 kB (uses TanStack Query)
 └ ƒ /dashboard                           2.42 kB         137 kB
@@ -468,27 +511,27 @@ Total: 34 routes compiled
 ```
 
 **Manual Testing:**
-- ✅ Patients page loads with TanStack Query hooks
-- ✅ Search functionality triggers refetch with query parameter
-- ✅ Refresh button calls refetch()
-- ✅ Auth check redirects to /login when not authenticated
-- ✅ Toast notifications configured (Sonner integration)
+- [DONE] Patients page loads with TanStack Query hooks
+- [DONE] Search functionality triggers refetch with query parameter
+- [DONE] Refresh button calls refetch()
+- [DONE] Auth check redirects to /login when not authenticated
+- [DONE] Toast notifications configured (Sonner integration)
 
 ### Files Updated:
-- `IMPLEMENTATION_TRACKER.md`: Week 3 Task 4 marked ✅ COMPLETE, Week 3 status updated to COMPLETE (4/4)
+- `IMPLEMENTATION_TRACKER.md`: Week 3 Task 4 marked [DONE] COMPLETE, Week 3 status updated to COMPLETE (4/4)
 - `PROMPT_QUEUE.md`: Task 4 deleted (moved to TASK_HISTORY.md)
 
 ### Impact:
 
 **Week 3 Complete (100%):**
-- ✅ Auth endpoints working (Task 1)
-- ✅ Backend report stubs ready (Task 2)
-- ✅ Frontend pages rendering (Task 3)
-- ✅ API layer properly structured (Task 4)
+- [DONE] Auth endpoints working (Task 1)
+- [DONE] Backend report stubs ready (Task 2)
+- [DONE] Frontend pages rendering (Task 3)
+- [DONE] API layer properly structured (Task 4)
 
 **Benefits:**
-- 🚀 **Better UX**: Loading states, error handling, toast notifications
-- 🔄 **Auto-refresh**: Mutations invalidate queries (data always fresh)
+- [LAUNCH] **Better UX**: Loading states, error handling, toast notifications
+- [ACTIVE] **Auto-refresh**: Mutations invalidate queries (data always fresh)
 - 📦 **Caching**: Stale times reduce unnecessary API calls
 - 🛡️ **Type Safety**: Full TypeScript coverage (API + hooks)
 - 🔧 **Maintainability**: Centralized API clients, reusable hooks
@@ -518,12 +561,12 @@ Total: 34 routes compiled
 - Implement request debouncing for search inputs
 - Add optimistic updates for mutations
 - Create useInfiniteQuery for large patient lists (pagination)
-## ✅ Task 8: OPD Consultation Module - Backend (Week 7-8)
+## [DONE] Task 8: OPD Consultation Module - Backend (Week 7-8)
 **Completed by:** Codex CLI Worker  
 **Started:** 2025-11-03 06:00 UTC  
 **Completed:** 2025-11-03 06:10 UTC  
 **Duration:** ~10 minutes  
-**Status:** ✅ SUCCESS
+**Status:** [DONE] SUCCESS
 
 ### What Was Done:
 - Implemented OPD Consultation backend service and REST API

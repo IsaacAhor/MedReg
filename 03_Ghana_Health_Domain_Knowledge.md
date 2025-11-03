@@ -339,8 +339,8 @@ This document captures Ghana-specific healthcare system knowledge, clinical work
 - NHIA (National Health Insurance Authority) is the backend system
 - Facilities submit claims to NHIE middleware
 - NHIE routes internally to NHIA backend
-- Flow: Facility → NHIE → NHIA → NHIE → Facility
-- ❌ NO direct facility-to-NHIA connections permitted
+- Flow: Facility -> NHIE -> NHIA -> NHIE -> Facility
+- [FAILED] NO direct facility-to-NHIA connections permitted
 
 **Step 1: Facility Submission**
 - Facility compiles monthly claims batch
@@ -765,7 +765,7 @@ This document captures Ghana-specific healthcare system knowledge, clinical work
 
 ### Referral Pathway
 
-**Level 1: CHPS** → **Level 2: Health Center** → **Level 3: District Hospital** → **Level 4: Regional Hospital** → **Level 5: Teaching Hospital**
+**Level 1: CHPS** -> **Level 2: Health Center** -> **Level 3: District Hospital** -> **Level 4: Regional Hospital** -> **Level 5: Teaching Hospital**
 
 Patients should follow this hierarchy, but emergencies can bypass.
 
@@ -906,7 +906,7 @@ Patients should follow this hierarchy, but emergencies can bypass.
 - NHIS (national insurance) covers 40% of population, requires eligibility verification
 - Top diagnoses: Malaria, URTI, diarrhea, hypertension
 - Clinical protocols: Ghana STG must guide treatment workflows
-- Referral system: Hierarchical (CHPS → Health Center → District → Regional → Teaching)
+- Referral system: Hierarchical (CHPS -> Health Center -> District -> Regional -> Teaching)
 - Data protection: Consent required for NHIE sharing, 7+ year audit log retention
 - NHIS claims: 30-day submission window, batch processing, G-DRG tariff system
 

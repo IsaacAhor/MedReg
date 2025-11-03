@@ -15,7 +15,7 @@ National Health Information Exchange (NHIE) is Ghana's mandatory middleware for 
 │  INTEGRATES     │         │  - SHR           │         │  - SHR Database     │
 │  HERE ───►      │         │  - Router        │         │  - Terminology      │
 └─────────────────┘         └──────────────────┘         └─────────────────────┘
-     ✅ YES                       GOVERNMENT                    ❌ NO DIRECT
+     [DONE] YES                       GOVERNMENT                    [FAILED] NO DIRECT
    Facilities connect             CONTROLLED                   Facility Access
    to NHIE only                   Middleware
 ```
@@ -89,8 +89,8 @@ Since Ghana NHIE specifications are not yet publicly available, we base this on:
 - NHIE middleware handles eligibility verification requests
 - NHIE routes claims to NHIA backend
 - NHIE returns claims status and payments from NHIA
-- **Architecture**: Facility EMR → NHIE Middleware → NHIA Backend → NHIE Middleware → Facility EMR
-- **Constraint**: ❌ NO direct facility-to-NHIA connections permitted
+- **Architecture**: Facility EMR -> NHIE Middleware -> NHIA Backend -> NHIE Middleware -> Facility EMR
+- **Constraint**: [FAILED] NO direct facility-to-NHIA connections permitted
 
 ---
 
@@ -703,7 +703,7 @@ Content-Type: application/fhir+json
 1. User enters patient demographics in OpenMRS UI
 2. OpenMRS saves Patient to local database
 3. NHIE adapter triggered by event listener
-4. Adapter converts OpenMRS Patient → FHIR Patient resource
+4. Adapter converts OpenMRS Patient -> FHIR Patient resource
 5. Adapter requests OAuth token if expired
 6. Adapter POSTs to NHIE /Patient endpoint
 7. NHIE returns patient ID (MPI ID)
@@ -714,7 +714,7 @@ Content-Type: application/fhir+json
 1. Clinician completes encounter form
 2. OpenMRS saves Encounter + Observations
 3. NHIE adapter triggered by encounter save event
-4. Adapter converts Encounter + Observations → FHIR Bundle
+4. Adapter converts Encounter + Observations -> FHIR Bundle
 5. Adapter validates required fields (diagnosis, provider)
 6. Adapter POSTs bundle to NHIE
 7. NHIE returns encounter ID

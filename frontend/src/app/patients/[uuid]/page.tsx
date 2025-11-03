@@ -67,7 +67,8 @@ export default function PatientHubPage() {
       if (!response.ok) throw new Error('Failed to fetch NHIE status');
       return response.json();
     },
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
+      const data = query.state.data;
       // Poll every 5 seconds if sync is pending or failed (and retrying)
       if (data && (data.syncStatus === 'PENDING' ||
           (data.syncStatus === 'FAILED' && data.retryCount < 8))) {

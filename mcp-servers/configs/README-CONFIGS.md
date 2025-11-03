@@ -6,14 +6,14 @@
 ## Overview
 
 You're using **3 AI coding tools**:
-1. ✅ **Codex CLI** - Uses TOML config (`~/.codex/config.toml`)
-2. ⏳ **GitHub Copilot** - Uses VS Code settings (MCP support coming soon)
-3. ⏳ **Claude Desktop** - Uses JSON config (`%APPDATA%\Claude\claude_desktop_config.json`)
+1. [DONE] **Codex CLI** - Uses TOML config (`~/.codex/config.toml`)
+2. [PENDING] **GitHub Copilot** - Uses VS Code settings (MCP support coming soon)
+3. [PENDING] **Claude Desktop** - Uses JSON config (`%APPDATA%\Claude\claude_desktop_config.json`)
 
 **Current Status (Nov 2024)**:
-- ✅ Codex CLI fully supports MCP
-- ❌ GitHub Copilot does NOT support MCP yet (expected in future release)
-- ✅ Claude Desktop fully supports MCP
+- [DONE] Codex CLI fully supports MCP
+- [FAILED] GitHub Copilot does NOT support MCP yet (expected in future release)
+- [DONE] Claude Desktop fully supports MCP
 
 ---
 
@@ -178,7 +178,7 @@ notepad "$env:APPDATA\Claude\claude_desktop_config.json"
 
 # 3. Paste JSON config (see below)
 
-# 4. Restart Claude Desktop completely (File → Exit, then reopen)
+# 4. Restart Claude Desktop completely (File -> Exit, then reopen)
 ```
 
 ### Claude Desktop JSON Format
@@ -287,9 +287,9 @@ Test-Path mysql\dist\index.js
 ## Recommended Setup (November 2024)
 
 **For daily development:**
-1. ✅ **VS Code + GitHub Copilot** - Inline code suggestions, auto-complete
-2. ✅ **Codex CLI (terminal)** - MCP tools for database queries, patient operations
-3. ✅ **AGENTS.md** - Ghana domain rules, patterns (Copilot reads this automatically)
+1. [DONE] **VS Code + GitHub Copilot** - Inline code suggestions, auto-complete
+2. [DONE] **Codex CLI (terminal)** - MCP tools for database queries, patient operations
+3. [DONE] **AGENTS.md** - Ghana domain rules, patterns (Copilot reads this automatically)
 
 **When you need MCP tools:**
 - Open terminal in VS Code
@@ -298,10 +298,10 @@ Test-Path mysql\dist\index.js
 
 **Workflow:**
 ```
-1. GitHub Copilot suggests code → You review
-2. Need to validate Ghana Card? → Ask Codex CLI (uses MCP ghana_card validator)
-3. Need to query database? → Ask Codex CLI (uses MCP mysql server)
-4. Copilot generates OpenMRS code → Codex validates against live API
+1. GitHub Copilot suggests code -> You review
+2. Need to validate Ghana Card? -> Ask Codex CLI (uses MCP ghana_card validator)
+3. Need to query database? -> Ask Codex CLI (uses MCP mysql server)
+4. Copilot generates OpenMRS code -> Codex validates against live API
 ```
 
 ---
@@ -338,13 +338,13 @@ See main README.md for 5 test scenarios.
 
 | Feature | Codex CLI | GitHub Copilot | Claude Desktop |
 |---------|-----------|----------------|----------------|
-| MCP Support | ✅ Yes | ❌ Not yet | ✅ Yes |
+| MCP Support | [DONE] Yes | [FAILED] Not yet | [DONE] Yes |
 | Config Format | TOML | JSON (future) | JSON |
 | Config Location | `~/.codex/config.toml` | `.vscode/settings.json` | `%APPDATA%\Claude\...` |
-| Ghana Card Validation | ✅ Via MCP | ❌ Manual only | ✅ Via MCP |
-| Database Queries | ✅ Via MCP | ❌ Manual only | ✅ Via MCP |
-| NHIE Enforcement | ✅ Via MCP | ❌ Manual only | ✅ Via MCP |
-| Inline Suggestions | ❌ No | ✅ Yes | ❌ No |
+| Ghana Card Validation | [DONE] Via MCP | [FAILED] Manual only | [DONE] Via MCP |
+| Database Queries | [DONE] Via MCP | [FAILED] Manual only | [DONE] Via MCP |
+| NHIE Enforcement | [DONE] Via MCP | [FAILED] Manual only | [DONE] Via MCP |
+| Inline Suggestions | [FAILED] No | [DONE] Yes | [FAILED] No |
 
 **Recommendation**: Use **Codex CLI + GitHub Copilot** together for best results.
 
