@@ -30,7 +30,11 @@ services:
       - medreg-network
 
   openmrs:
-    image: openmrs/openmrs-reference-application-distro:2.11.0
+    # Build custom image with entrypoint script that installs module before Tomcat starts
+    build:
+      context: ./backend/openmrs-module-ghanaemr
+      dockerfile: Dockerfile
+    image: medreg-openmrs:latest
     container_name: medreg-openmrs
     restart: unless-stopped
     depends_on:
@@ -47,10 +51,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      # Persist OpenMRS application data
-      - openmrs_data:/openmrs/data
-      # Mount custom modules built locally (.omod files)
-      - ./openmrs-modules:/openmrs/data/modules
+      # Persist OpenMRS application data (includes runtime properties, logs, etc.)
+      - openmrs_data:/usr/local/tomcat/.OpenMRS
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs/"]
       interval: 30s

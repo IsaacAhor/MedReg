@@ -1,5 +1,6 @@
 "use client";
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { consultationSchema, type ConsultationFormData } from '@/lib/schemas/con
 import { useConsultation } from '@/hooks/useConsultation';
 
 export default function ConsultationPage() {
+  const router = useRouter();
   const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const initialUuid = params?.get('patientUuid') || '';
   const [allowed, setAllowed] = React.useState(true);
@@ -179,6 +181,13 @@ export default function ConsultationPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push('/opd/consultation-queue')}
+            >
+              Cancel
+            </Button>
             <Button type="submit" disabled={!allowed || mutation.isPending}>
               {mutation.isPending ? 'Saving…' : 'Save Consultation'}
             </Button>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="ghanaemr-queue-1" author="medreg">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="ghanaemr_patient_queue"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="ghanaemr_patient_queue">
+            <column name="queue_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="char(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="patient_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="visit_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location_from_id" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="location_to_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider_id" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="varchar(50)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="priority" type="int" defaultValue="5">
+                <constraints nullable="false"/>
+            </column>
+            <column name="queue_number" type="varchar(20)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="comment" type="text">
+                <constraints nullable="true"/>
+            </column>
+            <column name="date_created" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_changed" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="changed_by" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="voided" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="voided_by" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="date_voided" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="void_reason" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+            constraintName="ghanaemr_queue_patient_fk"
+            baseTableName="ghanaemr_patient_queue" baseColumnNames="patient_id"
+            referencedTableName="patient" referencedColumnNames="patient_id"/>
+
+        <addForeignKeyConstraint
+            constraintName="ghanaemr_queue_visit_fk"
+            baseTableName="ghanaemr_patient_queue" baseColumnNames="visit_id"
+            referencedTableName="visit" referencedColumnNames="visit_id"/>
+
+        <addForeignKeyConstraint
+            constraintName="ghanaemr_queue_location_from_fk"
+            baseTableName="ghanaemr_patient_queue" baseColumnNames="location_from_id"
+            referencedTableName="location" referencedColumnNames="location_id"/>
+
+        <addForeignKeyConstraint
+            constraintName="ghanaemr_queue_location_to_fk"
+            baseTableName="ghanaemr_patient_queue" baseColumnNames="location_to_id"
+            referencedTableName="location" referencedColumnNames="location_id"/>
+
+        <addForeignKeyConstraint
+            constraintName="ghanaemr_queue_provider_fk"
+            baseTableName="ghanaemr_patient_queue" baseColumnNames="provider_id"
+            referencedTableName="provider" referencedColumnNames="provider_id"/>
+
+        <addForeignKeyConstraint
+            constraintName="ghanaemr_queue_creator_fk"
+            baseTableName="ghanaemr_patient_queue" baseColumnNames="creator"
+            referencedTableName="users" referencedColumnNames="user_id"/>
+
+        <createIndex tableName="ghanaemr_patient_queue" indexName="idx_queue_status_location">
+            <column name="status"/>
+            <column name="location_to_id"/>
+            <column name="date_created"/>
+        </createIndex>
+
+        <createIndex tableName="ghanaemr_patient_queue" indexName="idx_queue_patient_visit">
+            <column name="patient_id"/>
+            <column name="visit_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

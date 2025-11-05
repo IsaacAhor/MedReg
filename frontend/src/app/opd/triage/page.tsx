@@ -1,9 +1,11 @@
 "use client";
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export default function TriagePage() {
+  const router = useRouter();
   const search = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const initialUuid = search?.get('patientUuid') || '';
   const [patientUuid, setPatientUuid] = React.useState(initialUuid);
@@ -79,6 +81,13 @@ export default function TriagePage() {
         </div>
       </div>
       <div className="mt-4 flex items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push('/opd/triage-queue')}
+        >
+          Cancel
+        </Button>
         <Button onClick={submit} disabled={!allowed}>Save Triage</Button>
         {!allowed && <span className="text-xs text-amber-600">Insufficient role to save triage</span>}
         {status && <span className="text-sm text-gray-600">{status}</span>}

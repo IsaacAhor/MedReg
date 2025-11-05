@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module configVersion="1.2">
+
+    <!-- Module Identity -->
+    <id>ghanaemr</id>
+    <name>Ghana EMR</name>
+    <version>${project.version}</version>
+    <package>org.openmrs.module.ghanaemr</package>
+
+    <!-- Package Information -->
+    <author>Ghana EMR Development Team</author>
+    <description>
+        Ghana EMR module providing integration with Ghana's National Health Information Exchange (NHIE),
+        Ghana Card validation, NHIS verification, and regulatory compliance features.
+    </description>
+
+    <!-- Require OpenMRS Platform 2.4.0 -->
+    <require_version>2.4.0</require_version>
+
+    <!-- Module activator for startup/shutdown logic -->
+    <activator>org.openmrs.module.ghanaemr.GhanaEMRActivator</activator>
+
+    <!-- Spring application context (defined in API resources) -->
+    <spring>
+        <context>moduleApplicationContext.xml</context>
+    </spring>
+
+    <!-- Run Liquibase changesets found on the module classpath -->
+    <updateToLatest/>
+
+    <!-- Declare awareness of commonly used modules (optional) -->
+    <aware_of_modules>
+        <aware_of_module>webservices.rest</aware_of_module>
+    </aware_of_modules>
+
+</module>

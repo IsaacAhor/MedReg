@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="maven-antrun-" default="main">
+  <target name="main">
+    <move file="/usr/src/mymaven/omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.jar" tofile="/usr/src/mymaven/omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod" />
+    <copy file="/usr/src/mymaven/omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod" tofile="/usr/src/mymaven/omod/../../openmrs-modules/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod" overwrite="true" />
+  </target>
+</project>

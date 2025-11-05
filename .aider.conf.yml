@@ -3,6 +3,7 @@
 
 # Context files to always load
 read: 
+  - START_HERE.md
   - AGENTS.md
   - 08_MVP_Build_Strategy.md
   - 02_NHIE_Integration_Technical_Specifications.md

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
-import Link from 'next/link';
+import { HeaderNav } from '@/components/layout/header-nav';
 import { cookies } from 'next/headers';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -27,19 +27,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <header className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-4">
-              <Link href="/" className="text-sm text-gray-800 font-semibold">MedReg</Link>
-              <nav className="flex items-center gap-4 text-sm text-gray-600">
-                <Link href="/dashboard">Dashboard</Link>
-                <Link href="/reports">Reports</Link>
-                {canTriage && <Link href="/opd/triage">Triage</Link>}
-                {canConsult && <Link href="/opd/consultation">Consult</Link>}
-                {canDispense && <Link href="/opd/dispense">Dispense</Link>}
-                {isAdmin && <Link href="/admin/nhie-queue">NHIE Queue</Link>}
-              </nav>
-            </div>
-          </header>
+          <HeaderNav
+            isAdmin={isAdmin}
+            canTriage={canTriage}
+            canConsult={canConsult}
+            canDispense={canDispense}
+          />
           {children}
         </Providers>
       </body>

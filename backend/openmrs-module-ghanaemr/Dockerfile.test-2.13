@@ -1,0 +1,14 @@
+# TEST DOCKERFILE - OpenMRS Reference Application 2.12.0 (Platform 2.4.0)
+# This file is temporary and will be deleted after testing
+# Note: Platform 2.4.0 required per AGENTS.md and module config.xml
+FROM openmrs/openmrs-reference-application-distro:2.12.0
+
+# Copy Ghana EMR module to staging location
+COPY omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod /usr/local/tomcat/.OpenMRS/modules/
+
+# Copy custom entrypoint that installs modules before starting Tomcat
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Use custom entrypoint
+ENTRYPOINT ["/entrypoint.sh"]

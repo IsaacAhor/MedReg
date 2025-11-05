@@ -308,4 +308,7 @@
         </comment>
     </changeSet>
 
+    <!-- Queue Management System -->
+    <include file="liquibase-queue-management.xml"/>
+
 </databaseChangeLog>

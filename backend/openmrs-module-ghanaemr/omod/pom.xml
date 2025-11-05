@@ -40,6 +40,13 @@
     </dependencies>
 
     <build>
+        <finalName>openmrs-module-ghanaemr-${project.version}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -50,7 +57,72 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
+            <!-- Copy API JAR and ALL transitive dependencies into /lib inside the OMOD -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <!-- Copy API JAR into OMOD lib/ -->
+                    <execution>
+                        <id>copy-api-jar-into-omod-lib</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openmrs.module</groupId>
+                                    <artifactId>openmrs-module-ghanaemr-api</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <!-- Copy ALL transitive dependencies (HAPI FHIR, Guava, OkHttp, etc.) into OMOD lib/ -->
+                    <execution>
+                        <id>copy-transitive-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <excludeArtifactIds>openmrs-module-ghanaemr-api</excludeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Rename the built web artifact from .jar to .omod for OpenMRS deployment -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>rename-jar-to-omod</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <move file="${project.build.directory}/${project.build.finalName}.jar"
+                                      tofile="${project.build.directory}/${project.build.finalName}.omod"/>
+                                <!-- Also copy to project root openmrs-modules folder for easy deployment -->
+                                <copy file="${project.build.directory}/${project.build.finalName}.omod"
+                                      tofile="${project.basedir}/../../openmrs-modules/${project.build.finalName}.omod"
+                                      overwrite="true"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
-

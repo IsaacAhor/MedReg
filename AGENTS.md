@@ -9,6 +9,120 @@
 
 ---
 
+## [WARNING] CRITICAL REQUIREMENTS - READ FIRST [WARNING]
+
+### [WARNING] NON-NEGOTIABLE TECHNOLOGY CONSTRAINTS
+
+**THESE ARE HARD REQUIREMENTS, NOT RECOMMENDATIONS:**
+
+#### 1. Java Version: JAVA 8 ONLY (1.8.0_472)
+- [PROHIBITED] **DO NOT upgrade to Java 11, 17, or 21**
+- [PROHIBITED] **OpenMRS 2.4.0 BREAKS with Java 11+**
+- [DONE] **MUST use:** Eclipse Temurin OpenJDK 8u472-b08
+- [WARNING] **Consequence of upgrade:** 30+ compilation errors, broken dependencies, 4-6 week migration to OpenMRS 3.x
+- **Verify:** `java -version` must show `1.8.0_472`
+
+#### 2. MySQL Version: MYSQL 5.7 ONLY
+- [PROHIBITED] **DO NOT use MySQL 8.0 or higher**
+- [PROHIBITED] **MySQL 8.0 is INCOMPATIBLE** (MySQL Connector/J 5.1.x doesn't support removed `storage_engine` variable)
+- [DONE] **MUST use:** MySQL 5.7 (Docker: `mysql:5.7`)
+- [WARNING] **Consequence of upgrade:** Database connection failures, OpenMRS won't start
+- **Verify:** `docker exec mysql mysql --version` must show `5.7.x`
+
+#### 3. OpenMRS Platform: 2.4.0 ONLY
+- [PROHIBITED] **DO NOT upgrade to OpenMRS 3.x (O3) during MVP**
+- [DONE] **MUST use:** OpenMRS Platform 2.4.0 with reference-application-distro:2.12.0
+- [WARNING] **CRITICAL NOTE:** Platform 2.6.0 does NOT exist in OpenMRS 2.x (only in 3.x architecture)
+- [WARNING] **Consequence of upgrade:** Complete architecture rewrite, microfrontend migration, 4-6 week delay
+- **Why locked:** 16-20 week MVP timeline, MoH pilot deadline Q1 2026
+
+#### 4. Critical Dependencies (Version Locked)
+- **Mockito:** 3.12.4 (NOT 5.x - requires Java 11+)
+- **HAPI FHIR:** 5.5.3 (R4 compatible with OpenMRS 2.4.0)
+- **Spring Framework:** 4.x (OpenMRS 2.4.0 bundled, NOT Spring Boot)
+- **Maven:** 3.9.x (build tool)
+
+### Why These Constraints Exist
+
+**OpenMRS 2.4.0 + Java 8 = Production-Proven Stack**
+- 100+ implementations worldwide (Uganda, Kenya, Rwanda, Haiti)
+- Stable API, well-documented, extensive community support
+- Zero breaking changes during 16-20 week MVP timeline
+- Latest stable 2.x platform (Reference Application 2.12.0)
+
+**Migration Path (Post-MVP v2):**
+1. [DONE] Complete MVP with Java 8 + OpenMRS 2.4.0 (Week 1-16)
+2. [DONE] Win MoH pilot facility (Q1 2026)
+3. [DONE] Deploy to production (Q2 2026)
+4. [ACTIVE] **Then consider:** Migrate to OpenMRS 3.x (O3) + Java 11/17/21 (Q3 2026)
+
+### Pre-Development Checklist
+
+**Before writing ANY code, verify:**
+```bash
+# 1. Java version
+java -version
+# Expected: openjdk version "1.8.0_472"
+
+# 2. Maven version
+mvn -version
+# Expected: Apache Maven 3.9.x, Java version: 1.8.0_472
+
+# 3. MySQL version (if running)
+docker exec mysql mysql --version
+# Expected: mysql  Ver 14.14 Distrib 5.7.x
+
+# 4. OpenMRS version
+grep "<openmrs.version>" backend/*/pom.xml
+# Expected: <openmrs.version>2.4.0</openmrs.version>
+```
+
+**All checks MUST pass before proceeding!**
+
+### OpenMRS Module config.xml Structure (CRITICAL)
+
+**INCIDENT**: November 4-5, 2025 - 6+ hour module loading failure due to incorrect config.xml structure
+
+**OpenMRS ModuleFileParser expects child elements, NOT attributes:**
+
+[BAD] **WRONG** (Attributes - causes "Name cannot be empty" error):
+```xml
+<module configVersion="1.2" moduleId="ghanaemr" name="Ghana EMR" version="0.1.0">
+```
+
+[DONE] **CORRECT** (Child Elements):
+```xml
+<module configVersion="1.2">
+    <id>ghanaemr</id>
+    <name>Ghana EMR</name>
+    <version>${project.version}</version>
+    <activator>org.openmrs.module.ghanaemr.GhanaEMRActivator</activator>
+    ...
+</module>
+```
+
+**Why This Matters**:
+- ModuleFileParser calls `getElementTrimmed(rootNode, "name")` which looks for `<name>` element text content
+- Attributes are ignored → parser finds empty string → "Name cannot be empty" exception
+- Module silently fails to load with cryptic error message
+
+**Build Validation** (MANDATORY before deployment):
+```bash
+cd backend/openmrs-module-ghanaemr
+mvn clean package
+./scripts/validate-omod.sh omod/target/openmrs-module-ghanaemr-*.omod
+```
+
+**Validation Script Checks**:
+- [DONE] config.xml uses child elements (not attributes)
+- [DONE] OMOD size is ~20MB (not 110KB - missing dependencies)
+- [DONE] All 27 transitive dependencies bundled (HAPI FHIR, Gson, OkHttp)
+- [DONE] Activator class exists in OMOD
+
+**See**: [OPENMRS_MODULE_FIX_IMPLEMENTATION.md](OPENMRS_MODULE_FIX_IMPLEMENTATION.md) for complete fix details
+
+---
+
 ## Project Overview
 
 **GitHub Repository:** https://github.com/IsaacAhor/MedReg  
@@ -19,10 +133,10 @@
 
 ### Tech Stack
 **Backend:**
-- OpenMRS Platform 2.6.0 (core EMR engine)
+- OpenMRS Platform 2.4.0 (core EMR engine, Reference Application 2.12.0)
 - Java 8, Spring Framework (Eclipse Temurin OpenJDK 8u472-b08)
-- MySQL 5.7 (required - OpenMRS 2.6.0 MySQL Connector/J incompatible with MySQL 8.0)
-- HAPI FHIR 5.7.0 (FHIR R4 library)
+- MySQL 5.7 (required - OpenMRS 2.4.0 MySQL Connector/J incompatible with MySQL 8.0)
+- HAPI FHIR 5.5.3 (FHIR R4 library)
 - Maven 3.9.9 (build tool)
 - Apache HttpClient 4.5.13 (NHIE communication)
 
@@ -76,7 +190,7 @@ mvn clean package -Dmaven.test.skip=true
    - **Facility Admin**: Per-facility user management, reports, NHIE monitoring
    - **Clinical Roles**: Doctor, Nurse, Pharmacist, Records Officer, Cashier, NHIS Officer
 
-[FAILED] **OUT OF SCOPE (Defer to v2):**
+[PROHIBITED] **OUT OF SCOPE (Defer to v2):**
 - IPD/Admissions, ANC, Lab results entry, Appointments, SMS, Advanced reports, Offline mode, Multi-facility deployment (single-facility MVP first), Referrals
 
 ### Reference Documents
@@ -93,9 +207,9 @@ mvn clean package -Dmaven.test.skip=true
 
 ## CRITICAL ARCHITECTURE RULES [WARNING]
 
-### Task Management Workflow (MANDATORY) 📋
+### Task Management Workflow (MANDATORY)
 
-**[WARNING] BEFORE STARTING ANY WORK: Check PROMPT_QUEUE.md for active tasks!**
+[WARNING] **BEFORE STARTING ANY WORK: Check PROMPT_QUEUE.md for active tasks!**
 
 **Purpose:** Streamline task execution with single-command workflow. All tasks are pre-defined with self-contained instructions, verification steps, and file update requirements.
 
@@ -137,7 +251,7 @@ mvn clean package -Dmaven.test.skip=true
 When human adds new task to PROMPT_QUEUE.md:
 
 ```markdown
-## [Icon] Task N: [Title] ([Priority])
+## Task N: [Title] ([Priority])
 **Status:** [QUEUED] QUEUED  
 **Assigned to:** Next Available Worker  
 **Due:** YYYY-MM-DD HH:MM UTC  
@@ -260,7 +374,7 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
    - Include all context, dependencies, and self-contained instructions
    - Reference what was just completed so next worker has full context
    - This ensures NO WORK IS LOST between sessions
-7. [FAILED] **DO NOT delete task** from PROMPT_QUEUE.md until ALL acceptance criteria checked
+7. [PROHIBITED] **DO NOT delete task** from PROMPT_QUEUE.md until ALL acceptance criteria checked
 
 **If you encounter blockers:**
 1. Document the issue in task notes
@@ -333,7 +447,7 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 
 ---
 
-### Documentation Creation Rule (MANDATORY) 📝
+### Documentation Creation Rule (MANDATORY)
 
 **[WARNING] BEFORE CREATING ANY NEW .md FILE: Check existing documentation first!**
 
@@ -358,9 +472,9 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
    - [DONE] **docs/security/** - Security policies, audit, privileges
 
 3. **Only create NEW file if:**
-   - [FAILED] Content doesn't fit any existing file's purpose
-   - [FAILED] Would make existing file too large (>3000 lines)
-   - [FAILED] Requires separate versioning/tracking
+   - [BAD] Content doesn't fit any existing file's purpose
+   - [BAD] Would make existing file too large (>3000 lines)
+   - [BAD] Requires separate versioning/tracking
    - [DONE] Is a distinct, standalone topic (e.g., new integration guide)
 
 4. **If creating new file:**
@@ -380,12 +494,12 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 Question: "Should I create build-troubleshooting.md?"
 1. Check IMPLEMENTATION_TRACKER.md Week 2 -> Already has build errors section [DONE]
 2. Check AGENTS.md -> Has setup commands section [DONE]
-3. Decision: Add to IMPLEMENTATION_TRACKER.md Week 2, not new file [FAILED]
+3. Decision: Add to IMPLEMENTATION_TRACKER.md Week 2, not new file [BAD]
 
 Question: "Should I create kenya-hie-integration-guide.md?"
-1. Check docs/setup/ -> No Kenya-specific guide [FAILED]
-2. Check UGANDA_EMR_REFERENCE.md -> Different country [FAILED]
-3. Check AGENTS.md -> Too specific for architecture doc [FAILED]
+1. Check docs/setup/ -> No Kenya-specific guide [BAD]
+2. Check UGANDA_EMR_REFERENCE.md -> Different country [BAD]
+3. Check AGENTS.md -> Too specific for architecture doc [BAD]
 4. Decision: Create new file (distinct integration topic) [DONE]
 ```
 
@@ -396,7 +510,7 @@ Question: "Should I create kenya-hie-integration-guide.md?"
 
 ---
 
-### Code Generation Rules (MANDATORY) 🔧
+### Code Generation Rules (MANDATORY)
 
 **[WARNING] BEFORE GENERATING ANY CODE: Verify constraints and compile incrementally!**
 
@@ -411,7 +525,7 @@ Before writing any code, verify:
 java -version    # MUST be Java 8 (1.8.0_472)
 
 # Check OpenMRS version
-grep "openmrs-api" backend/*/pom.xml    # MUST be 2.6.0
+grep "openmrs-api" backend/*/pom.xml    # MUST be 2.4.0
 
 # Check dependency versions
 grep -E "(mockito|hapi.fhir|httpclient)" backend/*/pom.xml
@@ -419,11 +533,11 @@ grep -E "(mockito|hapi.fhir|httpclient)" backend/*/pom.xml
 
 **Required Constraints:**
 - [DONE] **Java 8 only** (no Java 11+ features: var, new switch, records, sealed classes)
-- [DONE] **OpenMRS 2.6.0 API** (not 3.x, not 1.x)
+- [DONE] **OpenMRS 2.4.0 API** (not 3.x, not 1.x)
 - [DONE] **MySQL 5.7** (not 8.0 - connector incompatibility)
 - [DONE] **Mockito 3.12.4** (not 5.x - requires Java 11+)
-- [DONE] **HAPI FHIR 5.7.0** (R4 compatible with OpenMRS 2.6)
-- [DONE] **Spring Framework** (OpenMRS 2.6 uses Spring 4.x, not Spring Boot)
+- [DONE] **HAPI FHIR 5.5.3** (R4 compatible with OpenMRS 2.4.0)
+- [DONE] **Spring Framework** (OpenMRS 2.4 uses Spring 4.x, not Spring Boot)
 
 **If you assume wrong version = 30+ compilation errors!**
 
@@ -456,7 +570,7 @@ Generate 50 lines -> Compile -> Fix errors -> Generate next 50 -> Repeat
 [DONE] All green -> Continue
 ```
 
-#### 3. **Compilation Validation After Every Change** ⚙️
+#### 3. Compilation Validation After Every Change
 
 **MANDATORY: Compile after adding/modifying any file**
 
@@ -470,18 +584,18 @@ mvn clean compile -Dmaven.test.skip=true
 ```
 
 **Red Flags (Stop and Fix):**
-- [FAILED] "cannot find symbol: class X" -> Missing import or wrong class name
-- [FAILED] "reference to X is ambiguous" -> Class name collision (use fully qualified names)
-- [FAILED] "cannot find symbol: method X()" -> Wrong API method (check OpenMRS Javadocs)
-- [FAILED] "incompatible types" -> Wrong Java version features or API mismatch
+- [BAD] "cannot find symbol: class X" -> Missing import or wrong class name
+- [BAD] "reference to X is ambiguous" -> Class name collision (use fully qualified names)
+- [BAD] "cannot find symbol: method X()" -> Wrong API method (check OpenMRS Javadocs)
+- [BAD] "incompatible types" -> Wrong Java version features or API mismatch
 
-#### 4. **Avoid Common Java 8 + OpenMRS 2.6 Pitfalls** 🚫
+#### 4. Avoid Common Java 8 + OpenMRS 2.4 Pitfalls
 
 **Known Error Patterns from Week 2 (30+ errors fixed):**
 
 ##### Error Pattern 1: FHIR Class Ambiguity
 ```java
-// [FAILED] BAD - Ambiguous (Patient exists in both OpenMRS and FHIR)
+// [BAD] - Ambiguous (Patient exists in both OpenMRS and FHIR)
 import org.hl7.fhir.r4.model.*;
 Patient fhirPatient = mapper.toFhirPatient(patient);
 
@@ -499,12 +613,12 @@ org.hl7.fhir.r4.model.Patient fhirPatient = mapper.toFhirPatient(patient);
 
 **Solution:** Use fully qualified names for ALL FHIR classes.
 
-##### Error Pattern 2: OpenMRS 2.6 API Method Names
+##### Error Pattern 2: OpenMRS 2.4 API Method Names
 ```java
-// [FAILED] BAD - Method doesn't exist in OpenMRS 2.6
+// [BAD] - Method doesn't exist in OpenMRS 2.4
 List<Patient> patients = patientService.getPatientsByIdentifier(identifier);
 
-// [DONE] GOOD - Correct OpenMRS 2.6 API
+// [DONE] GOOD - Correct OpenMRS 2.4 API
 List<Patient> patients = patientService.getPatients(null, identifier, null, true);
 ```
 
@@ -512,7 +626,7 @@ List<Patient> patients = patientService.getPatients(null, identifier, null, true
 
 ##### Error Pattern 3: Mockito Version (Java 8)
 ```xml
-<!-- [FAILED] BAD - Mockito 5.x requires Java 11+ -->
+<!-- [BAD] - Mockito 5.x requires Java 11+ -->
 <dependency>
     <groupId>org.mockito</groupId>
     <artifactId>mockito-core</artifactId>
@@ -529,7 +643,7 @@ List<Patient> patients = patientService.getPatients(null, identifier, null, true
 
 ##### Error Pattern 4: Java 8 Stream API Limitations
 ```java
-// [FAILED] BAD - Method reference doesn't work in Java 8 Optional.flatMap
+// [BAD] - Method reference doesn't work in Java 8 Optional.flatMap
 .map(Set::stream)
 
 // [DONE] GOOD - Use explicit lambda
@@ -538,7 +652,7 @@ List<Patient> patients = patientService.getPatients(null, identifier, null, true
 
 ##### Error Pattern 5: Wrong OpenMRS Class Names
 ```java
-// [FAILED] BAD - Class doesn't exist in OpenMRS 2.6
+// [BAD] - Class doesn't exist in OpenMRS 2.4
 ConceptReferenceSource source = term.getConceptSource();
 
 // [DONE] GOOD - Correct class name
@@ -556,7 +670,7 @@ ConceptSource source = term.getConceptSource();
 </dependency>
 ```
 
-#### 5. **Test Before Committing** 🧪
+#### 5. Test Before Committing
 
 **NEVER commit code that doesn't compile!**
 
@@ -572,7 +686,7 @@ mvn clean package -Dmaven.test.skip=true
 # If BUILD FAILURE: Fix errors before committing!
 ```
 
-#### 6. **Consult Documentation BEFORE Assuming** 📚
+#### 6. Consult Documentation BEFORE Assuming
 
 **Before writing code that uses:**
 
@@ -591,7 +705,7 @@ mvn clean package -Dmaven.test.skip=true
 Before generating any Java class:
 
 - [ ] Java version verified (Java 8)
-- [ ] OpenMRS version verified (2.6.0)
+- [ ] OpenMRS version verified (2.4.0)
 - [ ] Dependencies checked in pom.xml
 - [ ] OpenMRS API docs consulted for method signatures
 - [ ] FHIR classes will use fully qualified names
@@ -600,7 +714,7 @@ Before generating any Java class:
 - [ ] Will fix errors before generating more code
 - [ ] Will test with mvn clean package before committing
 
-#### 8. **Error Recovery Process** 🔧
+#### 8. Error Recovery Process
 
 **If compilation errors occur:**
 
@@ -626,7 +740,7 @@ Before generating any Java class:
 # Result: 3 errors -> 0 errors [DONE] BUILD SUCCESS
 ```
 
-#### 9. **Why These Rules Exist** 🎯
+#### 9. Why These Rules Exist
 
 **Week 2 Lesson Learned:**
 - Codex generated 2,000+ lines of code (NHIEIntegrationService, NHIEHttpClient, FhirPatientMapper)
@@ -644,7 +758,7 @@ Before generating any Java class:
 
 **Result:** **Zero compilation errors** in generated code! [SUCCESS]
 
-#### 10. **Success Metrics** 📊
+#### 10. Success Metrics
 
 **Target:** 
 - [DONE] 100% of generated code compiles on first `mvn compile`
@@ -663,11 +777,11 @@ Before generating any Java class:
 
 ---
 
-### Additional Code Quality Rules 🛡️
+### Additional Code Quality Rules
 
 **Beyond compilation: Logic, security, and integration correctness**
 
-#### 11. **Logic Validation** 🧠
+#### 11. Logic Validation
 
 **MANDATORY checks before considering code "complete":**
 
@@ -687,7 +801,7 @@ Before generating any Java class:
 
 **Common Logic Errors:**
 ```java
-// [FAILED] BAD - Only checks format, not checksum
+// [BAD] - Only checks format, not checksum
 if (ghanaCard.matches("^GHA-\\d{9}-\\d$")) {
     return true; // WRONG! Missing Luhn validation
 }
@@ -698,7 +812,7 @@ if (ghanaCard.matches("^GHA-\\d{9}-\\d$")) {
 }
 ```
 
-#### 12. **Security Validation** 🔒
+#### 12. Security Validation
 
 **MANDATORY: Check for security issues before committing**
 
@@ -715,20 +829,20 @@ grep -r "password.*=\|secret.*=\|key.*=" backend/ | grep -v ".example"
 ```
 
 **PII Masking Rules (NON-NEGOTIABLE):**
-- [FAILED] NEVER log: Full Ghana Card, NHIS number, patient name, phone, address
+- [PROHIBITED] NEVER log: Full Ghana Card, NHIS number, patient name, phone, address
 - [DONE] ALWAYS mask: `maskGhanaCard()`, `maskNHIS()`, `maskName()`, `maskPhone()`
 - [DONE] Use masked values in: Logs, error messages, transaction logging, audit trails
 
 **Example:**
 ```java
-// [FAILED] BAD - Logs full Ghana Card
+// [BAD] - Logs full Ghana Card
 logger.info("Registering patient with Ghana Card: " + ghanaCard);
 
 // [DONE] GOOD - Logs masked Ghana Card
 logger.info("Registering patient with Ghana Card: " + maskGhanaCard(ghanaCard));
 ```
 
-#### 13. **Integration Testing** 🔌
+#### 13. Integration Testing
 
 **MANDATORY: Test integrations before marking complete**
 
@@ -751,7 +865,7 @@ curl -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session
 - [ ] Error responses handled gracefully
 - [ ] Retry logic works (test with 429, 5xx)
 
-#### 14. **Unit Test Requirements** 🧪
+#### 14. Unit Test Requirements
 
 **MANDATORY: Write tests for all new code**
 
@@ -797,7 +911,7 @@ public void testValidateGhanaCard_Null_ThrowsException() {
 }
 ```
 
-#### 15. **Database Schema Validation** 🗄️
+#### 15. Database Schema Validation
 
 **MANDATORY: Verify Liquibase migrations**
 
@@ -821,7 +935,7 @@ mvn liquibase:updateSQL
 
 **Example:**
 ```xml
-<!-- [FAILED] BAD - Missing index on foreign key -->
+<!-- [BAD] - Missing index on foreign key -->
 <addForeignKeyConstraint constraintName="fk_patient_id"
     baseTableName="nhie_transaction_log"
     baseColumnNames="patient_id"
@@ -835,7 +949,7 @@ mvn liquibase:updateSQL
 <addForeignKeyConstraint .../>
 ```
 
-#### 16. **Frontend Code Quality** 💻
+#### 16. Frontend Code Quality
 
 **TypeScript/React rules (if generating frontend code):**
 
@@ -861,7 +975,7 @@ npm test
 
 **Example:**
 ```tsx
-// [FAILED] BAD - No loading/error states, plain fetch
+// [BAD] - No loading/error states, plain fetch
 function PatientList() {
     const [patients, setPatients] = useState([]);
     useEffect(() => {
@@ -888,7 +1002,7 @@ function PatientList() {
 }
 ```
 
-#### 17. **Performance Validation** ⚡
+#### 17. Performance Validation
 
 **Check for common performance issues:**
 
@@ -913,7 +1027,7 @@ grep -A 10 "for.*Patient\|while.*Patient" backend/
 
 **Example:**
 ```java
-// [FAILED] BAD - N+1 query problem
+// [BAD] - N+1 query problem
 List<Patient> patients = patientService.getPatients();
 for (Patient p : patients) {
     p.getIdentifiers().size(); // Lazy load = 1 query per patient!
@@ -926,7 +1040,7 @@ for (Patient p : patients) {
 List<Patient> findAllWithIdentifiers();
 ```
 
-#### 18. **Context Verification** 📖
+#### 18. Context Verification
 
 **MANDATORY: Verify you're building the right thing**
 
@@ -938,27 +1052,27 @@ List<Patient> findAllWithIdentifiers();
 ```
 
 **Questions to Ask:**
-- ❓ Is this feature in the MVP scope? (Check AGENTS.md "MVP Scope")
-- ❓ What are the Ghana-specific rules? (Ghana Card format, NHIS validation, folder number)
-- ❓ What's the workflow? (Check domain-knowledge/workflows/)
-- ❓ Are there existing patterns? (Check AGENTS.md "OpenMRS Code Patterns")
+- Is this feature in the MVP scope? (Check AGENTS.md "MVP Scope")
+- What are the Ghana-specific rules? (Ghana Card format, NHIS validation, folder number)
+- What's the workflow? (Check domain-knowledge/workflows/)
+- Are there existing patterns? (Check AGENTS.md "OpenMRS Code Patterns")
 
 **Example Decision:**
 ```
 Task: "Build NHIS claims submission"
 
 Check 1: AGENTS.md MVP Scope
-[FAILED] "NHIS Integration (eligibility check, claims export)"
+[BAD] "NHIS Integration (eligibility check, claims export)"
 -> Claims EXPORT in scope, not SUBMISSION
 
 Check 2: Is claims submission needed?
-[FAILED] MVP focus: Eligibility check only
+[BAD] MVP focus: Eligibility check only
 [DONE] Defer claims submission to v2
 
 Decision: DON'T build it! Focus on eligibility check.
 ```
 
-#### 19. **Code Review Self-Checklist** 👀
+#### 19. Code Review Self-Checklist
 
 **Before marking task complete, self-review:**
 
@@ -970,10 +1084,10 @@ Decision: DON'T build it! Focus on eligibility check.
 - [ ] Performance acceptable (<2s for API calls)
 - [ ] Error handling comprehensive (4xx, 5xx, network errors)
 - [ ] Documentation updated (Javadoc, README)
-- [ ] AGENTS.md constraints followed (Java 8, OpenMRS 2.6)
+- [ ] AGENTS.md constraints followed (Java 8, OpenMRS 2.4)
 - [ ] Ghana domain rules correct (Ghana Card checksum, NHIS format)
 
-#### 20. **Gradual Rollout Strategy** 📈
+#### 20. Gradual Rollout Strategy
 
 **Don't deploy untested code to production!**
 
@@ -985,14 +1099,14 @@ Decision: DON'T build it! Focus on eligibility check.
 5. **Production rollout** (gradual expansion)
 
 **Red Flags (DO NOT DEPLOY):**
-- [FAILED] "Works on my machine" but not tested elsewhere
-- [FAILED] Integration tests failing
-- [FAILED] Performance untested (don't know if it scales)
-- [FAILED] No rollback plan (what if it breaks production?)
+- [BAD] "Works on my machine" but not tested elsewhere
+- [BAD] Integration tests failing
+- [BAD] Performance untested (don't know if it scales)
+- [BAD] No rollback plan (what if it breaks production?)
 
 ---
 
-### Confidence Level Update 📊
+### Confidence Level Update
 
 **With These Additional Rules:**
 
@@ -1038,9 +1152,9 @@ Facility EMR -> NHIE Gateway (Single Entry Point) -> Backend Systems
 ```
 
 **RULES:**
-1. [FAILED] **NEVER generate code that connects directly to NHIA backend**
-2. [FAILED] **NEVER generate code that connects directly to National MPI**
-3. [FAILED] **NEVER generate code that connects directly to DHIMS2**
+1. [PROHIBITED] **NEVER generate code that connects directly to NHIA backend**
+2. [PROHIBITED] **NEVER generate code that connects directly to National MPI**
+3. [PROHIBITED] **NEVER generate code that connects directly to DHIMS2**
 4. [DONE] **ALWAYS route through NHIE gateway** (single secure entry point)
 5. [DONE] Facility EMR submits FHIR resources to NHIE, NHIE routes internally to NHIA/MPI/SHR
 6. [DONE] Responses flow back: NHIA -> NHIE -> Facility EMR
@@ -1084,7 +1198,7 @@ docker-compose up -d openmrs
 
 # Verify OpenMRS is running
 # Navigate to: http://localhost:8080/openmrs
-# Expected: "OpenMRS Platform 2.6.0-SNAPSHOT.0 Running!"
+# Expected: "OpenMRS Platform 2.4.0 Running!"
 # Message about "no user interface module" is NORMAL - we're using Next.js frontend
 
 # Verify REST API is working (CRITICAL - this is what we need!)
@@ -1375,8 +1489,8 @@ public class GhanaPatientService {
 ### REST Controller Pattern
 ```
 ### Module Endpoints (Current Build)
-- POST /ws/rest/v1/ghana/patients/{uuid}/sync-nhie � triggers NHIE patient sync via NHIEIntegrationService (non-blocking from frontend; used by Next.js BFF after registration).
-- GET /ws/rest/v1/ghana/coverage?nhis={number} � checks NHIS eligibility via NHIE (minimal version; 24h cache layer to be added).
+- POST /ws/rest/v1/ghana/patients/{uuid}/sync-nhie triggers NHIE patient sync via NHIEIntegrationService (non-blocking from frontend; used by Next.js BFF after registration).
+- GET /ws/rest/v1/ghana/coverage?nhis={number} checks NHIS eligibility via NHIE (minimal version; 24h cache layer to be added).
 java
 @RestController
 @RequestMapping("/api/v1/ghana/patients")
@@ -1951,7 +2065,7 @@ export default axiosInstance;
 ## Code Style Guidelines
 
 ### Backend (Java)
-- **Java version:** Java 8 (OpenMRS 2.6.0 requirement)
+- **Java version:** Java 8 (OpenMRS 2.4.0 requirement)
 - **Naming:**
   - Classes: `PascalCase` (e.g., `PatientService`)
   - Methods: `camelCase` (e.g., `registerPatient()`)
@@ -2001,10 +2115,10 @@ export default axiosInstance;
 ## Security Rules
 
 ### PII Handling (CRITICAL [WARNING])
-1. [FAILED] **NEVER log Ghana Card numbers in plain text**
-2. [FAILED] **NEVER log NHIS numbers in plain text**
-3. [FAILED] **NEVER log patient names in plain text**
-4. [FAILED] **NEVER log phone numbers in plain text**
+1. [PROHIBITED] **NEVER log Ghana Card numbers in plain text**
+2. [PROHIBITED] **NEVER log NHIS numbers in plain text**
+3. [PROHIBITED] **NEVER log patient names in plain text**
+4. [PROHIBITED] **NEVER log phone numbers in plain text**
 5. [DONE] **Always mask PII in logs:** `GHA-1234****-*`, `NHIS: 0123****`, `Name: K***e M****h`
 
 **Implementation:**
@@ -2904,25 +3018,27 @@ docker-compose up -d
 
 ## Known Limitations & Workarounds
 
-### OpenMRS Platform 2.6.0
+### OpenMRS Platform 2.4.0
 - **Java 8 only:** Cannot upgrade to Java 11+ (breaking changes in OpenMRS core)
 - **MySQL 5.7 required:** MySQL 8.0 NOT compatible
-  - **Issue:** OpenMRS 2.6.0 uses MySQL Connector/J 5.1.x which doesn't support MySQL 8.0's removed `storage_engine` variable
+  - **Issue:** OpenMRS 2.4.0 uses MySQL Connector/J 5.1.x which doesn't support MySQL 8.0's removed `storage_engine` variable
   - **Solution:** Use `mysql:5.7` Docker image (already configured in docker-compose.yml)
   - **DO NOT** attempt to use MySQL 8.0 - database connection will fail
-- **No built-in UI:** OpenMRS Platform 2.6.0 has no user interface by design (since v2.0)
+- **No built-in UI:** OpenMRS Platform 2.4.0 has no user interface by design (since v2.0)
   - **This is CORRECT and EXPECTED:** Platform = core only, Distribution = platform + modules + UI
   - **For Option B:** Perfect - we're using Next.js frontend, not OpenMRS UI
   - **Verification:** Platform page shows "Running! ...but no user interface module is installed"
   - **REST API works perfectly:** http://localhost:8080/openmrs/ws/rest/v1/session
 - **openmrs-core vs reference-application-distro:**
-  - `openmrs/openmrs-core:2.6.0` = Platform ONLY, no REST API module
-  - `openmrs/openmrs-reference-application-distro:2.11.0` = Platform + REST API + 30+ modules (correct choice)
+  - `openmrs/openmrs-core:2.4.0` = Platform ONLY, no REST API module
+  - `openmrs/openmrs-reference-application-distro:2.12.0` = Platform + REST API + 41 modules (correct choice)
   - **Always use reference-application-distro** for development
+- **Platform 2.6.0 does NOT exist:** Latest stable Platform in 2.x line is 2.4.0 (Ref App 2.12.0)
+  - Platform 2.6.0+ only exists in OpenMRS 3.x (completely different architecture)
 
 ### OpenMRS 2.x vs O3 (3.x) Decision
 
-**Current Choice: OpenMRS 2.6.0 Platform + Next.js Frontend (Option B) [DONE]**
+**Current Choice: OpenMRS 2.4.0 Platform + Next.js Frontend (Option B) [DONE]**
 
 **Why NOT OpenMRS O3 for MVP:**
 1. **Architecture Complexity:** O3 uses microfrontend architecture (Single-SPA) - steep learning curve
@@ -2936,11 +3052,11 @@ docker-compose up -d
 - **Architecture:** Decoupled frontend microservices + backend API
 - **Stack:** React + TypeScript + Carbon Design System (IBM) + Single-SPA + Webpack
 - **Key Feature:** Modern, mobile-responsive UI with better UX than Reference Application 2.x
-- **Backend:** Uses SAME REST/FHIR API as 2.x (can run on top of OpenMRS 2.6.0 database)
+- **Backend:** Uses SAME REST/FHIR API as 2.x (can run on top of OpenMRS 2.4.0 database)
 - **Maturity:** Production-ready, actively developed, growing community
 
 **Why O3 Makes Sense Post-MVP (v2 Consideration):**
-1. **Backend Compatible:** O3 runs on our existing OpenMRS 2.6.0 backend (no migration!)
+1. **Backend Compatible:** O3 runs on our existing OpenMRS 2.4.0 backend (no migration!)
 2. **Better UX:** Modern UI/UX vs building everything from scratch in Next.js
 3. **Reusable Components:** Pre-built React components for patient dashboard, forms, etc.
 4. **Multi-facility:** Microfrontend architecture scales better than monolithic Next.js
@@ -2959,13 +3075,13 @@ docker-compose up -d
 | Multi-facility Support | [FAILED] Harder to scale | [DONE] Designed for it |
 
 **Recommendation:**
-- [DONE] **MVP (Now):** Continue with OpenMRS 2.6.0 + Next.js frontend (Option B)
+- [DONE] **MVP (Now):** Continue with OpenMRS 2.4.0 + Next.js frontend (Option B)
 - 📝 **Post-MVP (v2):** Evaluate O3 migration after pilot success
 - [ACTIVE] **Migration Path:** Backend stays the same, only frontend changes
 - 📚 **Resources:** Bookmark [O3 Developer Docs](https://openmrs.atlassian.net/wiki/spaces/docs/pages/151093495) for future reference
 
 **Key Insight:**
-> O3 is a frontend framework, not a platform upgrade. We can switch to O3 later WITHOUT changing our OpenMRS 2.6.0 backend. This gives us flexibility to deliver MVP fast with Next.js, then adopt O3's modern UI/UX post-pilot if needed.
+> O3 is a frontend framework, not a platform upgrade. We can switch to O3 later WITHOUT changing our OpenMRS 2.4.0 backend. This gives us flexibility to deliver MVP fast with Next.js, then adopt O3's modern UI/UX post-pilot if needed.
 
 ### NHIE Integration
 - **Specs pending:** MoH hasn't finalized NHIE FHIR profiles yet
@@ -3065,6 +3181,8 @@ AI agents should escalate (create GitHub issue with `needs-decision` label) when
 | 1.1 | 2025-11-01 | **Critical architecture updates**: MySQL 5.7 requirement (not 8.0), REST API verification process, OpenMRS Platform "no UI" clarification, reference-application-distro vs openmrs-core guidance, OpenMRS 2.x vs O3 decision matrix |
 | 1.2 | 2025-11-01 | **External references added**: Uganda EMR (METS-Programme) repositories evaluated and documented - critical NHIE sync patterns, queue management, identifier generation, reports, O3 implementation, metadata deployment. See docs/UGANDA_EMR_REFERENCE.md for detailed code adaptation strategies. |
 | 1.3 | 2025-11-02 | **Documentation consolidation**: Created EXTERNAL_RESOURCES.md (centralized index of all external links), renamed REFERENCES.md to UGANDA_EMR_REFERENCE.md (clearer purpose), updated Resources section to reference both comprehensive docs. All external OpenMRS/FHIR/Ghana/Tools links now in single source of truth. |
+| 1.4 | 2025-11-03 | **🚨 CRITICAL REQUIREMENTS SECTION ADDED**: Added prominent "NON-NEGOTIABLE TECHNOLOGY CONSTRAINTS" warning at top of AGENTS.md with Java 8, MySQL 5.7, OpenMRS 2.4.0, Mockito 3.12.4 version locks. Created comprehensive README.md with version verification checklist. Updated IMPLEMENTATION_TRACKER.md with critical requirements table. Prevents accidental upgrades that would break 16-20 week MVP timeline. |
+| 1.5 | 2025-11-05 | **✅ PLATFORM VERSION CORRECTION**: Updated all references from Platform 2.6.0 → 2.4.0 after discovering 2.6.0 does NOT exist in OpenMRS 2.x. Module successfully loads on Platform 2.4.0 (Reference Application 2.12.0). See [OPENMRS_MODULE_FIX_IMPLEMENTATION.md](OPENMRS_MODULE_FIX_IMPLEMENTATION.md) and [OPENMRS_MODULE_LOADING_BLOCKER.md](OPENMRS_MODULE_LOADING_BLOCKER.md) for complete resolution details. |
 
 ---
 

@@ -1,11 +1,13 @@
 "use client";
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 type Item = { drug: string; strength?: string; form?: string; dosage?: string; frequency?: string; duration?: string; quantity?: number; instructions?: string };
 
 export default function DispensePage() {
+  const router = useRouter();
   const search = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const initialUuid = search?.get('patientUuid') || '';
   const [patientUuid, setPatientUuid] = React.useState(initialUuid);
@@ -74,6 +76,13 @@ export default function DispensePage() {
       </div>
       <div className="mt-3 flex items-center gap-3">
         <Button variant="outline" onClick={addItem}>Add Item</Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push('/opd/pharmacy-queue')}
+        >
+          Cancel
+        </Button>
         <Button onClick={submit} disabled={!patientUuid || !items[0]?.drug || !allowed}>Save Dispense</Button>
         {!allowed && <span className="text-xs text-amber-600">Insufficient role to save dispense</span>}
         {status && <span className="text-sm text-gray-600">{status}</span>}

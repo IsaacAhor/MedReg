@@ -1,7 +1,26 @@
 # Task Management Guide
 
-**Created:** November 2, 2025  
+**Created:** November 2, 2025
+**Updated:** November 5, 2025
 **Purpose:** Single-command task execution workflow for Ghana EMR MVP
+
+---
+
+## Pre-Task Protocol (MANDATORY)
+
+**Every worker starting ANY task MUST complete this checklist:**
+
+1. ✅ **Read [AGENTS.md](../../AGENTS.md)** - Project blueprint with critical constraints
+2. ✅ **Verify technology stack** - Java 8, MySQL 5.7, OpenMRS 2.6.0
+3. ✅ **Check [IMPLEMENTATION_TRACKER.md](../../IMPLEMENTATION_TRACKER.md)** - Current sprint status
+4. ✅ **Review [PROMPT_QUEUE.md](../../PROMPT_QUEUE.md)** - Task dependencies
+
+**New to the project?** Start with [START_HERE.md](../../START_HERE.md)
+
+**Why mandatory:**
+- Prevents version mismatches and breaking changes
+- Ensures understanding of OpenMRS requirements
+- Avoids repeating solved problems
 
 ---
 
@@ -326,5 +345,366 @@ A: Order tasks in PROMPT_QUEUE.md (top = highest priority). Worker always takes 
 
 ---
 
-**Last Updated:** 2025-11-02 16:30 UTC  
+## OpenMRS Backend Task Workflow (MCP Access Required)
+
+**Added:** 2025-11-03
+**Purpose:** Coordinate OpenMRS backend tasks between workers with and without MCP access
+
+### The Challenge
+
+**Not all workers have OpenMRS MCP access.** Workers without access get blocked when they encounter:
+- Database schema changes (Liquibase)
+- Java service implementation
+- Spring bean configuration
+- OpenMRS module build/deploy
+- REST endpoint creation
+
+### The Solution
+
+Use `OPENMRS_PROMPT_GUIDE.md` as a **specialized task queue** for OpenMRS-only work.
+
+**Architecture:**
+
+```
+Regular Worker              OpenMRS Worker
+(No MCP Access)             (Has MCP Access)
+     |                            |
+     |-- Frontend code            |-- Database (MySQL)
+     |-- Next.js API              |-- Java services
+     |-- UI components            |-- Spring config
+     |-- Documentation            |-- Module build/deploy
+     |                            |
+     +---------> HUMAN <----------+
+                   |
+          OPENMRS_PROMPT_GUIDE.md
+```
+
+### File Locations
+
+- **General tasks:** `PROMPT_QUEUE.md` (frontend, API, docs)
+- **OpenMRS tasks:** `OPENMRS_PROMPT_GUIDE.md` (backend, database, Java)
+
+### Workflow
+
+#### Regular Worker: Discovers OpenMRS Need
+
+```markdown
+## OPM-001: Queue Management Database Schema
+
+**Status:** TODO
+**Priority:** CRITICAL
+**Dependencies:** None
+
+### Context
+Frontend queue pages need ghanaemr_patient_queue table.
+Liquibase file already created, needs module build/deploy.
+
+### ✂️ COPY FROM HERE ✂️
+
+**Task:** Build and deploy OpenMRS module to create table
+
+**Steps:**
+1. cd backend/openmrs-module-ghanaemr
+2. mvn clean install -DskipTests
+3. docker cp omod/target/*.omod medreg-openmrs:/openmrs/data/modules/
+4. docker restart medreg-openmrs
+5. Verify table: docker exec medreg-mysql mysql -e "SHOW TABLES LIKE 'ghanaemr_patient_queue';"
+
+**Success Criteria:**
+- Table exists with all columns
+- All indexes created
+- Foreign keys verified
+
+### ✂️ COPY TO HERE ✂️
+```
+
+**Worker tells human:** "Added OPM-001 to OPENMRS_PROMPT_GUIDE.md. Need OpenMRS worker."
+
+#### Human: Coordinates Handoff
+
+1. Opens `OPENMRS_PROMPT_GUIDE.md`
+2. Finds task OPM-001 (status: TODO)
+3. Copies text between ✂️ markers
+4. Gives to OpenMRS-capable worker
+
+#### OpenMRS Worker: Executes Task
+
+1. Receives self-contained prompt
+2. Executes all steps in order
+3. Runs verification commands
+4. Updates status to DONE with completion report:
+
+```markdown
+### Completion Report (OPM-001)
+
+**Completed:** 2025-11-03
+**Completed By:** Worker-Alpha
+
+**Verification Output:**
+[Table structure verified - all columns present]
+
+**Notes:** No issues. Build succeeded first try.
+```
+
+**Worker tells human:** "Task OPM-001 completed."
+
+#### Regular Worker: Continues Work
+
+1. Human informs: "OPM-001 is done"
+2. Worker checks `OPENMRS_PROMPT_GUIDE.md` → status: DONE
+3. Continues with frontend queue pages (API calls now work)
+
+### Task Structure
+
+Each OpenMRS task includes:
+
+```markdown
+## OPM-XXX: [Task Title]
+
+**Status:** TODO | IN_PROGRESS | BLOCKED | DONE | CANCELLED
+**Priority:** CRITICAL | HIGH | MEDIUM | LOW
+**Created:** YYYY-MM-DD
+**Dependencies:** [Other OPM task IDs]
+**Related Files:**
+- Backend: [Java files, config]
+- Frontend: [Pages that depend on this]
+
+### Context
+[Why this is needed, what already exists]
+
+**Current State:**
+- ✅ [Already done]
+- ❌ [Needs to be done]
+
+### Related Frontend Context
+[Which features depend on this backend work]
+
+---
+
+### ✂️ COPY FROM HERE ✂️
+
+## Self-Contained Prompt for OpenMRS Worker
+
+**Task:** [One-line description]
+
+**Prerequisites:**
+- [Dependencies]
+
+**Steps to Execute:**
+
+### 1. [Step Title]
+```bash
+# Complete commands with expected output
+```
+
+### Success Criteria
+- ✅ [Testable criterion]
+
+### Troubleshooting
+**Problem:** [Common issue]
+**Solution:** [Fix]
+
+### Update Status After Completion
+[Instructions to mark DONE]
+
+### ✂️ COPY TO HERE ✂️
+```
+
+### Task Priority Levels
+
+| Priority | When to Use |
+|----------|-------------|
+| CRITICAL | Blocks multiple features, needed for MVP |
+| HIGH | Blocks specific feature, needed soon |
+| MEDIUM | Nice-to-have for MVP, can defer |
+| LOW | Future enhancement, not MVP |
+
+### Dependencies
+
+Tasks can depend on other tasks:
+
+```
+OPM-001 (Database Schema)
+   |
+   +-- OPM-002 (Spring Beans) ← Needs table
+   |      |
+   |      +-- OPM-003 (Auto-Queue) ← Needs service
+   |
+   +-- OPM-004 (Location UUIDs) ← Independent, parallel OK
+```
+
+**Don't start OPM-003 until OPM-001 AND OPM-002 are both DONE.**
+
+### Best Practices
+
+#### For Regular Workers (Adding OpenMRS Tasks)
+
+✅ **DO:**
+- Include ALL context (why needed, what depends on it)
+- Write self-contained prompts (no codebase search required)
+- Provide exact bash commands with expected output
+- List dependencies clearly
+- Add troubleshooting for common issues
+- Update Active Task Summary table
+
+❌ **DON'T:**
+- Assume OpenMRS worker knows frontend context
+- Use vague instructions ("configure database")
+- Skip verification steps
+- Forget to set status to TODO
+
+#### For OpenMRS Workers (Executing Tasks)
+
+✅ **DO:**
+- Read entire prompt before starting
+- Execute steps in exact order
+- Run ALL verification commands
+- Paste verification output in completion report
+- Update status to DONE when finished
+- Document deviations in notes
+
+❌ **DON'T:**
+- Skip verification ("it probably worked")
+- Forget to update status
+- Mark DONE if verification failed
+- Deviate from prompt without documenting why
+
+### Common Scenarios
+
+**Scenario 1: Frontend Needs Database Table**
+
+1. Regular worker creates Liquibase changeset
+2. Adds OPM task: "Build/deploy module to create table"
+3. Continues with frontend code (mocking table for now)
+4. OpenMRS worker deploys module, table created
+5. Regular worker removes mock, tests with real table
+
+**Scenario 2: Need New REST Endpoint**
+
+1. Regular worker writes Java code for endpoint
+2. Adds OPM task: "Create file at path X, build/deploy"
+3. Mocks endpoint in frontend for testing
+4. OpenMRS worker creates file, deploys module
+5. Regular worker removes mock, uses real endpoint
+
+**Scenario 3: Task Blocked on Decision**
+
+1. OpenMRS worker starts task
+2. Encounters ambiguity: "Global property or config file?"
+3. Updates status: BLOCKED
+4. Adds blocker note with options A/B
+5. Human decides, updates task
+6. Worker continues with decision
+
+### Integration with General Task Workflow
+
+**Use PROMPT_QUEUE.md when:**
+- Frontend pages, components
+- Next.js API routes
+- Documentation
+- Tasks regular worker can complete alone
+
+**Use OPENMRS_PROMPT_GUIDE.md when:**
+- Database schema (Liquibase)
+- Java services, DAOs
+- Spring configuration
+- OpenMRS module build/deploy
+- Tasks requiring OpenMRS MCP access
+
+**Update IMPLEMENTATION_TRACKER.md after:**
+- Any task from PROMPT_QUEUE.md completes
+- Any task from OPENMRS_PROMPT_GUIDE.md completes
+- Record: What done, when, by whom, files changed
+
+### Quick Reference
+
+**Regular Worker Needs OpenMRS Work:**
+
+1. Open `OPENMRS_PROMPT_GUIDE.md`
+2. Copy template from "How to Add New Tasks" section
+3. Fill all sections, add ✂️ markers
+4. Update Active Task Summary table
+5. Set status: TODO
+6. Tell human: "Added OPM-XXX to OpenMRS guide"
+
+**OpenMRS Worker Receives Task:**
+
+1. Read entire prompt
+2. Check dependencies are DONE
+3. Update status: IN_PROGRESS
+4. Execute steps in order
+5. Run ALL verification commands
+6. Paste output in completion report
+7. Update status: DONE
+8. Tell human: "Completed OPM-XXX"
+
+**Human Coordinates:**
+
+1. Worker says "Added OPM-XXX" → Copy prompt, give to OpenMRS worker
+2. Worker says "Completed OPM-XXX" → Verify, tell regular worker
+
+### Success Metrics
+
+✅ **System working well when:**
+- Regular workers never blocked by "need OpenMRS access"
+- OpenMRS workers execute without clarifying questions
+- Task handoff takes <5 minutes
+- 90%+ tasks complete on first try
+- Verification catches issues before marking DONE
+
+❌ **Needs improvement when:**
+- OpenMRS worker asks many questions
+- Tasks marked DONE but don't work
+- Regular worker can't continue (unclear task)
+- Dependencies not documented, wrong order
+
+### Example: Complete Lifecycle
+
+**Monday 10am - Regular Worker:**
+
+Working on triage queue page, realizes table missing.
+
+Adds to `OPENMRS_PROMPT_GUIDE.md`:
+```markdown
+## OPM-001: Create ghanaemr_patient_queue table
+**Status:** TODO
+[Complete self-contained prompt...]
+```
+
+Tells human: "Added OPM-001, need OpenMRS worker."
+
+**Monday 10:30am - Human:**
+
+Opens `OPENMRS_PROMPT_GUIDE.md`, copies prompt between ✂️.
+Gives to OpenMRS worker.
+
+**Monday 11am - OpenMRS Worker:**
+
+Executes prompt:
+1. Build module → ✅ SUCCESS
+2. Deploy → ✅ SUCCESS
+3. Verify table → ✅ EXISTS
+
+Updates `OPENMRS_PROMPT_GUIDE.md`:
+```markdown
+## OPM-001: Create table
+**Status:** DONE ✅
+**Completed:** 2025-11-03
+
+### Completion Report
+[Verification output showing table structure]
+```
+
+Tells human: "OPM-001 complete."
+
+**Monday 11:30am - Regular Worker:**
+
+Human says: "OPM-001 done."
+Checks file → status DONE ✅.
+Tests frontend API call → works!
+Continues building queue page.
+
+---
+
+**Last Updated:** 2025-11-03 (Added OpenMRS workflow section)
 **Maintained by:** Human (task definitions) + Workers (execution)

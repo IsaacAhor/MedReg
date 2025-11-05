@@ -1,0 +1,73 @@
+# TEST DOCKER COMPOSE - Will be deleted after testing
+# Tests Ghana EMR module on OpenMRS Platform 2.4.0 (Reference Application 2.12.0)
+
+services:
+  test-mysql:
+    image: mysql:5.7
+    container_name: medreg-test-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: openmrs
+      MYSQL_USER: openmrs_user
+      MYSQL_PASSWORD: openmrs_password
+    ports:
+      - "3308:3306"  # Different port to avoid conflict
+    volumes:
+      - test_mysql_data:/var/lib/mysql
+    command:
+        --default-authentication-plugin=mysql_native_password
+        --character-set-server=utf8mb4
+        --collation-server=utf8mb4_unicode_ci
+        --default-storage-engine=InnoDB
+        --sql-mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - test-network
+
+  test-openmrs:
+    # Build from test Dockerfile with Platform 2.4.0
+    build:
+      context: ./backend/openmrs-module-ghanaemr
+      dockerfile: Dockerfile.test-2.13
+    image: medreg-openmrs-test:2.4.0
+    container_name: medreg-test-openmrs
+    restart: unless-stopped
+    depends_on:
+      test-mysql:
+        condition: service_healthy
+    environment:
+      DB_DATABASE: openmrs
+      DB_HOST: test-mysql
+      DB_USERNAME: openmrs_user
+      DB_PASSWORD: openmrs_password
+      DB_CREATE_TABLES: "true"
+      DB_AUTO_UPDATE: "true"
+      MODULE_WEB_ADMIN: "true"
+    ports:
+      - "8081:8080"  # Different port to avoid conflict
+    volumes:
+      # Separate test volume
+      - test_openmrs_data:/usr/local/tomcat/.OpenMRS
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs/"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 300s
+    networks:
+      - test-network
+
+volumes:
+  test_mysql_data:
+    driver: local
+  test_openmrs_data:
+    driver: local
+
+networks:
+  test-network:
+    driver: bridge
