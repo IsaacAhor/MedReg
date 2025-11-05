@@ -72,19 +72,47 @@ export class OpenMRSClient {
    * Authenticate with OpenMRS and create session
    */
   async authenticate(): Promise<OpenMRSSession> {
-    try {
-      const response = await this.client.get('/session', {
-        auth: {
-          username: this.config.username,
-          password: this.config.password,
-        },
-      });
+    const allowFallback = (process.env.OPENMRS_ALLOW_BASEURL_FALLBACK || 'false').toLowerCase() === 'true';
 
+    // First try configured base URL (fail fast if fallback disabled)
+    try {
+      const response = await axios.get(this.config.baseUrl + '/session', {
+        auth: { username: this.config.username, password: this.config.password },
+        timeout: 15000,
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true,
+      });
+      this.client.defaults.baseURL = this.config.baseUrl;
       this.session = response.data;
       return this.session;
-    } catch (error) {
-      throw new Error(`OpenMRS authentication failed: ${error}`);
+    } catch (primaryErr: any) {
+      if (!allowFallback) {
+        throw new Error(`OpenMRS authentication failed at configured base URL (${this.config.baseUrl}): ${primaryErr?.message || primaryErr}`);
+      }
     }
+
+    // Dev-mode convenience: try localhost fallbacks
+    const candidates = [
+      'http://localhost:8080/openmrs/ws/rest/v1',
+      'http://127.0.0.1:8080/openmrs/ws/rest/v1',
+    ];
+    const errors: string[] = [];
+    for (const base of candidates) {
+      try {
+        const response = await axios.get(base + '/session', {
+          auth: { username: this.config.username, password: this.config.password },
+          timeout: 15000,
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        });
+        this.client.defaults.baseURL = base;
+        this.session = response.data;
+        return this.session;
+      } catch (e: any) {
+        errors.push(`${base}: ${e?.message || 'unknown error'}`);
+      }
+    }
+    throw new Error(`OpenMRS authentication failed. Primary=${this.config.baseUrl}. Fallbacks tried -> ${errors.join(' | ')}`);
   }
 
   /**

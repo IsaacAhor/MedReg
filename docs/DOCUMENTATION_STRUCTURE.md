@@ -66,6 +66,7 @@ MedReg/
     │   ├── week1-setup-guide.md (Initial environment setup)
     │   ├── nhie-mock-guide.md (NHIE mock server guide - 1000+ lines)
     │   ├── openmrs-docker-setup.md (OpenMRS configuration)
+    │   ├── MCP_GUIDE.md (Model Context Protocol servers: OpenMRS REST + Admin)
     │   ├── week1-implementation-summary.md (Week 1 deep dive)
     │   └── TASK8_COMPLETION_SUMMARY.md (NHIEIntegrationService technical reference)
     │

@@ -30,17 +30,18 @@ services:
       - medreg-network
 
   openmrs:
-    # Build custom image with entrypoint script that installs module before Tomcat starts
+    # Build custom image with Platform 2.4.0 and Ghana EMR module
     build:
       context: ./backend/openmrs-module-ghanaemr
       dockerfile: Dockerfile
-    image: medreg-openmrs:latest
+    image: medreg-openmrs:2.4.0
     container_name: medreg-openmrs
     restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
     environment:
+      # Legacy OpenMRS environment variables (used by some versions)
       DB_DATABASE: openmrs
       DB_HOST: mysql
       DB_USERNAME: openmrs_user
@@ -48,6 +49,17 @@ services:
       DB_CREATE_TABLES: "true"
       DB_AUTO_UPDATE: "true"
       MODULE_WEB_ADMIN: "true"
+
+      # Standard OpenMRS configuration variables
+      OMRS_CONFIG_CONNECTION_SERVER: mysql
+      OMRS_CONFIG_CONNECTION_DATABASE: openmrs
+      OMRS_CONFIG_CONNECTION_USERNAME: openmrs_user
+      OMRS_CONFIG_CONNECTION_PASSWORD: openmrs_password
+      OMRS_CONFIG_CREATE_TABLES: "true"
+      OMRS_CONFIG_AUTO_UPDATE_DATABASE: "true"
+      OMRS_CONFIG_MODULE_WEB_ADMIN: "true"
+      OMRS_CONFIG_INSTALL_METHOD: auto
+      OMRS_CONFIG_ADMIN_USER_PASSWORD: Admin123
     ports:
       - "8080:8080"
     volumes:
