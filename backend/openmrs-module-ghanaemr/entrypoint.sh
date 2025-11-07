@@ -22,6 +22,24 @@ else
     echo "WARNING: Ghana EMR module not found at /modules-to-install/$MODULE_NAME"
 fi
 
+# Also ensure Reference Application bundled modules are installed (REST, UI, etc.)
+BUNDLED_DIR="/usr/local/tomcat/webapps/openmrs/WEB-INF/bundledModules"
+if [ -d "$BUNDLED_DIR" ]; then
+    echo "Installing bundled Reference Application modules from $BUNDLED_DIR"
+    for mod in "$BUNDLED_DIR"/*.omod; do
+        [ -e "$mod" ] || continue
+        base=$(basename "$mod")
+        if [ ! -f "$MODULES_DIR/$base" ]; then
+            echo " - Installing $base"
+            cp "$mod" "$MODULES_DIR/" || true
+        else
+            echo " - Already present: $base"
+        fi
+    done
+else
+    echo "WARNING: Bundled modules directory not found at $BUNDLED_DIR"
+fi
+
 # Generate OpenMRS runtime properties if not exists (for automated setup)
 RUNTIME_PROPS="$OPENMRS_DATA_DIR/openmrs-runtime.properties"
 if [ ! -f "$RUNTIME_PROPS" ]; then
@@ -49,9 +67,10 @@ connection.password=${DB_PASS}
 
 # Database configuration
 create_database_user=false
-has_current_openmrs_database=true
+has_current_openmrs_database=false
 create_tables=true
-add_demo_data=false
+# Load Reference Application demo data to ensure required metadata for modules
+add_demo_data=true
 auto_update_database=true
 
 # Module web admin

@@ -1,12 +1,12 @@
 import axios from 'axios';
 
+// Client for calling Next.js internal API routes (browser -> Next API)
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_OPENMRS_API_URL || 'http://localhost:8080/openmrs/ws/rest/v1',
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true, // Important: Send cookies with requests (session management)
+  baseURL: '/api',
+  timeout: 12000,
+  headers: { 'Content-Type': 'application/json' },
+  // Cookies for same-origin API (session + role cookies)
+  withCredentials: true,
 });
 
 // Request interceptor (add auth token if available)

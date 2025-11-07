@@ -17,5 +17,6 @@ public interface PatientQueueDAO {
     int getNextQueueNumber(Location toLocation, Date day);
 
     PatientQueue getActiveQueueEntry(Patient patient, Location location);
-}
 
+    PatientQueue getByUuid(String uuid);
+}

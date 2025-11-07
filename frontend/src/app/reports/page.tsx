@@ -8,16 +8,16 @@ export default function ReportsPage() {
   const [mix, setMix] = React.useState<{ nhis?: number, cash?: number }>({});
   const [tops, setTops] = React.useState<any[]>([]);
 
-  const load = async () => {
+  const load = React.useCallback(async () => {
     const reg = await fetch(`/api/reports/opd-register?date=${date}`).then(r => r.json());
     setOpd(reg?.items || []);
     const mixRes = await fetch(`/api/reports/nhis-vs-cash?date=${date}`).then(r => r.json());
     setMix({ nhis: mixRes?.nhis ?? 0, cash: mixRes?.cash ?? 0 });
     const topsRes = await fetch(`/api/reports/top-diagnoses?from=${date}&to=${date}&limit=10`).then(r => r.json());
     setTops(topsRes?.items || []);
-  };
+  }, [date]);
 
-  React.useEffect(() => { load(); }, []);
+  React.useEffect(() => { load(); }, [load]);
 
   return (
     <div className="max-w-6xl mx-auto p-6">

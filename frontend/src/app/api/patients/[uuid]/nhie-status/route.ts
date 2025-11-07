@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import axios from '@/lib/axios';
+import openmrs from '@/lib/openmrs';
 
 /**
  * GET /api/patients/[uuid]/nhie-status

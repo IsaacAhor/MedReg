@@ -1,43 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-const OPENMRS_BASE_URL = process.env.OPENMRS_BASE_URL || 'http://localhost:8080/openmrs/ws/rest/v1';
+export const dynamic = 'force-dynamic';
+
+// Prefer configured public API URL when server var is absent
+const OPENMRS_BASE_URL =
+  process.env.OPENMRS_BASE_URL ||
+  process.env.NEXT_PUBLIC_OPENMRS_API_URL ||
+  'http://localhost:8080/openmrs/ws/rest/v1';
 const OPENMRS_ROOT_URL = OPENMRS_BASE_URL.replace(/\/ws\/rest\/v1\/?$/, '');
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password, locationUuid } = await request.json();
+    const { username, password, locationUuid, location } = await request.json();
 
     if (!username || !password) {
       return NextResponse.json({ message: 'Username and password are required' }, { status: 400 });
     }
 
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
-
+    // Establish OpenMRS session via POST /session (captures JSESSIONID)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
     const sessionResponse = await fetch(`${OPENMRS_BASE_URL}/session`, {
-      headers: { Authorization: authHeader, Accept: 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ username, password }),
       cache: 'no-store',
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeout));
 
     if (!sessionResponse.ok) {
       return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
 
+    const setCookie = sessionResponse.headers.get('set-cookie') || '';
+    const jsessMatch = setCookie.match(/JSESSIONID=([^;]+)/i);
+    if (!jsessMatch) {
+      return NextResponse.json({ message: 'Login failed: no session cookie' }, { status: 500 });
+    }
+    const jsessionId = jsessMatch[1];
     const session = await sessionResponse.json();
     if (!session?.authenticated) {
       return NextResponse.json({ message: 'Authentication failed' }, { status: 401 });
     }
 
-    if (locationUuid) {
+    const selectedLocation = locationUuid || location; // support either field name
+    if (selectedLocation) {
       try {
+        const controller2 = new AbortController();
+        const t2 = setTimeout(() => controller2.abort(), 5_000);
         await fetch(`${OPENMRS_ROOT_URL}/appui/session.action`, {
           method: 'POST',
           headers: {
-            Authorization: authHeader,
             'Content-Type': 'application/x-www-form-urlencoded',
+            Cookie: `JSESSIONID=${jsessionId}`,
           },
-          body: `locationId=${encodeURIComponent(locationUuid)}`,
-        });
+          body: `locationId=${encodeURIComponent(selectedLocation)}`,
+          signal: controller2.signal,
+        }).finally(() => clearTimeout(t2));
       } catch (e) {
         // Non-fatal: continue login even if location set fails
         console.warn('OpenMRS set session location failed');
@@ -59,9 +79,12 @@ export async function POST(request: NextRequest) {
     const secure = process.env.NODE_ENV === 'production';
     const baseCookie = { httpOnly: true, secure, sameSite: 'lax' as const, maxAge: 60 * 60 * 8, path: '/' };
 
+    // Persist OpenMRS session ID for server-side calls
+    cookieStore.set('omrsSession', jsessionId, baseCookie);
+    // Auth flags + role/location/provider context
     cookieStore.set('omrsAuth', '1', baseCookie);
     cookieStore.set('omrsRole', primaryRole, baseCookie);
-    if (locationUuid) cookieStore.set('omrsLocation', locationUuid, baseCookie);
+    if (selectedLocation) cookieStore.set('omrsLocation', selectedLocation, baseCookie);
     if (session.currentProvider?.uuid) cookieStore.set('omrsProvider', session.currentProvider.uuid, baseCookie);
 
     return NextResponse.json({
@@ -80,4 +103,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Login failed' }, { status: 500 });
   }
 }
-

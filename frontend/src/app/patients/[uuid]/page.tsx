@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 interface NHIEStatus {
   patientUuid: string;
@@ -88,6 +89,11 @@ export default function PatientHubPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <Breadcrumb items={[
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Patients', href: '/patients' },
+        { label: 'Patient Details' },
+      ]} />
       {/* Patient Demographics */}
       <Card>
         <CardHeader>

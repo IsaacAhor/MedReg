@@ -12,6 +12,7 @@ import { ESSENTIAL_MEDICINES } from '@/lib/gh/essential-medicines';
 import { COMMON_LAB_TESTS } from '@/lib/gh/common-labs';
 import { consultationSchema, type ConsultationFormData } from '@/lib/schemas/consultation';
 import { useConsultation } from '@/hooks/useConsultation';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export default function ConsultationPage() {
   const router = useRouter();
@@ -42,9 +43,28 @@ export default function ConsultationPage() {
 
   const mutation = useConsultation();
 
-  const onSubmit = (values: ConsultationFormData) => {
+  const onSubmit = async (values: ConsultationFormData) => {
     if (!allowed) return;
-    mutation.mutate(values);
+    try {
+      const result = await (mutation as any).mutateAsync?.(values) ?? null;
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const queueUuid = params?.get('queueUuid');
+      const nextLoc = process.env.NEXT_PUBLIC_PHARMACY_LOCATION_UUID || '';
+      if (queueUuid && nextLoc) {
+        await fetch('/api/opd/queue/move', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ queueUuid, patientUuid: values.patientUuid, nextLocationUuid: nextLoc }),
+        });
+      }
+      setTimeout(() => {
+        // Go back to consultation queue
+        (window as any).location = '/opd/consultation-queue';
+      }, 1000);
+      return result;
+    } catch {
+      // handled by hook toasts
+    }
   };
 
   const toggleDiagnosis = (code: string, display: string) => {
@@ -77,6 +97,11 @@ export default function ConsultationPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      <Breadcrumb items={[
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Consultation Queue', href: '/opd/consultation-queue' },
+        { label: 'Consultation' },
+      ]} />
       <h1 className="text-2xl font-semibold mb-4">OPD Consultation</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

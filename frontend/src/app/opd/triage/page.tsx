@@ -3,11 +3,14 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { toast } from 'sonner';
 
 export default function TriagePage() {
   const router = useRouter();
   const search = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const initialUuid = search?.get('patientUuid') || '';
+  const queueUuid = search?.get('queueUuid') || '';
   const [patientUuid, setPatientUuid] = React.useState(initialUuid);
   const [allowed, setAllowed] = React.useState(true);
   React.useEffect(() => {
@@ -44,11 +47,34 @@ export default function TriagePage() {
       }),
     });
     const data = await res.json();
-    setStatus(res.ok ? 'Saved' : (data?.error || 'Failed'));
+    if (!res.ok) {
+      setStatus(data?.error || 'Failed');
+      toast.error('Failed to save triage', { description: data?.error || 'Please try again' });
+      return;
+    }
+    // Move to consultation queue if coming from queue
+    const nextLoc = process.env.NEXT_PUBLIC_CONSULTATION_LOCATION_UUID || '';
+    if (queueUuid && nextLoc) {
+      try {
+        await fetch('/api/opd/queue/move', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ queueUuid, patientUuid, nextLocationUuid: nextLoc }),
+        });
+      } catch {}
+    }
+    setStatus('Saved');
+    toast.success('Triage saved', { description: 'Patient sent to consultation queue' });
+    setTimeout(() => router.push('/opd/triage-queue'), 1500);
   };
 
   return (
     <div className="max-w-2xl mx-auto p-6">
+      <Breadcrumb items={[
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Triage Queue', href: '/opd/triage-queue' },
+        { label: 'Record Vitals' },
+      ]} />
       <h1 className="text-2xl font-semibold mb-4">OPD Triage</h1>
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2">

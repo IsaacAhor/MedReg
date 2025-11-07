@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 // Ghana Card checksum (Luhn) as per AGENTS.md
 function validateGhanaCardChecksum(ghanaCard: string): boolean {
@@ -150,7 +151,15 @@ export default function PatientRegistrationPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <Breadcrumb items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Patients', href: '/patients' },
+          { label: 'Register' },
+        ]} />
+      </div>
+      <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-6">Patient Registration</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -360,6 +369,7 @@ export default function PatientRegistrationPage() {
           </div>
         </form>
       </Form>
+      </div>
     </div>
   );
 }

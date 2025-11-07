@@ -8,6 +8,7 @@ export default function DashboardPage() {
   const [nhieConnected, setNhieConnected] = React.useState<boolean | null>(null);
   const [metrics, setMetrics] = React.useState<{ dlqCount?: number } | null>(null);
   const [opd, setOpd] = React.useState<{ opdEncountersToday?: number, newPatientsToday?: number } | null>(null);
+  const [queueCounts, setQueueCounts] = React.useState<{ triage?: number; consult?: number; pharmacy?: number }>({});
 
   React.useEffect(() => {
     let mounted = true;
@@ -23,6 +24,21 @@ export default function DashboardPage() {
       .then(r => r.json())
       .then(d => { if (mounted) setOpd(d || {}); })
       .catch(() => { if (mounted) setOpd({}); });
+    // Queue widgets (best-effort)
+    const triageLoc = process.env.NEXT_PUBLIC_TRIAGE_LOCATION_UUID || '';
+    const consultLoc = process.env.NEXT_PUBLIC_CONSULTATION_LOCATION_UUID || '';
+    const pharmLoc = process.env.NEXT_PUBLIC_PHARMACY_LOCATION_UUID || '';
+    const loadQueue = async (loc?: string) => {
+      if (!loc) return 0;
+      try {
+        const r = await fetch(`/api/opd/queue/${encodeURIComponent(loc)}?status=PENDING`, { cache: 'no-store' });
+        const j = await r.json().catch(() => ({}));
+        return Array.isArray(j?.results) ? j.results.length : 0;
+      } catch { return 0; }
+    };
+    Promise.all([loadQueue(triageLoc), loadQueue(consultLoc), loadQueue(pharmLoc)]).then(([t, c, p]) => {
+      if (mounted) setQueueCounts({ triage: t, consult: c, pharmacy: p });
+    });
     return () => { mounted = false; };
   }, []);
 
@@ -58,6 +74,25 @@ export default function DashboardPage() {
             <div className="text-sm text-gray-500">NHIE Queue</div>
             <div className="text-3xl font-bold text-gray-900">DLQ</div>
             <div className="text-gray-600 mt-2">{metrics?.dlqCount ?? '-'} pending</div>
+          </div>
+          {/* Role queue widgets */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="text-sm text-gray-500">Nurse</div>
+            <div className="text-3xl font-bold text-gray-900">Triage Queue</div>
+            <div className="text-gray-600 mt-2">{queueCounts.triage ?? 0} waiting</div>
+            <div className="mt-3"><a className="text-indigo-600 hover:underline text-sm" href="/opd/triage-queue">View All</a></div>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="text-sm text-gray-500">Doctor</div>
+            <div className="text-3xl font-bold text-gray-900">Consult Queue</div>
+            <div className="text-gray-600 mt-2">{queueCounts.consult ?? 0} waiting</div>
+            <div className="mt-3"><a className="text-indigo-600 hover:underline text-sm" href="/opd/consultation-queue">View All</a></div>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="text-sm text-gray-500">Pharmacist</div>
+            <div className="text-3xl font-bold text-gray-900">Pharmacy Queue</div>
+            <div className="text-gray-600 mt-2">{queueCounts.pharmacy ?? 0} waiting</div>
+            <div className="mt-3"><a className="text-indigo-600 hover:underline text-sm" href="/opd/pharmacy-queue">View All</a></div>
           </div>
         </div>
         <div className="mt-6 flex items-center gap-3 text-sm">

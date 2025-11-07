@@ -1,6 +1,6 @@
 package org.openmrs.module.ghanaemr.api.nhie.impl;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hl7.fhir.r4.model.Patient;
 import org.openmrs.PersonAttribute;
 import org.openmrs.PersonAttributeType;
@@ -101,7 +101,7 @@ public class NHIEIntegrationServiceImpl implements NHIEIntegrationService {
         try {
             String transactionId = java.util.UUID.randomUUID().toString();
             org.hl7.fhir.r4.model.Encounter fhirEncounter = fhirEncounterMapper.toFhirEncounter(encounter);
-            String fhirJson = new ca.uhn.fhir.context.FhirContext().newJsonParser().encodeResourceToString(fhirEncounter);
+            String fhirJson = ca.uhn.fhir.context.FhirContext.forR4().newJsonParser().encodeResourceToString(fhirEncounter);
 
             transactionLogger.log(transactionId,
                     encounter.getPatient() != null ? encounter.getPatient().getPatientId() : null,

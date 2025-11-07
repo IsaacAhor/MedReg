@@ -394,7 +394,29 @@ cd ../mysql; npm install
 cd ../shared; npm install
 ```
 
-#### Step 3: Verify Installation
+#### Step 3: Configure MCP/OpenMRS Connectivity
+
+Create or edit environment files to point MCP servers at your OpenMRS REST base:
+
+```
+mcp-servers/openmrs/.env
+mcp-servers/openmrs-admin/.env
+```
+
+Recommended contents:
+
+```
+OPENMRS_BASE_URL=http://localhost:8080/openmrs/ws/rest/v1
+OPENMRS_USERNAME=admin
+OPENMRS_PASSWORD=Admin123
+```
+
+Notes:
+- You may also point Codex/Claude MCP config to the same values (see `configs/codex-config.toml`).
+- The MCP client auto-normalizes `http://localhost:8080/openmrs` to `/ws/rest/v1` to prevent 404s.
+- After changing env, restart the MCP servers (restart Claude/Codex if needed).
+
+#### Step 4: Verify Installation
 
 ```powershell
 # Still in mcp-servers/ directory
@@ -408,6 +430,7 @@ Verifying MCP Infrastructure Setup...
 [OK] Node.js 18+ installed (v18.17.0)
 [OK] Docker is running
 [OK] OpenMRS is accessible (http://localhost:8080)
+[OK] REST base reachable (/ws/rest/v1/session returns 200 unauthenticated)
 [OK] MySQL is accessible (port 3307)
 [OK] OpenMRS MCP Server builds successfully
 [OK] MySQL MCP Server builds successfully

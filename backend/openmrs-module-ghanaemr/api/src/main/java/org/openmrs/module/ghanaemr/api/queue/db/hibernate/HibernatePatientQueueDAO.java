@@ -77,5 +77,15 @@ public class HibernatePatientQueueDAO implements PatientQueueDAO {
                 .list();
         return list.isEmpty() ? null : (PatientQueue) list.get(0);
     }
-}
 
+    @Override
+    @Transactional(readOnly = true)
+    public PatientQueue getByUuid(String uuid) {
+        List list = sessionFactory.getCurrentSession()
+                .createQuery("from PatientQueue q where q.uuid = :u")
+                .setParameter("u", uuid)
+                .setMaxResults(1)
+                .list();
+        return list.isEmpty() ? null : (PatientQueue) list.get(0);
+    }
+}

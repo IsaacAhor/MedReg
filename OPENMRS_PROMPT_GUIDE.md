@@ -516,7 +516,80 @@ After successfully completing this task, update this file:
 
 ---
 
-### Blocker Report (OPM-001)
+### Completion Report (OPM-001)
+
+**Completed:** 2025-11-05
+**Completed By:** Codex (OpenMRS MCP)
+
+**Verification Output:**
+
+1) Table existence
+```
+SHOW TABLES FROM openmrs LIKE 'ghanaemr_patient_queue';
+ghanaemr_patient_queue
+```
+
+2) DESCRIBE ghanaemr_patient_queue
+```
+Field\tType\tNull\tKey\tDefault\tExtra
+queue_id\tint(11)\tNO\tPRI\tNULL\tauto_increment
+uuid\tchar(38)\tNO\tUNI\tNULL\t
+patient_id\tint(11)\tNO\tMUL\tNULL\t
+visit_id\tint(11)\tNO\tMUL\tNULL\t
+location_from_id\tint(11)\tYES\tMUL\tNULL\t
+location_to_id\tint(11)\tNO\tMUL\tNULL\t
+provider_id\tint(11)\tYES\tMUL\tNULL\t
+status\tvarchar(50)\tNO\tMUL\tPENDING\t
+priority\tint(11)\tNO\t\t5\t
+queue_number\tvarchar(20)\tYES\t\tNULL\t
+comment\ttext\tYES\t\tNULL\t
+date_created\tdatetime\tNO\t\tNULL\t
+date_changed\tdatetime\tYES\t\tNULL\t
+creator\tint(11)\tNO\tMUL\tNULL\t
+changed_by\tint(11)\tYES\t\tNULL\t
+voided\ttinyint(1)\tNO\t\t0\t
+voided_by\tint(11)\tYES\t\tNULL\t
+date_voided\tdatetime\tYES\t\tNULL\t
+void_reason\tvarchar(255)\tYES\t\tNULL\t
+```
+
+3) SHOW INDEX
+```
+Table\tNon_unique\tKey_name\tSeq_in_index\tColumn_name
+ghanaemr_patient_queue\t0\tPRIMARY\t1\tqueue_id
+ghanaemr_patient_queue\t0\tuuid\t1\tuuid
+ghanaemr_patient_queue\t1\tghanaemr_queue_visit_fk\t1\tvisit_id
+ghanaemr_patient_queue\t1\tghanaemr_queue_location_from_fk\t1\tlocation_from_id
+ghanaemr_patient_queue\t1\tghanaemr_queue_location_to_fk\t1\tlocation_to_id
+ghanaemr_patient_queue\t1\tghanaemr_queue_provider_fk\t1\tprovider_id
+ghanaemr_patient_queue\t1\tghanaemr_queue_creator_fk\t1\tcreator
+ghanaemr_patient_queue\t1\tidx_queue_status_location\t1\tstatus
+ghanaemr_patient_queue\t1\tidx_queue_status_location\t2\tlocation_to_id
+ghanaemr_patient_queue\t1\tidx_queue_status_location\t3\tdate_created
+ghanaemr_patient_queue\t1\tidx_queue_patient_visit\t1\tpatient_id
+ghanaemr_patient_queue\t1\tidx_queue_patient_visit\t2\tvisit_id
+```
+
+4) Foreign keys
+```
+CONSTRAINT_NAME\tTABLE_NAME\tCOLUMN_NAME\tREFERENCED_TABLE_NAME\tREFERENCED_COLUMN_NAME
+ghanaemr_queue_creator_fk\tghanaemr_patient_queue\tcreator\tusers\tuser_id
+ghanaemr_queue_location_from_fk\tghanaemr_patient_queue\tlocation_from_id\tlocation\tlocation_id
+ghanaemr_queue_location_to_fk\tghanaemr_patient_queue\tlocation_to_id\tlocation\tlocation_id
+ghanaemr_queue_patient_fk\tghanaemr_patient_queue\tpatient_id\tpatient\tpatient_id
+ghanaemr_queue_provider_fk\tghanaemr_patient_queue\tprovider_id\tprovider\tprovider_id
+ghanaemr_queue_visit_fk\tghanaemr_patient_queue\tvisit_id\tvisit\tvisit_id
+```
+
+5) Liquibase changelog
+```
+ID\tAUTHOR\tFILENAME\tDATEEXECUTED\tEXECTYPE
+ghanaemr-queue-1\tmedreg\tliquibase-queue-management.xml\t2025-11-05 19:43:51\tEXECUTED
+```
+
+**Notes:**
+- Module is loaded and started; Liquibase executed successfully and created the queue table with indexes and foreign keys.
+- OMOD packaging includes config.xml (<updateToLatest/>) and API JAR under /lib with liquibase.xml and the queue changeset.
 
 **Observed:** 2025-11-03
 **Worker:** Codex (OpenMRS MCP)

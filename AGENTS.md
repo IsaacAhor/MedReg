@@ -32,6 +32,7 @@
 #### 3. OpenMRS Platform: 2.4.0 ONLY
 - [PROHIBITED] **DO NOT upgrade to OpenMRS 3.x (O3) during MVP**
 - [DONE] **MUST use:** OpenMRS Platform 2.4.0 with reference-application-distro:2.12.0
+- [WARNING] **CRITICAL NOTE:** OpenMRS Platform 2.4.0 does NOT come with a user interface (UI) module. When navigating to http://localhost:8080/openmrs/, you will see a message like: "If you are seeing this page, it means that the OpenMRS Platform is running successfully, but no user interface module is installed. Learn about the available User Interface Modules. If you are a developer, you can access the REST API. (See REST documentation for clients)". This is expected, as the project uses a separate Next.js frontend.
 - [WARNING] **CRITICAL NOTE:** Platform 2.6.0 does NOT exist in OpenMRS 2.x (only in 3.x architecture)
 - [WARNING] **Consequence of upgrade:** Complete architecture rewrite, microfrontend migration, 4-6 week delay
 - **Why locked:** 16-20 week MVP timeline, MoH pilot deadline Q1 2026
@@ -3211,3 +3212,11 @@ Changelog
 
 **Remember:** This file is living documentation. Update it whenever you make architecture decisions, discover new patterns, or encounter edge cases. All AI coding agents will automatically reference the latest version.
 \n### Module Endpoints (Reports)\n- `GET /ws/rest/v1/ghana/reports/opd-register?date={YYYY-MM-DD}&encounterTypeUuid={uuid}`\n- `GET /ws/rest/v1/ghana/reports/nhis-vs-cash?date={YYYY-MM-DD}`\n- `GET /ws/rest/v1/ghana/reports/top-diagnoses?from={YYYY-MM-DD}&to={YYYY-MM-DD}&limit=10`\n\n\n### User Management (Seeded Roles)\n- Platform Admin\n- Facility Admin\n- Doctor\n- Nurse\n- Pharmacist\n- Records Officer\n- Cashier\n- NHIS Officer\n\n
+#### 12.1 OpenMRS Module Packaging Hygiene (MVP Critical)
+
+- Do NOT bundle logging frameworks inside custom OMODs:
+  - Exclude: org.slf4j:slf4j-*, jcl-over-slf4j, commons-logging:commons-logging, log4j*, logback*
+- Use allowlist for dependency:copy-dependencies to include only required libraries (e.g., HAPI FHIR, HttpClient) into OMOD lib/.
+- Add antrun purge and maven-jar-plugin excludes as a belt-and-suspenders safeguard.
+- Validate OMOD lib/ by inspecting the packaged .omod (zip) and confirm no logging families are present.
+- If REST 404/500 occurs post-deploy for reasons unrelated to logging (e.g., module bean startup), for MVP baseline temporarily disable the module to confirm Platform REST health; fix module startup in a follow-up task.

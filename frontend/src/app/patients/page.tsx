@@ -10,6 +10,7 @@ import { Search, Plus } from "lucide-react";
 import { usePatients } from "@/hooks/usePatients";
 import { useSession } from "@/hooks/useAuth";
 import { maskGhanaCard } from "@/lib/validators/ghana-card";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 export default function PatientsPage() {
   const router = useRouter();
@@ -64,6 +65,10 @@ export default function PatientsPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Breadcrumb items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Patients' },
+        ]} />
         <Card>
           <CardHeader>
             <CardTitle>All Patients</CardTitle>

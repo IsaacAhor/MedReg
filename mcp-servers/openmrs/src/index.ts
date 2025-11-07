@@ -31,6 +31,10 @@ import {
   UpdateEnvSchema,
   listLocations,
   ListLocationsSchema,
+  createLocation,
+  CreateLocationSchema,
+  ensureStandardLocations,
+  EnsureStandardLocationsSchema,
   listProviders,
   ListProvidersSchema,
   listConcepts,
@@ -210,6 +214,8 @@ Returns PII-masked patient list (max 100 results).`,
     },
   },
   { name: 'list_locations', description: 'List OpenMRS locations (uuid, name, display).', inputSchema: { type: 'object', properties: {} } },
+  { name: 'create_location', description: 'Create a location (idempotent by name).', inputSchema: { type: 'object', properties: { name: { type: 'string' }, description: { type: 'string' }, parentUuid: { type: 'string' } }, required: ['name'] } },
+  { name: 'ensure_standard_locations', description: 'Ensure Triage, Consultation, Pharmacy exist; returns UUIDs.', inputSchema: { type: 'object', properties: { triageName: { type: 'string' }, consultationName: { type: 'string' }, pharmacyName: { type: 'string' } } } },
   { name: 'list_providers', description: 'List OpenMRS providers.', inputSchema: { type: 'object', properties: {} } },
   { name: 'list_concepts', description: 'Search concepts by name/code.', inputSchema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } },
   { name: 'list_identifier_types', description: 'List patient identifier types.', inputSchema: { type: 'object', properties: {} } },
@@ -324,6 +330,18 @@ async function main() {
         case 'list_locations': {
           const validated = ListLocationsSchema.parse(args || {});
           const result = await listLocations(validated, openmrsClient);
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        }
+
+        case 'create_location': {
+          const validated = CreateLocationSchema.parse(args);
+          const result = await createLocation(validated, openmrsClient);
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        }
+
+        case 'ensure_standard_locations': {
+          const validated = EnsureStandardLocationsSchema.parse(args || {});
+          const result = await ensureStandardLocations(validated, openmrsClient);
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
         }
 

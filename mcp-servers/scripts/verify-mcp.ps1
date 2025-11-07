@@ -112,8 +112,30 @@ if (Test-Path "mysql\.env") {
     Write-Host "   ⚠️  MySQL .env not found (optional, uses defaults)" -ForegroundColor Yellow
 }
 
-# 8. Check AGENTS.md exists
-Write-Host "8. Checking project context..." -ForegroundColor Yellow
+# 8. Check OpenMRS REST base reachability
+Write-Host "8. Checking OpenMRS REST base reachability..." -ForegroundColor Yellow
+$base = $env:OPENMRS_BASE_URL
+if (-not $base -and (Test-Path "openmrs\.env")) {
+    $envContent = Get-Content "openmrs\.env" | Where-Object { $_ -match "^OPENMRS_BASE_URL=" }
+    if ($envContent) { $base = ($envContent -replace '^OPENMRS_BASE_URL=','').Trim() }
+}
+if (-not $base) { $base = "http://localhost:8080/openmrs/ws/rest/v1" }
+try {
+    $sessionUrl = "$base/session"
+    $resp = Invoke-WebRequest -Uri $sessionUrl -Method GET -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
+    if ($resp.StatusCode -ge 200 -and $resp.StatusCode -lt 300) {
+        Write-Host "   ✅ REST base reachable: $sessionUrl (HTTP $($resp.StatusCode))" -ForegroundColor Green
+    } else {
+        Write-Host "   ⚠️  REST base responded with HTTP $($resp.StatusCode): $sessionUrl" -ForegroundColor Yellow
+        $issues += "REST base responded with $($resp.StatusCode) at $sessionUrl"
+    }
+} catch {
+    Write-Host "   ❌ Cannot reach REST base: $sessionUrl" -ForegroundColor Red
+    $issues += "Cannot reach REST base: $sessionUrl"
+}
+
+# 9. Check AGENTS.md exists
+Write-Host "9. Checking project context..." -ForegroundColor Yellow
 if (Test-Path "..\AGENTS.md") {
     Write-Host "   ✅ AGENTS.md found" -ForegroundColor Green
 } else {

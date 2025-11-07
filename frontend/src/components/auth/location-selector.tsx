@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MapPin } from 'lucide-react';
-import axios from '@/lib/axios';
+import api from '@/lib/axios';
 
 interface Location {
   uuid: string;
@@ -34,7 +34,7 @@ interface LocationSelectorProps {
 async function fetchLoginLocations(): Promise<Location[]> {
   try {
     // Try to fetch locations with LOGIN_LOCATION tag
-    const response = await axios.get('/location', {
+    const response = await api.get('/location', {
       params: {
         tag: 'Login Location',
         v: 'full',
@@ -45,7 +45,7 @@ async function fetchLoginLocations(): Promise<Location[]> {
     
     // If no tagged locations, fall back to fetching queue rooms
     if (locations.length === 0) {
-      const fallbackResponse = await axios.get('/location', {
+      const fallbackResponse = await api.get('/location', {
         params: {
           tag: 'Queue Room',
           v: 'full',
@@ -94,20 +94,20 @@ export function LocationSelector({ value, onChange, error }: LocationSelectorPro
   });
 
   // Update parent when selection changes
-  const handleLocationChange = (locationUuid: string) => {
+  const handleLocationChange = useCallback((locationUuid: string) => {
     setSelectedLocation(locationUuid);
     const location = locations.find(loc => loc.uuid === locationUuid);
     if (location) {
       onChange(locationUuid, location);
     }
-  };
+  }, [locations, onChange]);
 
   // Auto-select first location if only one available
   useEffect(() => {
     if (locations.length === 1 && !selectedLocation) {
       handleLocationChange(locations[0].uuid);
     }
-  }, [locations, selectedLocation]);
+  }, [locations, selectedLocation, handleLocationChange]);
 
   if (isLoading) {
     return (

@@ -32,6 +32,9 @@ import {
 // Load environment variables
 config();
 
+// Track DB readiness so the server can start even if DB is down.
+let dbReady = true;
+
 /**
  * MCP Tools definition
  */
@@ -176,17 +179,19 @@ async function main() {
   const mysqlClient = createMySQLClient();
   console.error(`MySQL client configured: ${process.env.MYSQL_HOST || 'localhost'}:${process.env.MYSQL_PORT || '3307'}`);
 
-  // Test connection
+  // Test connection (do not exit if unavailable; allow MCP handshake)
   try {
     const connected = await mysqlClient.ping();
     if (!connected) {
-      throw new Error('MySQL connection failed');
+      dbReady = false;
+      console.error('MySQL connection test returned false. Starting MCP server without DB.');
+    } else {
+      console.error('MySQL connection successful');
     }
-    console.error('MySQL connection successful');
   } catch (error: any) {
+    dbReady = false;
     console.error(`MySQL connection failed: ${error.message}`);
-    console.error('Ensure OpenMRS MySQL is running: docker-compose up -d mysql');
-    process.exit(1);
+    console.error('Starting MCP server without DB; tools will report a clear error until MySQL is reachable.');
   }
 
   // Create MCP server
@@ -212,6 +217,31 @@ async function main() {
     const { name, arguments: args } = request.params;
 
     try {
+      // For DB-dependent tools, verify connectivity lazily
+      const requiresDb = name === 'query' || name === 'read_schema' || name === 'list_tables';
+      if (requiresDb) {
+        // If previously not ready, retry ping to see if DB came up
+        if (!dbReady) {
+          dbReady = await mysqlClient.ping();
+        }
+        if (!dbReady) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: false,
+                  error: 'MySQL is not reachable. Ensure the OpenMRS MySQL (5.7) container is running and accessible.',
+                  hint: 'Start DB: docker-compose up -d mysql; Verify: mysql -h 127.0.0.1 -P 3307 -u openmrs_user -popenmrs_password -e "SELECT 1" openmrs',
+                  target: `${process.env.MYSQL_HOST || 'localhost'}:${process.env.MYSQL_PORT || '3307'}`,
+                  code: 'DB_UNAVAILABLE'
+                }, null, 2),
+              },
+            ],
+            isError: true,
+          };
+        }
+      }
       switch (name) {
         case 'query': {
           const validated = QuerySchema.parse(args);

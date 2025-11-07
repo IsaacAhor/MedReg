@@ -3,6 +3,8 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { toast } from 'sonner';
 
 type Item = { drug: string; strength?: string; form?: string; dosage?: string; frequency?: string; duration?: string; quantity?: number; instructions?: string };
 
@@ -37,11 +39,23 @@ export default function DispensePage() {
       body: JSON.stringify({ patientUuid, billingType: billingType || undefined, items })
     });
     const data = await res.json();
-    setStatus(res.ok ? 'Saved' : (data?.error || 'Failed'));
+    if (!res.ok) {
+      setStatus(data?.error || 'Failed');
+      toast.error('Failed to dispense', { description: data?.error || 'Please try again' });
+      return;
+    }
+    setStatus('Saved');
+    toast.success('Dispense saved', { description: 'Visit marked complete' });
+    setTimeout(() => router.push('/opd/pharmacy-queue'), 1500);
   };
 
   return (
     <div className="max-w-3xl mx-auto p-6">
+      <Breadcrumb items={[
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Pharmacy Queue', href: '/opd/pharmacy-queue' },
+        { label: 'Dispense' },
+      ]} />
       <h1 className="text-2xl font-semibold mb-4">OPD Dispense</h1>
       <div className="mb-4">
         <label className="text-sm text-gray-600">Patient UUID</label>

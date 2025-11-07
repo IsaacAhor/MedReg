@@ -1,4 +1,4 @@
-import axios from '@/lib/axios';
+import api from '@/lib/axios';
 
 export interface PatientIdentifier {
   identifier: string;
@@ -42,19 +42,19 @@ export interface PatientRegistrationData {
 
 export const patientsApi = {
   list: async (query?: string): Promise<PatientListResponse> => {
-    const response = await axios.get('/patients', {
+    const response = await api.get('/patients', {
       params: query ? { q: query } : undefined,
     });
     return response.data;
   },
 
   getById: async (uuid: string): Promise<Patient> => {
-    const response = await axios.get(`/patients/${uuid}`);
+    const response = await api.get(`/patients/${uuid}`);
     return response.data;
   },
 
   register: async (data: PatientRegistrationData): Promise<Patient> => {
-    const response = await axios.post('/patients', data);
+    const response = await api.post('/patients', data);
     return response.data;
   },
 };

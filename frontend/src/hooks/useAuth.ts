@@ -26,9 +26,11 @@ export function useLogin() {
       router.push('/dashboard');
     },
     onError: (error: any) => {
-      toast.error('Login failed', {
-        description: error.response?.data?.message || error.message || 'Authentication failed',
-      });
+      const isTimeout = error?.code === 'ECONNABORTED' || /timeout/i.test(error?.message || '');
+      const desc = isTimeout
+        ? 'Backend not reachable. Ensure OpenMRS is running at 8080.'
+        : (error.response?.data?.message || error.message || 'Authentication failed');
+      toast.error('Login failed', { description: desc });
     },
   });
 }

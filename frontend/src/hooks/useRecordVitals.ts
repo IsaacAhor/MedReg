@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from '@/lib/axios';
+import api from '@/lib/axios';
 import { toast } from 'sonner';
 import { VitalsFormData } from '@/lib/schemas/vitals';
 
@@ -8,7 +8,7 @@ export function useRecordVitals() {
 
   return useMutation({
     mutationFn: async (data: VitalsFormData) => {
-      const response = await axios.post('/api/triage/vitals', data);
+      const response = await api.post('/triage/vitals', data);
       return response.data;
     },
     onSuccess: (_data, variables) => {
@@ -26,10 +26,9 @@ export function usePatientVitals(patientUuid: string) {
   return useQuery({
     queryKey: ['vitals', patientUuid],
     queryFn: async () => {
-      const response = await axios.get(`/api/triage/vitals/${patientUuid}`);
+      const response = await api.get(`/triage/vitals/${patientUuid}`);
       return response.data;
     },
     enabled: !!patientUuid,
   });
 }
-

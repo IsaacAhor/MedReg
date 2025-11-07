@@ -86,5 +86,10 @@ public class PatientQueueServiceImpl extends BaseOpenmrsService implements Patie
         if (locationName.contains("pharmacy")) return "PH";
         return "QU";
     }
-}
 
+    @Override
+    @Transactional(readOnly = true)
+    public PatientQueue getByUuid(String uuid) {
+        return dao.getByUuid(uuid);
+    }
+}

@@ -35,5 +35,7 @@ public interface PatientQueueService extends OpenmrsService {
     @Authorized({"Complete Patient Queue"})
     @Transactional
     void completeQueueEntry(PatientQueue queueEntry);
-}
 
+    @Transactional(readOnly = true)
+    PatientQueue getByUuid(String uuid);
+}

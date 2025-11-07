@@ -15,7 +15,7 @@ function maskPII(text: string): string {
 }
 
 export interface OpenMRSConfig {
-  baseUrl: string;
+  baseUrl: string; // May be either full REST base or app base; will be normalized
   username: string;
   password: string;
 }
@@ -45,12 +45,46 @@ export class OpenMRSClient {
   private client: AxiosInstance;
   private config: OpenMRSConfig;
   private session?: OpenMRSSession;
+  private normalizedBaseUrl: string;
 
   constructor(config: OpenMRSConfig) {
     this.config = config;
-    
+
+    // Normalize base URL to ensure it points to REST v1
+    // Accepts any of the following and coerces to .../openmrs/ws/rest/v1
+    //  - http://host:8080/openmrs
+    //  - http://host:8080/openmrs/
+    //  - http://host:8080/openmrs/ws
+    //  - http://host:8080/openmrs/ws/rest
+    //  - http://host:8080/openmrs/ws/rest/
+    //  - http://host:8080/openmrs/ws/rest/v1
+    const normalizeBaseUrl = (url: string): string => {
+      if (!url) return 'http://localhost:8080/openmrs/ws/rest/v1';
+      let u = url.trim();
+      // Drop trailing slashes for consistent matching
+      while (u.endsWith('/')) u = u.slice(0, -1);
+      const lower = u.toLowerCase();
+      if (lower.endsWith('/openmrs/ws/rest/v1')) return u; // already correct
+      if (lower.endsWith('/openmrs/ws/rest')) return u + '/v1';
+      if (lower.endsWith('/openmrs/ws')) return u + '/rest/v1';
+      if (lower.endsWith('/openmrs')) return u + '/ws/rest/v1';
+      // If someone provided the server root without context, assume standard context
+      // e.g., http://host:8080 -> http://host:8080/openmrs/ws/rest/v1
+      try {
+        const parsed = new URL(u);
+        if (!parsed.pathname || parsed.pathname === '/' || parsed.pathname === '') {
+          return u + '/openmrs/ws/rest/v1';
+        }
+      } catch (_) {
+        // If invalid URL, fall back to default
+      }
+      return u; // as-is; authentication will still try fallbacks
+    };
+
+    this.normalizedBaseUrl = normalizeBaseUrl(config.baseUrl);
+
     this.client = axios.create({
-      baseURL: config.baseUrl,
+      baseURL: this.normalizedBaseUrl,
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
@@ -72,22 +106,24 @@ export class OpenMRSClient {
    * Authenticate with OpenMRS and create session
    */
   async authenticate(): Promise<OpenMRSSession> {
-    const allowFallback = (process.env.OPENMRS_ALLOW_BASEURL_FALLBACK || 'false').toLowerCase() === 'true';
+    // Default to allowing localhost fallbacks in dev-friendly mode.
+    // Set OPENMRS_DISABLE_FALLBACK=true to force only the configured base URL.
+    const allowFallback = (process.env.OPENMRS_DISABLE_FALLBACK || 'false').toLowerCase() !== 'true';
 
     // First try configured base URL (fail fast if fallback disabled)
     try {
-      const response = await axios.get(this.config.baseUrl + '/session', {
+      const response = await axios.get(this.normalizedBaseUrl + '/session', {
         auth: { username: this.config.username, password: this.config.password },
         timeout: 15000,
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
       });
-      this.client.defaults.baseURL = this.config.baseUrl;
+      this.client.defaults.baseURL = this.normalizedBaseUrl;
       this.session = response.data;
       return this.session;
     } catch (primaryErr: any) {
       if (!allowFallback) {
-        throw new Error(`OpenMRS authentication failed at configured base URL (${this.config.baseUrl}): ${primaryErr?.message || primaryErr}`);
+        throw new Error(`OpenMRS authentication failed at configured base URL (${this.normalizedBaseUrl}): ${primaryErr?.message || primaryErr}`);
       }
     }
 
@@ -112,7 +148,7 @@ export class OpenMRSClient {
         errors.push(`${base}: ${e?.message || 'unknown error'}`);
       }
     }
-    throw new Error(`OpenMRS authentication failed. Primary=${this.config.baseUrl}. Fallbacks tried -> ${errors.join(' | ')}`);
+    throw new Error(`OpenMRS authentication failed. Primary=${this.normalizedBaseUrl}. Fallbacks tried -> ${errors.join(' | ')}`);
   }
 
   /**

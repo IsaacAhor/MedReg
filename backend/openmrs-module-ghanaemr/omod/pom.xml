@@ -37,6 +37,66 @@
             <version>2.24.0</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Runtime libs required by our API (package inside OMOD) -->
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-structures-r4</artifactId>
+            <version>5.5.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-base</artifactId>
+            <version>5.5.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.13</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.4.13</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -48,6 +108,21 @@
             </resource>
         </resources>
         <plugins>
+            <!-- Ensure final .jar (then .omod) excludes conflicting logging libs even if present in classes/lib -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <excludes>
+                        <exclude>lib/slf4j-*.jar</exclude>
+                        <exclude>lib/jcl-over-slf4j*.jar</exclude>
+                        <exclude>lib/commons-logging*.jar</exclude>
+                        <exclude>lib/log4j-*.jar</exclude>
+                        <exclude>lib/logback-*.jar</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -92,8 +167,49 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
-                            <includeScope>runtime</includeScope>
-                            <excludeArtifactIds>openmrs-module-ghanaemr-api</excludeArtifactIds>
+                            <includeScope>compile</includeScope>
+                            <!-- Allowlist only the dependencies we actually need in OMOD lib/ -->
+                            <includeArtifactIds>
+                                checker-qual,
+                                commons-codec,
+                                commons-io,
+                                commons-lang3,
+                                commons-text,
+                                error_prone_annotations,
+                                failureaccess,
+                                guava,
+                                httpclient,
+                                httpcore,
+                                jackson-annotations,
+                                jackson-core,
+                                jackson-databind,
+                                jackson-datatype-jsr310,
+                                j2objc-annotations,
+                                jsr305,
+                                listenablefuture,
+                                okhttp,
+                                okio,
+                                hapi-fhir-base,
+                                hapi-fhir-structures-r4,
+                                org.hl7.fhir.r4,
+                                org.hl7.fhir.utilities
+                            </includeArtifactIds>
+                            <excludeArtifactIds>
+                                openmrs-module-ghanaemr-api,
+                                slf4j-api,
+                                jcl-over-slf4j,
+                                commons-logging,
+                                logback-classic,
+                                logback-core,
+                                log4j,
+                                log4j-core,
+                                log4j-api,
+                                log4j-slf4j-impl,
+                                log4j-1.2-api,
+                                log4j-over-slf4j,
+                                jboss-logging,
+                                spring-jcl
+                            </excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -104,6 +220,28 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
+                    <!-- Purge conflicting logging libraries from OMOD lib/ just before packaging -->
+                    <execution>
+                        <id>purge-conflicting-logs</id>
+                        <!-- Run after copy-dependencies (prepare-package) and BEFORE jar is packaged -->
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <target>
+                                <delete>
+                                    <fileset dir="${project.build.outputDirectory}/lib">
+                                        <include name="slf4j-*.jar"/>
+                                        <include name="jcl-over-slf4j*.jar"/>
+                                        <include name="commons-logging*.jar"/>
+                                        <include name="logback-*.jar"/>
+                                        <include name="log4j-*.jar"/>
+                                    </fileset>
+                                </delete>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
                     <execution>
                         <id>rename-jar-to-omod</id>
                         <phase>package</phase>

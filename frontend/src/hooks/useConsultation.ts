@@ -1,12 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
-import axios from '@/lib/axios';
+import api from '@/lib/axios';
 import { toast } from 'sonner';
 import type { ConsultationFormData } from '@/lib/schemas/consultation';
 
 export function useConsultation() {
   return useMutation({
     mutationFn: async (data: ConsultationFormData) => {
-      const res = await axios.post('/api/opd/consultation', data);
+      const res = await api.post('/opd/consultation', data);
       return res.data as { ok?: boolean; encounterUuid?: string; error?: string };
     },
     onSuccess: (data) => {
@@ -22,4 +22,3 @@ export function useConsultation() {
     },
   });
 }
-

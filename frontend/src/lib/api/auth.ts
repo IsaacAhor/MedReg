@@ -1,4 +1,4 @@
-import axios from '@/lib/axios';
+import api from '@/lib/axios';
 
 export interface LoginCredentials {
   username: string;
@@ -21,17 +21,16 @@ export interface SessionData {
 
 export const authApi = {
   login: async (credentials: LoginCredentials): Promise<SessionData> => {
-    const response = await axios.post('/auth/login', credentials);
+    const response = await api.post('/auth/login', credentials);
     return response.data;
   },
 
   logout: async (): Promise<void> => {
-    await axios.post('/auth/logout');
+    await api.post('/auth/logout');
   },
 
   getSession: async (): Promise<SessionData> => {
-    const response = await axios.get('/auth/session');
+    const response = await api.get('/auth/session');
     return response.data;
   },
 };
-

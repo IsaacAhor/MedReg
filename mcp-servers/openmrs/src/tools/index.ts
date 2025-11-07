@@ -8,6 +8,7 @@ export * from './list-encounter-types';
 export * from './list-visit-types';
 export * from './update-env';
 export * from './list-locations';
+export * from './create-location';
 export * from './list-providers';
 export * from './list-concepts';
 export * from './list-identifier-types';

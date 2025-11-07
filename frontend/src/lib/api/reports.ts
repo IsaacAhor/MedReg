@@ -1,4 +1,4 @@
-import axios from '@/lib/axios';
+import api from '@/lib/axios';
 
 export interface OPDRegisterEntry {
   patientName: string;
@@ -31,28 +31,28 @@ export interface RevenueSummary {
 
 export const reportsApi = {
   opdRegister: async (date: string, encounterTypeUuid?: string): Promise<OPDRegisterEntry[]> => {
-    const response = await axios.get('/reports/opd-register', {
+    const response = await api.get('/reports/opd-register', {
       params: { date, encounterTypeUuid },
     });
     return response.data;
   },
 
   nhisVsCash: async (date: string): Promise<NHISvsCashSummary> => {
-    const response = await axios.get('/reports/nhis-vs-cash', {
+    const response = await api.get('/reports/nhis-vs-cash', {
       params: { date },
     });
     return response.data;
   },
 
   topDiagnoses: async (from: string, to: string, limit: number = 10): Promise<TopDiagnosis[]> => {
-    const response = await axios.get('/reports/top-diagnoses', {
+    const response = await api.get('/reports/top-diagnoses', {
       params: { from, to, limit },
     });
     return response.data;
   },
 
   revenue: async (date: string): Promise<RevenueSummary> => {
-    const response = await axios.get('/reports/revenue', {
+    const response = await api.get('/reports/revenue', {
       params: { date },
     });
     return response.data;

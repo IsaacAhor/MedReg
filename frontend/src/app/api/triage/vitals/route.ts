@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import axios from '@/lib/axios';
+import openmrs from '@/lib/openmrs';
 
 // POST /api/triage/vitals
 // Proxies vitals recording to OpenMRS backend BFF endpoint
@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Forward to OpenMRS backend (module REST namespace)
-    const response = await axios.post(
+    const response = await openmrs.post(
       '/ws/rest/v1/ghana/triage/vitals',
       body
     );
@@ -33,4 +33,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

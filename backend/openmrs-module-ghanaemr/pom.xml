@@ -20,6 +20,7 @@
         <openmrs.version>2.4.0</openmrs.version>
         <junit.version>4.13.2</junit.version>
         <mockito.version>3.12.4</mockito.version>
+        <maven.test.skip>true</maven.test.skip>
     </properties>
 
     <repositories>

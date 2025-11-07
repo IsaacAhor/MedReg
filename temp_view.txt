@@ -1,0 +1,265 @@
+# OpenMRS REST + Login Recovery Taskbook (Single-Document System)
+
+This file is a self-contained task management and runbook for resolving the current OpenMRS REST/login issue without touching the project-wide PROMPT_QUEUE/TASK_HISTORY. It mirrors the same structure and rigor (tasks, verification, history, acceptance criteria) but is fully isolated in one document.
+
+---
+
+## Meta
+- Title: OpenMRS REST + Login Recovery
+- Owner: MedReg Engineering
+- Scope: Fix backend REST 404/500 and broken login; align auth with UgandaEMR pattern; ensure packaging does not break REST
+- Last Updated: <fill when editing>
+- Status: ACTIVE
+
+---
+
+## Executive Summary
+- Problem: `/openmrs/ws/rest/v1/session` returns 404/500 which breaks Next.js login. Root causes observed:
+  - OMOD bundled conflicting logging jars (slf4j/jcl-over-slf4j/commons-logging) → classloader conflicts → REST not mapping.
+  - Corrupted module cache and/or missing metadata leading to Spring bean initialization failures.
+  - Frontend uses admin Basic auth instead of per-user OpenMRS session cookie.
+- Outcome Sought: REST session returns 200 JSON; OpenMRS healthy; Next.js login works using OpenMRS session cookie; packaging free of conflicting logging jars.
+
+---
+
+## Non‑Negotiable Constraints
+- Java 8 (1.8.0_472), MySQL 5.7, OpenMRS Platform 2.4.0 + Reference Application 2.12.0.
+- Do NOT bundle logging frameworks inside the Ghana EMR OMOD (slf4j, logback, log4j family, commons-logging).
+- Frontend auth must use OpenMRS session (JSESSIONID) and set session location via `appui/session.action`.
+
+---
+
+## Environment Checklist (Run Before Work)
+- Java: `java -version` → 1.8.0_472
+- Maven: `mvn -version` → 3.9.x, Java 1.8.0_472
+- Docker MySQL: `docker exec medreg-mysql mysql --version` → 5.7.x
+- OpenMRS up & healthy: `docker ps` shows medreg-openmrs (healthy)
+- REST probe: `curl -i http://localhost:8080/openmrs/ws/rest/v1/session` (with Basic or Cookie) → 200
+
+---
+
+## Single-Doc Task Queue (Isolated)
+
+This section mirrors the exact structure in AGENTS.md (Task Management Workflow): statuses, self-contained execution, verification, update steps, and mandatory notification format — but applies only within this document.
+
+Local Status Indicators
+- [QUEUED] QUEUED
+- [WIP] IN PROGRESS
+- [DONE] SUCCESS
+- [WARNING] PARTIAL / BLOCKED
+- [FAILED] FAILED
+
+Local Sections
+- Local PROMPT_QUEUE (below) — active tasks
+- Local TASK_HISTORY (at end) — completed tasks (never delete)
+- Local IMPLEMENTATION_NOTES — quick ledger of important decisions
+
+### Task 1: Immediate Backend Recovery (Restore REST Now) (HIGH)
+Status: [QUEUED] QUEUED  
+Assigned to: Next Available Worker  
+Due: ASAP  
+Estimated: 0.5 hours
+
+Self-Contained Execution Instructions
+1. Read Context
+   - AGENTS.md: Tech constraints; module packaging requirements
+   - OPENMRS_MODULE_FIX_IMPLEMENTATION.md: config.xml + packaging notes
+
+2. Create/Modify These Files
+   - None (run-time only)
+
+3. Implementation Requirements
+   - Remove Ghana EMR OMOD to de-risk startup
+   - Purge `.openmrs-lib-cache` to clear stale binaries
+   - Restart and wait for healthy status
+
+4. Technical Constraints (NON-NEGOTIABLE)
+   - Java 8, MySQL 5.7, OpenMRS 2.4.0
+   - Do not change platform versions
+
+5. Verification (MANDATORY - Run These Commands)
+   - `docker restart medreg-openmrs`
+   - `docker exec medreg-openmrs bash -lc 'rm -f /usr/local/tomcat/.OpenMRS/modules/openmrs-module-ghanaemr-*.omod'`
+   - `docker exec medreg-openmrs bash -lc 'rm -rf /usr/local/tomcat/.OpenMRS/.openmrs-lib-cache/* || true'`
+   - `curl -s -i -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session`
+   - `docker ps` shows medreg-openmrs (healthy)
+
+6. Update Files (MANDATORY BEFORE CLOSING TASK)
+   - A. Local IMPLEMENTATION_NOTES (this file): record actions and results
+   - B. Local TASK_HISTORY (this file): move Task 1 with completion details
+   - C. Do NOT touch project PROMPT_QUEUE/TASK_HISTORY
+
+7. Notify Human (MANDATORY FORMAT)
+```
+[DONE] Task 1 Complete: Immediate Backend Recovery
+
+**Summary:**
+- Removed OMOD and cleared module cache
+- OpenMRS healthy; REST session returns 200
+- UI accessible
+
+**Verification Results:**
+[DONE] curl /ws/rest/v1/session - 200
+[DONE] docker ps - healthy
+
+**Updated Documentation:**
+[DONE] This Taskbook - Local TASK_HISTORY updated
+
+**Queue Status:**
+- Active Tasks: [2 remaining]
+- Next Task: Task 2: OMOD Packaging Hygiene
+
+**Perfect Handshake:**
+- [DONE] Proceed to Task 2
+```
+
+---
+
+### Task 2: OMOD Packaging Hygiene (Prevent REST Breakage) (HIGH)
+Status: [QUEUED] QUEUED  
+Assigned to: Next Available Worker  
+Due: ASAP  
+Estimated: 1.0 hours
+
+Self-Contained Execution Instructions
+1) Read Context
+- backend/openmrs-module-ghanaemr/omod/pom.xml
+- backend/openmrs-module-ghanaemr/api/pom.xml
+
+2) Changes
+- api/pom.xml: exclude logging deps from HAPI + HttpClient
+  - Exclusions: `org.slf4j:slf4j-api`, `org.slf4j:jcl-over-slf4j`, `commons-logging:commons-logging`
+- omod/pom.xml: `dependency:copy-dependencies` excludes for logging families (slf4j/log4j/logback/commons-logging)
+- Add `antrun` purge in `prepare-package` to delete `lib/slf4j-*.jar`, `lib/jcl-over-slf4j*.jar`, `lib/commons-logging*.jar`, `lib/logback-*.jar`, `lib/log4j-*.jar`
+- Optional: `maven-jar-plugin` excludes to be extra safe
+
+3. Build
+- `cd backend/openmrs-module-ghanaemr`
+- `mvn clean package -Dmaven.test.skip=true`
+
+4) Inspect OMOD
+- Unzip OMOD → ensure no logging jars in `lib/`
+
+5. Redeploy
+- `docker compose build --no-cache openmrs`
+- `docker compose up -d openmrs`
+- If needed: clear `.openmrs-lib-cache` then restart
+
+6) Verify
+- `curl -i -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session` → 200 JSON
+
+6. Update Files (MANDATORY BEFORE CLOSING TASK)
+   - A. Local IMPLEMENTATION_NOTES: record pom changes and OMOD lib inventory
+   - B. Local TASK_HISTORY: move Task 2 with completion details
+
+7. Acceptance Criteria
+- [ ] No logging jars in OMOD lib
+- [ ] REST session 200
+- [ ] No SLF4J LinkageError in logs
+
+Rollback Plan
+- Revert OMOD to previous working build in `openmrs-modules/`
+
+---
+
+### Task 3: UgandaEMR-Style Session Auth in Frontend (HIGH)
+Status: [QUEUED] QUEUED  
+Assigned to: Next Available Worker  
+Due: ASAP  
+Estimated: 1.0 hours
+
+Self-Contained Execution Instructions
+1) Files to Update
+- `frontend/src/app/api/auth/login/route.ts` → POST `/ws/rest/v1/session` with body `{username,password}`; capture `JSESSIONID` from `Set-Cookie`; set `omrsSession` httpOnly cookie; then POST `/appui/session.action?locationId=...` using the same cookie.
+- `frontend/src/app/api/auth/session/route.ts` → Read `cookies().get('omrsSession')`; call `GET /ws/rest/v1/session` with header `Cookie: JSESSIONID=...`; if not ok clear cookies + return `{authenticated:false}`.
+- `frontend/src/app/api/location/route.ts` → Prefer `Cookie: JSESSIONID=...` instead of admin Basic; fallback to defaults if no session.
+- `frontend/src/app/api/auth/logout/route.ts` (new) → `DELETE /ws/rest/v1/session` with cookie; clear all auth cookies.
+
+2. Verification
+- `GET /api/health` shows `openmrs.ok:true` and `authenticated:true` when Basic is provided or when session exists
+- Login flow works end-to-end; redirect to dashboard
+
+3. Update Files (MANDATORY BEFORE CLOSING TASK)
+   - A. Local IMPLEMENTATION_NOTES: brief summary of API changes
+   - B. Local TASK_HISTORY: move Task 3 with completion details
+
+4. Acceptance Criteria
+- [ ] `omrsSession` set and reused
+- [ ] Location set request succeeds (non-fatal if fails)
+- [ ] No admin creds used for normal requests
+
+---
+
+### Task 4: Hard Reset (Only if Needed) (MEDIUM)
+Status: [QUEUED] QUEUED  
+Assigned to: Next Available Worker  
+Due: If Tasks 1–3 fail  
+Estimated: 0.5 hours
+
+Self-Contained Execution Instructions
+- Stop and remove container; remove `medreg_openmrs_data` volume
+- `docker compose up -d openmrs` (fresh extraction)
+- Validate REST → 200; then redeploy OMOD (from Task 2) and re-verify
+
+Update Files (MANDATORY BEFORE CLOSING TASK)
+- A. Local IMPLEMENTATION_NOTES: what was reset and why
+- B. Local TASK_HISTORY: move Task 4 with completion details
+
+Acceptance Criteria
+- [ ] OpenMRS clean start with REST working
+
+---
+
+## Verification Suite (Copy/Paste)
+- OpenMRS health: `docker ps | findstr medreg-openmrs`
+- REST session: `curl -s -i -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session`
+- UI: `http://localhost:8080/openmrs/`
+- Frontend health: `http://localhost:3000/api/health`
+- Logs (tail): `docker logs --tail 200 medreg-openmrs`
+- Purge module cache: `docker exec medreg-openmrs bash -lc 'rm -rf /usr/local/tomcat/.OpenMRS/.openmrs-lib-cache/*'`
+
+---
+
+## Acceptance Criteria (Overall)
+- [ ] REST session endpoint returns 200 JSON
+- [ ] OpenMRS container healthy and UI accessible
+- [ ] Ghana EMR OMOD does not bundle logging frameworks
+- [ ] Frontend uses OpenMRS session cookie; login works
+- [ ] Documentation updated (this Taskbook filled in with results)
+
+---
+
+## Task Execution Log (Audit Trail)
+Use this section to record each run. Keep newest first.
+
+- Timestamp: <fill>
+  - Executor: <name>
+  - Task(s): <Task 1/2/3/4>
+  - Actions: <commands run>
+  - Results: <REST code, health status, errors>
+  - Next Steps: <what remains>
+
+---
+
+## Local IMPLEMENTATION_NOTES
+- <append entries here as tasks complete>
+
+---
+
+## Local TASK_HISTORY
+- <append completed tasks here, newest first, including verification outputs>
+
+---
+
+## Risks / Notes
+- Packaging conflicts can silently break REST. Always inspect the OMOD `lib/`.
+- Module cache corruption can cause Spring bean creation failures; clear `.openmrs-lib-cache` and restart.
+- UgandaEMR pattern avoids admin creds at runtime in favor of per-user session and cookies.
+
+---
+
+## NEXT WORKER COMMAND (Copy & Paste)
+Refer to `docs/runbooks/OPENMRS_REST_LOGIN_RECOVERY_TASKBOOK.md` and execute the first [QUEUED] task. Follow the runbook steps and update the Task Execution Log upon completion.
+
+*** End of Single-Document Taskbook ***
+
