@@ -8,7 +8,7 @@ This file is a self-contained task management and runbook for resolving the curr
 - Title: OpenMRS REST + Login Recovery
 - Owner: MedReg Engineering
 - Scope: Fix backend REST 404/500 and broken login; align auth with UgandaEMR pattern; ensure packaging does not break REST
-- Last Updated: 2025-11-06T08:49:38.8442760-06:00
+ - Last Updated: 2025-11-07T16:30:00Z
 - Status: ACTIVE
 
 ---
@@ -362,6 +362,13 @@ Use this section to record each run. Keep newest first.
 
 - 2025-11-07: Investigation A/B results: Disabling addresshierarchy did not restore health with ghanaemr present. Disabling providermanagement caused cascading module startup failures (expected dependency chain). Conclusion: issue likely within ghanaemr startup/beans rather than a single RA module conflict. Next step is to guard ghanaemr activator/contexts to avoid early access to RA services and defer heavy wiring until platform stable.
 
+- 2025-11-07: Task 2 finalized (Packaging Hygiene). Implemented strict Jackson unbundling and REST module dependency:
+  - POM: backend/openmrs-module-ghanaemr/omod/pom.xml — removed jackson-annotations/core/databind/jsr310 from the include allowlist; added to excludeArtifactIds; added antrun purge for jackson-*.jar; retained purge of slf4j/log4j/logback.
+  - Config: backend/openmrs-module-ghanaemr/omod/src/main/resources/config.xml — added <require_module>webservices.rest-2.24.0</require_module> to enforce startup order.
+  - Build: mvn clean package (Java 1.8.0_472, Maven 3.9.11) produced openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod (~17.7 MB).
+  - Inspect: target/classes/lib contains HAPI FHIR, HttpClient, Guava, OpenMRS API; no jackson-*.jar or logging frameworks.
+  - Rationale: Prevent classloader conflicts with webservices.rest which relies on Platform/RA-provided Jackson; ensure REST availability before GhanaEMR starts.
+
 ---
 
 ## Local TASK_HISTORY
@@ -399,10 +406,23 @@ Use this section to record each run. Keep newest first.
    - Verification Outputs:
      - Container health: healthy
      - REST session endpoint: HTTP/1.1 200; {"authenticated":false}
-   - Artifacts/Notes:
+ - Artifacts/Notes:
      - Ghana EMR OMOD intentionally withheld until packaging hygiene confirmed; redeploy and re-verify in follow-up if needed
  
  ---
+
+- Task 2: OMOD Packaging Hygiene (SUCCESS) — 2025-11-07T16:25:00Z
+  - Summary:
+    - Updated OMOD packaging to exclude all Jackson jars and purge jackson-*.jar during packaging
+    - Added require_module for webservices.rest-2.24.0 to guarantee startup order
+    - Built fresh .omod artifact with no logging or Jackson frameworks bundled
+  - Verification Outputs:
+    - Build: SUCCESS (Java 1.8.0_472, Maven 3.9.11)
+    - Artifact: backend/openmrs-module-ghanaemr/omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod (~17.7 MB)
+    - Contents: target/classes/lib shows HAPI FHIR, HttpClient, Guava, OpenMRS API; no jackson-*.jar, slf4j/log4j/logback
+  - Next Steps:
+    - Deploy new OMOD; purge .openmrs-lib-cache; restart container; verify /ws/rest/v1/session = 200 (unauthenticated)
+    - Once REST remains healthy post-deploy, proceed with GhanaEMR feature development under stable baseline
 
 ## Risks / Notes
 - Packaging conflicts can silently break REST. Always inspect the OMOD `lib/`.

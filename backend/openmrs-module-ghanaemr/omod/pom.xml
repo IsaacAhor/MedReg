@@ -180,10 +180,6 @@
                                 guava,
                                 httpclient,
                                 httpcore,
-                                jackson-annotations,
-                                jackson-core,
-                                jackson-databind,
-                                jackson-datatype-jsr310,
                                 j2objc-annotations,
                                 jsr305,
                                 listenablefuture,
@@ -196,6 +192,10 @@
                             </includeArtifactIds>
                             <excludeArtifactIds>
                                 openmrs-module-ghanaemr-api,
+                                jackson-annotations,
+                                jackson-core,
+                                jackson-databind,
+                                jackson-datatype-jsr310,
                                 slf4j-api,
                                 jcl-over-slf4j,
                                 commons-logging,
@@ -234,6 +234,7 @@
                                         <include name="commons-logging*.jar"/>
                                         <include name="logback-*.jar"/>
                                         <include name="log4j-*.jar"/>
+                                        <include name="jackson-*.jar"/>
                                     </fileset>
                                 </delete>
                             </target>

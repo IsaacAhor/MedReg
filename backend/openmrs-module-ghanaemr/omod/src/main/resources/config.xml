@@ -16,6 +16,9 @@
 
     <!-- Require OpenMRS Platform 2.4.0 -->
     <require_version>2.4.0</require_version>
+    
+    <!-- Ensure Webservices REST module is present and started before this module -->
+    <require_module>webservices.rest-2.24.0</require_module>
 
     <!-- Module activator for startup/shutdown logic -->
     <activator>org.openmrs.module.ghanaemr.GhanaEMRActivator</activator>
