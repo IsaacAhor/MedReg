@@ -203,6 +203,7 @@ mvn clean package -Dmaven.test.skip=true
 - Internal references:
   - docs/UGANDA_EMR_REFERENCE.md
   - docs/KENYA_EMR_REFERENCE.md
+  - docs/runbooks/OPENMRS_REST_LOGIN_RECOVERY_TASKBOOK.md
 
 ---
 
@@ -350,8 +351,14 @@ Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, u
 - [ ] [Criterion 2]
 [All must be checked before moving to TASK_HISTORY.md]
 ```
+Holistic Integration Acceptance (REQUIRED):
+- [ ] Backend builds successfully (Maven) and REST session endpoint returns 200
+- [ ] Frontend builds successfully (Next.js) and core UI routes render
+- [ ] Critical user journey for this task works end-to-end without regressions
+
 
 #### **Worker Responsibilities**
+\nHolistic Integration Acceptance (REQUIRED):\n- [ ] Backend builds successfully (Maven) and REST session endpoint returns 200\n- [ ] Frontend builds successfully (Next.js) and core UI routes render\n- [ ] Critical user journey for this task works end-to-end without regressions\n
 
 **When executing task from PROMPT_QUEUE.md:**
 
@@ -3212,3 +3219,5 @@ Changelog
 
 **Remember:** This file is living documentation. Update it whenever you make architecture decisions, discover new patterns, or encounter edge cases. All AI coding agents will automatically reference the latest version.
 \n### Module Endpoints (Reports)\n- `GET /ws/rest/v1/ghana/reports/opd-register?date={YYYY-MM-DD}&encounterTypeUuid={uuid}`\n- `GET /ws/rest/v1/ghana/reports/nhis-vs-cash?date={YYYY-MM-DD}`\n- `GET /ws/rest/v1/ghana/reports/top-diagnoses?from={YYYY-MM-DD}&to={YYYY-MM-DD}&limit=10`\n\n\n### User Management (Seeded Roles)\n- Platform Admin\n- Facility Admin\n- Doctor\n- Nurse\n- Pharmacist\n- Records Officer\n- Cashier\n- NHIS Officer\n\n
+
+

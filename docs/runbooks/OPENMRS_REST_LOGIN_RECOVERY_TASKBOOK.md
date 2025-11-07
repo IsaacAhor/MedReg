@@ -431,6 +431,35 @@ Use this section to record each run. Keep newest first.
 
 ---
 
+## Post-Deployment Health Verification (2025-11-07)
+- Actions
+  - Installed `webservices.rest-2.32.0.omod` into application data modules; removed stub `2.24.0`; purged `.openmrs-lib-cache`; restarted container.
+  - Ensured DB recognized as existing by updating runtime properties: `has_current_openmrs_database=true`, `create_tables=false`, `add_demo_data=false`.
+  - Probed `/openmrs/ws/rest/v1/session` with GhanaEMR enabled, then with GhanaEMR removed.
+- Results
+  - Container health: healthy with REST 2.32.0.
+  - With GhanaEMR enabled: REST session endpoint returned HTTP 500 (Servlet.init → Spring ApplicationContext not initialized).
+  - With GhanaEMR removed: REST session endpoint returned HTTP 200 with JSON `{authenticated:false}` and a JSESSIONID.
+- Conclusion
+  - REST baseline is healthy and stable. Packaging conflicts are resolved.
+  - Remaining failure is within GhanaEMR’s Spring wiring during web context initialization.
+
+### Baseline Decision (Temporary)
+- Keep GhanaEMR module disabled to maintain a clean, stable baseline: OpenMRS + REST + DB.
+- Proceed with integration/API work and frontend app development against this stable REST API.
+- Revisit GhanaEMR fixes later; once resolved, redeploy and re-verify without disturbing the baseline.
+
+## Recommended Remediation (GhanaEMR Web Context)
+- Keep GhanaEMR disabled while continuing app development against stable REST.
+- Split API vs Web Spring contexts to avoid web init conflicts:
+  - API context: in `api/src/main/resources/moduleApplicationContext.xml`, change component-scan to `org.openmrs.module.ghanaemr.api` and wire only API beans (e.g., DAOs/Services).
+  - Web context: add `omod/src/main/resources/webModuleApplicationContext.xml` scanning `org.openmrs.module.ghanaemr.web` for `@Controller` and web-only beans.
+  - `omod/src/main/resources/config.xml`: add `<spring><context>webModuleApplicationContext.xml</context></spring>`; keep the existing API context.
+- Adjust module requirement to be non-version-specific for resilience: `<require_module>webservices.rest</require_module>`.
+- Rebuild, redeploy, purge cache, restart; verify `/ws/rest/v1/session` returns 200 with GhanaEMR enabled, then proceed with features.
+
+---
+
 ## NEXT WORKER COMMAND (Copy & Paste)
 Refer to `docs/runbooks/OPENMRS_REST_LOGIN_RECOVERY_TASKBOOK.md` and execute the first [QUEUED] task. Follow the runbook steps and update the Task Execution Log upon completion.
 
