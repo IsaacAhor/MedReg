@@ -94,7 +94,7 @@
 ---
 
 ## Task 11: Finalize OPD Consultation Backend (HIGH)
-**Status:** [QUEUED] QUEUED  
+**Status:** [WIP] IN PROGRESS  
 **Assigned to:** Next Available Worker  
 **Due:** 2025-11-10 17:00 UTC  
 **Estimated:** 6 hours

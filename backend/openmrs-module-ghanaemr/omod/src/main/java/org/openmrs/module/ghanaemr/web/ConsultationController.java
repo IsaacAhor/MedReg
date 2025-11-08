@@ -3,8 +3,15 @@ package org.openmrs.module.ghanaemr.web;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.APIAuthenticationException;
+import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
+import org.openmrs.api.VisitService;
 import org.openmrs.api.context.Context;
+import org.openmrs.Location;
+import org.openmrs.Visit;
+import org.openmrs.module.ghanaemr.api.queue.PatientQueueService;
+import org.openmrs.module.ghanaemr.api.queue.model.PatientQueue;
+import org.openmrs.module.ghanaemr.api.queue.model.QueueStatus;
 import org.openmrs.module.ghanaemr.api.nhie.NHIEIntegrationService;
 import org.openmrs.module.ghanaemr.exception.ValidationException;
 import org.openmrs.module.ghanaemr.service.ConsultationService;
@@ -46,6 +53,10 @@ public class ConsultationController {
             String locationUuid = asString(payload.get("locationUuid"));
             String providerUuid = asString(payload.get("providerUuid"));
 
+            // Optional queue handling
+            String queueUuid = asString(payload.get("queueUuid"));
+            String nextLocationUuid = asString(payload.get("nextLocationUuid"));
+
             ConsultationService svc = getConsultationService();
             Encounter enc = svc.recordConsultation(
                     patient, chiefComplaint, diagnoses, prescriptions, labs, locationUuid, providerUuid
@@ -57,6 +68,15 @@ public class ConsultationController {
                 nhie.submitEncounter(enc);
             } catch (Exception ignore) { }
 
+            // If launched from a queue, complete current and optionally create next queue entry
+            try {
+                if (queueUuid != null && !queueUuid.trim().isEmpty()) {
+                    handleQueueAdvance(patient, queueUuid, nextLocationUuid);
+                }
+            } catch (Exception e) {
+                // Do not fail consultation save because of queue handoff; log best-effort
+            }
+
             Map<String, Object> body = new HashMap<String, Object>();
             body.put("encounterUuid", enc.getUuid());
             body.put("patientUuid", mask(patient.getUuid()));
@@ -65,6 +85,33 @@ public class ConsultationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error("VALIDATION_ERROR", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error("SERVER_ERROR", "Failed to record consultation"));
+        }
+    }
+
+    private void handleQueueAdvance(Patient patient, String queueUuid, String nextLocationUuid) {
+        PatientQueueService qs = getQueueService();
+        PatientQueue current = qs.getByUuid(queueUuid);
+        if (current != null) {
+            // Mark current as completed
+            qs.updateQueueStatus(current, QueueStatus.COMPLETED);
+
+            // Enqueue to next location if provided and a visit is available
+            if (nextLocationUuid != null && !nextLocationUuid.trim().isEmpty()) {
+                LocationService ls = Context.getLocationService();
+                VisitService vs = Context.getVisitService();
+                Location next = ls.getLocationByUuid(nextLocationUuid);
+                if (next != null) {
+                    Visit visit = null;
+                    // Prefer existing active visit
+                    java.util.List<Visit> active = vs.getActiveVisitsByPatient(patient);
+                    if (active != null && !active.isEmpty()) {
+                        visit = active.get(0);
+                    }
+                    if (visit != null) {
+                        qs.addToQueue(patient, visit, next, 5);
+                    }
+                }
+            }
         }
     }
 
@@ -137,5 +184,12 @@ public class ConsultationController {
         } catch (Exception ignore) { }
         return Context.getService(NHIEIntegrationService.class);
     }
-}
 
+    private PatientQueueService getQueueService() {
+        try {
+            List<PatientQueueService> beans = Context.getRegisteredComponents(PatientQueueService.class);
+            if (beans != null && !beans.isEmpty()) return beans.get(0);
+        } catch (Exception ignore) { }
+        return Context.getService(PatientQueueService.class);
+    }
+}
