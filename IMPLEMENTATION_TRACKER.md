@@ -59,11 +59,13 @@ docker exec mysql mysql --version  # Must show: 5.7.x
 
 - **Phase 1: Foundation** (Week 1-5) - [DONE] **Week 1-2 DONE, Week 3 IN PROGRESS (Nov 2)**
 - **Phase 2: OPD Core Workflow** (Week 6-11)
-  - Week 7-8: OPD Consultation Backend (IN PROGRESS)
+  - Week 7-8: OPD Consultation Backend (COMPLETED)
     - Added ConsultationService + implementation
     - Added ConsultationController REST endpoints
     - Extended NHIE integration to submit Encounter
     - Added unit tests for consultation service
+    - Implemented queue handoff on consultation save (complete current, enqueue next)
+    - Verification: Backend build SUCCESS; Frontend lint/type-check SUCCESS; E2E pending local run
   - Week 8-9: OPD Consultation Frontend (COMPLETED)
     - Consultation UI form with chief complaint, diagnoses, prescriptions, and lab orders
     - Validation: chief complaint min 10 chars; at least one diagnosis (Zod + RHF)
