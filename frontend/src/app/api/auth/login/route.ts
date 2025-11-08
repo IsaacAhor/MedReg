@@ -18,11 +18,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Establish OpenMRS session via POST /session (captures JSESSIONID)
+    // OpenMRS requires Basic Authentication header to authenticate the session
+    const credentials = Buffer.from(`${username}:${password}`).toString('base64');
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10_000);
     const sessionResponse = await fetch(`${OPENMRS_BASE_URL}/session`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Basic ${credentials}`
+      },
       body: JSON.stringify({ username, password }),
       cache: 'no-store',
       signal: controller.signal,
