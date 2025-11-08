@@ -34,7 +34,10 @@ export async function POST(request: NextRequest) {
       signal: controller.signal,
     }).finally(() => clearTimeout(timeout));
 
+    console.log('[LOGIN] POST /session status:', sessionResponse.status);
+
     if (!sessionResponse.ok) {
+      console.error('[LOGIN] POST /session failed:', sessionResponse.status, sessionResponse.statusText);
       return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
 
@@ -55,12 +58,19 @@ export async function POST(request: NextRequest) {
       signal: controllerGet.signal,
     }).finally(() => clearTimeout(tGet));
 
+    console.log('[LOGIN] GET /session status:', sessionCheck.status);
+
     if (!sessionCheck.ok) {
+      console.error('[LOGIN] GET /session failed:', sessionCheck.status);
       return NextResponse.json({ message: 'Authentication failed' }, { status: 401 });
     }
 
     const session = await sessionCheck.json();
+    console.log('[LOGIN] Session authenticated:', session?.authenticated);
+    console.log('[LOGIN] Session user:', session?.user?.username);
+
     if (!session?.authenticated) {
+      console.error('[LOGIN] Session not authenticated. Full session:', JSON.stringify(session));
       return NextResponse.json({ message: 'Authentication failed' }, { status: 401 });
     }
 
