@@ -4,7 +4,7 @@ export const diagnosisItem = z.object({ code: z.string().min(1), display: z.stri
 
 export const consultationSchema = z.object({
   patientUuid: z.string().min(10, 'Patient is required'),
-  chiefComplaint: z.string().min(2, 'Chief complaint is required'),
+  chiefComplaint: z.string().min(10, 'Chief complaint must be at least 10 characters'),
   diagnoses: z
     .array(z.union([z.string().min(1), diagnosisItem]))
     .min(1, 'Select at least one diagnosis'),
@@ -13,4 +13,3 @@ export const consultationSchema = z.object({
 });
 
 export type ConsultationFormData = z.infer<typeof consultationSchema>;
-

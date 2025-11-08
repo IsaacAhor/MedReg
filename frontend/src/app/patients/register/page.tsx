@@ -127,11 +127,22 @@ export default function PatientRegistrationPage() {
       city: values.town,
       address: [values.street, values.district, values.town].filter(Boolean).join(", "),
     }, {
-      onSuccess: (data: any) => {
+      onSuccess: async (data: any) => {
         const uuid = data?.patient?.uuid || data?.uuid;
         const folder = data?.patient?.folderNumber;
         const nhieSync = data?.patient?.nhieSync;
         if (uuid) {
+          // Best-effort: enqueue to Triage queue automatically if configured
+          try {
+            const triageLoc = process.env.NEXT_PUBLIC_TRIAGE_LOCATION_UUID || '';
+            if (triageLoc) {
+              await fetch('/api/opd/queue', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ patientUuid: uuid, locationUuid: triageLoc })
+              });
+            }
+          } catch {}
           const params = new URLSearchParams();
           if (folder) params.set("folder", folder);
           if (nhieSync) params.set("nhieSync", nhieSync);

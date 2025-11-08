@@ -1,11 +1,11 @@
-# Implementation Tracker - Ghana EMR MVP
+﻿# Implementation Tracker - Ghana EMR MVP
 
 **Project:** MedReg - Ghana NHIE-Compliant Electronic Medical Records System
 **Repository:** https://github.com/IsaacAhor/MedReg
 **Timeline:** 20 weeks to functional MVP (Option B: Next.js Frontend)
 **Started:** October 30, 2025
 **Expected Completion:** March 2026
-**Last Updated:** November 5, 2025
+**Last Updated:** November 7, 2025
 
 **Reference:** See [08_MVP_Build_Strategy.md](08_MVP_Build_Strategy.md) for complete plan
 
@@ -19,7 +19,7 @@
 - ❌ **No** → **READ [AGENTS.md](AGENTS.md) NOW** before continuing
 
 **Why this is mandatory:**
-- Contains non-negotiable technology constraints (Java 8, MySQL 5.7, OpenMRS 2.6.0)
+- Contains non-negotiable technology constraints (Java 8, MySQL 5.7, OpenMRS 2.4.0)
 - Documents critical architecture decisions and known issues
 - Prevents repeating solved problems (6+ hours lost on November 4-5, 2025 due to config.xml misunderstanding)
 
@@ -35,11 +35,11 @@
 |-----------|------------------|--------------|------------------------------|
 | **Java** | **8 (1.8.0_472)** | Java 11, 17, 21 | 30+ compilation errors, OpenMRS won't start |
 | **MySQL** | **5.7.x** | MySQL 8.0+ | Database connection failure |
-| **OpenMRS** | **2.6.0** | OpenMRS 3.x | 4-6 week migration required |
+| **OpenMRS** | **2.4.0** | OpenMRS 3.x | 4-6 week migration required |
 | **Mockito** | **3.12.4** | Mockito 5.x | Requires Java 11+, tests fail |
 
 **WHY LOCKED:**
-- OpenMRS 2.6.0 has breaking changes with Java 11+
+- OpenMRS 2.4.0 has breaking changes with Java 11+
 - Week 2 build success depended on these exact versions
 - 16-20 week MVP timeline requires stable foundation
 - Migration to Java 21/OpenMRS 3.x is post-MVP task (Q3 2026)
@@ -64,11 +64,13 @@ docker exec mysql mysql --version  # Must show: 5.7.x
     - Added ConsultationController REST endpoints
     - Extended NHIE integration to submit Encounter
     - Added unit tests for consultation service
-  - Week 8-9: OPD Consultation Frontend (STARTED)
-    - Consultation UI form (complaint, diagnoses, prescriptions, labs)
-    - Zod + RHF validation, TanStack Query mutation
-    - BFF `/api/opd/consultation` forwards to module endpoint
-    - Quick-pick lists (ICD-10, essential medicines, common labs)
+  - Week 8-9: OPD Consultation Frontend (COMPLETED)
+    - Consultation UI form with chief complaint, diagnoses, prescriptions, and lab orders
+    - Validation: chief complaint min 10 chars; at least one diagnosis (Zod + RHF)
+    - Hook: useConsultation with TanStack Query mutation and toasts
+    - BFF `/api/opd/consultation` forwards to module endpoint `/ws/rest/v1/ghana/opd/consultation`
+    - Quick-pick lists wired (ICD-10 top diagnoses, essential medicines, common labs)
+    - Tests: added `frontend/src/lib/schemas/consultation.test.ts` (schema validation unit tests)
 - **Phase 3: NHIS + Billing** (Week 12-14)
 - **Phase 4: Reports + Polish** (Week 15-20)
 
@@ -800,7 +802,7 @@ MySQL (4):
 
 **Backend:**
 - MySQL 5.7 database ready (port 3307, persistent volume)
-- OpenMRS 2.6.0 platform configured
+- OpenMRS 2.4.0 platform configured
 - Facility metadata set (KBTH, GA region)
 - NHIE sandbox endpoints configured
 - REST API verified working (http://localhost:8080/openmrs/ws/rest/v1)
@@ -2449,7 +2451,7 @@ Notes:
 - `openmrs-admin.restart_openmrs` executed; `openmrs-admin.wait_for_startup` timed out, but module verification still reports loaded/started.
 
 
-### 2025-11-06 � Backend Packaging Hygiene (Task 2)
+### 2025-11-06 � Backend Packaging Hygiene (Task 2)
 - Completed OMOD packaging hygiene: removed logging frameworks from OMOD lib (slf4j/log4j/logback/commons-logging).
 - Included required runtime libs (HAPI FHIR 5.5.3, HttpClient 4.5.13); validated via OMOD inspection.
 - MVP baseline REST verified on Platform (module may be temporarily disabled when startup issues are unrelated to logging).
@@ -2492,3 +2494,11 @@ Jackson Migration (2025-11-07):
 - Rebuilt and redeployed OMOD; container reports healthy; UI root 200.
 - REST webservices failing to start; logs report RestHelperService conversion errors (webservices.rest).
 - Conclusion: Jackson 1 removal resolved prior classloading issues; remaining REST issue is unrelated and requires webservices.rest bean wiring investigation.
+
+## Week 3: Task 11 - Queue Wiring & Polling (2025-11-07)
+
+Status: COMPLETED
+
+- Queue pages now use `NEXT_PUBLIC_QUEUE_POLL_INTERVAL` for polling cadence.
+- Triage/Consultation/Pharmacy queue pages read location UUIDs from env and warn if missing.
+- No backend changes; BFF `/api/opd/queue/[location]` already filters by location and computes wait time.

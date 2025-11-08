@@ -13,7 +13,8 @@ import { LocationSelector } from './location-selector';
 const schema = z.object({
   username: z.string().min(1, 'Username is required'),
   password: z.string().min(1, 'Password is required'),
-  locationUuid: z.string().min(1, 'Work location is required'),
+  // Make location optional at login; session location can be set later
+  locationUuid: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -33,15 +34,12 @@ export function LoginForm() {
   const login = useLogin();
 
   const onSubmit = async (values: FormValues) => {
-    if (!values.locationUuid) {
-      setLocationError('Please select your work location');
-      return;
-    }
     setLocationError(undefined);
     await login.mutateAsync({
       username: values.username,
       password: values.password,
-      location: values.locationUuid,
+      // Pass location if available; backend gracefully handles absence
+      location: values.locationUuid || '',
     });
   };
 

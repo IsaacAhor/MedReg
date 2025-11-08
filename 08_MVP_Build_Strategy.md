@@ -88,7 +88,7 @@ Build a **working EMR in 20 weeks** (Option B: Next.js + shadcn/ui frontend) tha
 ### Phase 1: Foundation (Week 1-5 Option B)
 
 **Week 1: Setup + User Management** [DONE] **COMPLETED (Nov 1, 2025)**
-- [DONE] Day 1-2: OpenMRS 2.6.0 installation, MySQL 8.0, Docker Compose setup
+- [DONE] Day 1-2: OpenMRS 2.4.0 installation, MySQL 5.7, Docker Compose setup
 - [DONE] Day 1-2 (Option B): Next.js 14 project setup, TypeScript 5.x strict mode, shadcn/ui installed
 - [DONE] Day 3-4: User roles available (using OpenMRS defaults: Admin, Doctor, Nurse, etc.)
 - [DONE] Day 3-4 (Option B): Authentication flow (OpenMRS session-based, BFF pattern implemented)
@@ -384,7 +384,7 @@ Build a **working EMR in 20 weeks** (Option B: Next.js + shadcn/ui frontend) tha
 
 ### Backend
 - **OpenMRS Platform 2.6.0**: Core EMR engine
-- **Database**: MySQL 8.0 (required by OpenMRS, non-negotiable)
+- **Database**: MySQL 5.7 (required by OpenMRS, non-negotiable)
   - **Note**: OpenMRS is tightly coupled to MySQL and won't run on PostgreSQL/Supabase without major rewrites
   - **Hosting Options**: 
     - Self-hosted MySQL on Ubuntu server (recommended for MVP)
@@ -432,7 +432,7 @@ Build a **working EMR in 20 weeks** (Option B: Next.js + shadcn/ui frontend) tha
     - Note: Must configure CORS if frontend/backend on different domains
 - **Backend**: Single Ubuntu 22.04 server (DigitalOcean/Linode $40-80/month)
 - **Specs**: 8GB RAM, 4 vCPU, 160GB SSD (handles 50-100 users)
-- **Database**: MySQL 8.0 installed on same server (or separate managed MySQL instance)
+- **Database**: MySQL 5.7 installed on same server (or separate managed MySQL instance)
 - **Backup**: Daily automated backups to cloud storage (DigitalOcean Spaces, AWS S3)
 - **SSL**: Let's Encrypt (free)
 - **Optional**: Supabase project (free tier) for NHIE transaction logs + real-time dashboards (keeps core EMR data separate)
@@ -590,7 +590,7 @@ If you're starting today (October 30, 2025):
 - [ ] Identify 3 potential pilot facilities, initiate conversations
 - [ ] Recruit Technical Lead (if not you) - post on Ghana tech job boards, OpenMRS community
 - [ ] Set up development environment:
-  - OpenMRS 2.6.0 + MySQL + GitHub repo
+  - OpenMRS 2.4.0 + MySQL + GitHub repo
   - **Option B**: Next.js 14 project + TypeScript + shadcn/ui + TanStack Query + React Hook Form
 - [ ] Create AI context documentation (OpenMRS patterns, Ghana domain knowledge)
 
@@ -715,3 +715,4 @@ If you're starting today (October 30, 2025):
 **You'll win because**: You have proof, others have promises.
 
 **Recommendation**: **Go with Option B** (Next.js + shadcn/ui) if you have 5 months and can find competent React/TypeScript dev. The modern UI will significantly improve your pitch to MoH, easier to recruit developers in Ghana, and sets better foundation for v2 features (patient portal, mobile app). The extra $10-15K and 4 weeks is worth the investment.
+

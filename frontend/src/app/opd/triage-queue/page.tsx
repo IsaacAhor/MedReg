@@ -26,6 +26,7 @@ type QueueEntry = {
 export default function TriageQueuePage() {
   const router = useRouter();
   const locationUuid = process.env.NEXT_PUBLIC_TRIAGE_LOCATION_UUID || '';
+  const pollMs = Math.max(1000, Number(process.env.NEXT_PUBLIC_QUEUE_POLL_INTERVAL) || 10000);
 
   const { data, isLoading, refetch } = useQuery<{ results: QueueEntry[] }>({
     queryKey: ['triageQueue', locationUuid],
@@ -35,7 +36,7 @@ export default function TriageQueuePage() {
       if (!res.ok) throw new Error('Failed to fetch queue');
       return res.json();
     },
-    refetchInterval: 10000,
+    refetchInterval: pollMs,
     enabled: !!locationUuid,
   });
 
@@ -66,6 +67,11 @@ export default function TriageQueuePage() {
           </Button>
         </div>
       </div>
+      {!locationUuid && (
+        <div className="mb-4 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+          Missing NEXT_PUBLIC_TRIAGE_LOCATION_UUID. Set it in your environment to enable queue loading.
+        </div>
+      )}
 
       <Card>
         <CardHeader>

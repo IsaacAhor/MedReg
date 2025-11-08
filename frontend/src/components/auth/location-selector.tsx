@@ -102,9 +102,9 @@ export function LocationSelector({ value, onChange, error }: LocationSelectorPro
     }
   }, [locations, onChange]);
 
-  // Auto-select first location if only one available
+  // Auto-select a location when available and none chosen yet
   useEffect(() => {
-    if (locations.length === 1 && !selectedLocation) {
+    if (!selectedLocation && locations.length >= 1) {
       handleLocationChange(locations[0].uuid);
     }
   }, [locations, selectedLocation, handleLocationChange]);
@@ -166,9 +166,11 @@ export function LocationSelector({ value, onChange, error }: LocationSelectorPro
       {error && (
         <p className="text-sm text-red-500">{error}</p>
       )}
-      {locations.length === 1 && (
+      {locations.length >= 1 && (
         <p className="text-xs text-muted-foreground">
-          Only one location available - automatically selected
+          {locations.length === 1
+            ? 'Only one location available - automatically selected'
+            : 'A default work location has been selected; you can change it.'}
         </p>
       )}
     </div>

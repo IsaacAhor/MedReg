@@ -94,7 +94,7 @@ You're building with **AI coding agents as your development team** instead of tr
 **Your Task** (Human):
 1. Create GitHub repository
 2. Set up development environment (local or cloud)
-3. Install OpenMRS 2.6.0 + MySQL 8.0 (or use Docker)
+3. Install OpenMRS 2.4.0 + MySQL 5.7 (or use Docker)
 4. Set up AI agent access (GitHub Copilot, Cursor, Claude/ChatGPT API keys)
 
 **Agent Tasks** (via Project Coordinator Agent):
@@ -104,7 +104,7 @@ You're building with **AI coding agents as your development team** instead of tr
 Context: Ghana EMR MVP, Week 1 Day 1-2, environment setup phase
 Reference: 08_MVP_Build_Strategy.md Phase 1 Week 1
 
-Task: Set up OpenMRS 2.6.0 development environment
+Task: Set up OpenMRS 2.4.0 development environment
 Subtasks:
 1. Database schema initialization
 2. OpenMRS configuration (global properties)
@@ -118,10 +118,10 @@ Assign specialized agents and coordinate their work.
 **Project Coordinator Agent** decomposes and assigns:
 
 1. **Database Agent** -> Create MySQL schema, user privileges, connection config
-   - Prompt: "Create MySQL 8.0 database setup script for OpenMRS 2.6.0 with user `openmrs_user`, database `openmrs`, grant privileges, production-ready collation (utf8mb4)"
+   - Prompt: "Create MySQL 5.7 database setup script for OpenMRS 2.4.0 with user `openmrs_user`, database `openmrs`, grant privileges, production-ready collation (utf8mb4)"
 
 2. **Deployment Agent** -> Create Docker Compose with MySQL + OpenMRS + (Next.js if Option B)
-   - Prompt: "Create Docker Compose file: MySQL 8.0, OpenMRS 2.6.0 Tomcat container, persistent volumes for database and OpenMRS data, environment variables for DB connection"
+   - Prompt: "Create Docker Compose file: MySQL 5.7, OpenMRS 2.4.0 Tomcat container, persistent volumes for database and OpenMRS data, environment variables for DB connection"
 
 3. **Deployment Agent** -> Set up GitHub Actions for automated testing
    - Prompt: "Create GitHub Actions workflow: run on push to main, build OpenMRS module, run unit tests, report coverage"
@@ -407,7 +407,7 @@ c:\temp\AI\MedReg\
 2. **Create AGENTS.md file at root** (see template below)
 3. Install AI tools (GitHub Copilot, Cursor, or API access to Claude/ChatGPT)
 4. Configure tools to use AGENTS.md (Cursor auto-detects, Aider needs `.aider.conf.yml`)
-5. Set up local OpenMRS 2.6.0 + MySQL (or Docker)
+5. Set up local OpenMRS 2.4.0 + MySQL (or Docker)
 
 **10:00 AM - First Agent Prompt** (to Project Coordinator Agent):
 ```
@@ -416,7 +416,7 @@ You are the Project Coordinator Agent for Ghana EMR MVP.
 Context:
 - Project: Ghana NHIE-compliant EMR, 16-week MVP timeline
 - Reference: 08_MVP_Build_Strategy.md (Phase 1 Week 1)
-- Tech Stack: OpenMRS 2.6.0, MySQL 8.0, Next.js 14 (Option B)
+- Tech Stack: OpenMRS 2.4.0, MySQL 5.7, Next.js 14 (Option B)
 - Team: 17 specialized AI agents (see 07_AI_Agent_Architecture.md)
 
 Task: Week 1 Day 1 environment setup
@@ -908,3 +908,4 @@ All issues created with dependencies mapped. Agents will start Day 2 tasks tomor
 **You're not replacing developers with AI agents. You're multiplying your productivity 4-5× so you (1 person) can do the work of 4-6 people.**
 
 **That's the unfair advantage. That's how you win the MoH contract.**
+

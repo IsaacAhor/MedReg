@@ -777,7 +777,7 @@ Content-Type: application/fhir+json
 - Document gaps between Kenya and expected Ghana requirements
 
 ### Phase 2: Development Preparation
-- Set up development environment with OpenMRS 2.6.0
+- Set up development environment with OpenMRS 2.4.0
 - Install FHIR2 module and dependencies
 - Create NHIE adapter module skeleton
 - Implement OAuth 2.0 client
@@ -800,3 +800,4 @@ Content-Type: application/fhir+json
 - Deploy to additional facilities
 - Provide ongoing support and monitoring
 - Iterate based on lessons learned
+

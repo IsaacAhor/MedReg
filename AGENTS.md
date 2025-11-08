@@ -189,7 +189,7 @@ mvn clean package -Dmaven.test.skip=true
 7. **User Management (8 roles - White-Label Multi-Tenant Ready):**
    - **Platform Admin** (Super Admin): Multi-facility oversight, system config, cross-facility analytics
    - **Facility Admin**: Per-facility user management, reports, NHIE monitoring
-   - **Clinical Roles**: Doctor, Nurse, Pharmacist, Records Officer, Cashier, NHIS Officer
+   - **Clinical Roles**: [Doctor](docs/training/roles/doctor.md), [Nurse](docs/training/roles/nurse.md), [Pharmacist](docs/training/roles/pharmacist.md), Records Officer, Cashier, NHIS Officer
 
 [PROHIBITED] **OUT OF SCOPE (Defer to v2):**
 - IPD/Admissions, ANC, Lab results entry, Appointments, SMS, Advanced reports, Offline mode, Multi-facility deployment (single-facility MVP first), Referrals
@@ -923,6 +923,8 @@ public void testValidateGhanaCard_Null_ThrowsException() {
 
 **MANDATORY: Verify Liquibase migrations**
 
+For a detailed explanation of table relationships, refer to the [Data Dictionary](docs/db/data-dictionary.md).
+
 ```bash
 # 1. Check migration syntax
 mvn liquibase:validate
@@ -1430,6 +1432,7 @@ Instructions: Take with food
 ---
 
 ## OpenMRS Code Patterns
+This section provides high-level patterns. For practical, step-by-step implementation guides, see the [Developer's Cookbook](docs/development/cookbook.md).
 
 ### Service Layer Pattern
 ```java
@@ -1495,11 +1498,9 @@ public class GhanaPatientService {
 ```
 
 ### REST Controller Pattern
-```
-### Module Endpoints (Current Build)
-- POST /ws/rest/v1/ghana/patients/{uuid}/sync-nhie triggers NHIE patient sync via NHIEIntegrationService (non-blocking from frontend; used by Next.js BFF after registration).
-- GET /ws/rest/v1/ghana/coverage?nhis={number} checks NHIS eligibility via NHIE (minimal version; 24h cache layer to be added).
-java
+See the complete [API Reference Guide](docs/api/rest-api-reference.md) for all endpoints.
+
+```java
 @RestController
 @RequestMapping("/api/v1/ghana/patients")
 public class GhanaPatientController {

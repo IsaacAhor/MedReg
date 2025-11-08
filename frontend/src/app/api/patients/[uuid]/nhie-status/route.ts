@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import openmrs from '@/lib/openmrs';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/patients/[uuid]/nhie-status
@@ -34,17 +35,33 @@ export async function GET(
       );
     }
 
-    // Call OpenMRS REST API endpoint
-    const response = await axios.get(
-      `/ws/rest/v1/ghana/patients/${params.uuid}/nhie-status`,
-      {
-        headers: {
-          Cookie: `JSESSIONID=${sessionCookie}`
-        }
-      }
-    );
+    // Prepare OpenMRS base URL
+    const base =
+      process.env.OPENMRS_BASE_URL ||
+      process.env.NEXT_PUBLIC_OPENMRS_API_URL ||
+      'http://localhost:8080/openmrs/ws/rest/v1';
 
-    return NextResponse.json(response.data);
+    // Call OpenMRS REST API endpoint using fetch
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 10_000);
+    const res = await fetch(`${base}/ghana/patients/${params.uuid}/nhie-status`, {
+      headers: {
+        Accept: 'application/json',
+        Cookie: `JSESSIONID=${sessionCookie}`,
+      },
+      cache: 'no-store',
+      signal: controller.signal,
+    }).finally(() => clearTimeout(t));
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: 'Failed to fetch NHIE status' },
+        { status: res.status }
+      );
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data);
   } catch (error: any) {
     console.error('NHIE status fetch error:', error);
 

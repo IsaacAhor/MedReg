@@ -38,7 +38,7 @@ This report provides a detailed comparison between **UgandaEMR** (Uganda's natio
 
 | Component | UgandaEMR | MedReg | Status | Notes |
 |-----------|-----------|---------|---------|-------|
-| **OpenMRS Platform** | 2.6.x → 3.x (O3) | 2.6.0 | [OK] Aligned | Both use stable 2.6.x base |
+| **OpenMRS Platform** | 2.x (UgandaEMR) | 2.4.0 (MedReg) | [OK] Compatible | UgandaEMR 2.x; MedReg targets 2.4.0 |
 | **Reference Application** | 2.10.x → 3.x | 2.11.0 | [OK] Aligned | MedReg slightly newer |
 | **FHIR Module** | FHIR2 1.x (R4) | Custom FHIR R4 | [WARNING] Different | MedReg uses HAPI FHIR 5.7.0, not standard module |
 | **Database** | MySQL 5.7/8.0 | MySQL 5.7 | [OK] Aligned | Both use MySQL (OpenMRS requirement) |
@@ -717,3 +717,4 @@ MedReg has a **solid foundation** based on proven OpenMRS patterns, with a **sig
 - Ghana Health Service: https://ghs.gov.gh/
 - National Health Insurance Authority: https://www.nhia.gov.gh/
 - Food & Drugs Authority: https://www.fdaghana.gov.gh/
+

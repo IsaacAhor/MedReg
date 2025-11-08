@@ -152,7 +152,7 @@ c:\temp\AI\MedReg\
 - **Purpose:** Active tasks only
 - **Who writes:** Human defines tasks
 - **Who deletes:** Worker after completion
-- **Status indicators:** [QUEUED] QUEUED, [WIP] IN PROGRESS, [WARNING] BLOCKED
+- **Status indicators:** [QUEUED] QUEUED, [WIP] IN PROGRESS, [WARNING] BLOCKED, [REJECTED] FAILED
 
 ### TASK_HISTORY.md
 - **Purpose:** Completed tasks (permanent record)
@@ -170,57 +170,25 @@ c:\temp\AI\MedReg\
 ## Task Status Lifecycle
 
 ```
-[QUEUED] QUEUED -> [WIP] IN PROGRESS -> [DONE] SUCCESS (in TASK_HISTORY.md)
-                ↓
-            [WARNING] BLOCKED -> [QUEUED] QUEUED (after unblocking)
+                                     ┌──────────────────┐
+                                     │ [DONE] SUCCESS   │
+                                     │(in TASK_HISTORY) │
+                                     └─────────▲────────┘
+                                               │
+[QUEUED] QUEUED ──► [WIP] IN PROGRESS ──────────┤
+      ▲           │                            │
+      │           │                            │
+      └─[WARNING] │                            │
+        BLOCKED   │                            │
+                  ▼                            ▼
+           [REJECTED] FAILED ◄───────────────┐
+                  │                          │
+                  └────────► (debug by next worker) ┘
 ```
 
 ---
 
 ## Example Workflow
-
-### Monday 9 AM - Human adds task:
-
-```markdown
-## [HOT] Task 1: Implement Auth Endpoints
-**Status:** [QUEUED] QUEUED
-**Due:** Monday EOD
-**Estimated:** 4 hours
-
-### Self-Contained Execution Instructions
-[Detailed steps 1-7...]
-
-### Acceptance Criteria
-- [ ] All 4 endpoints implemented
-- [ ] Tests pass
-- [ ] Documentation updated
-```
-
-### Monday 10 AM - Human types:
-
-```
-"Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, update IMPLEMENTATION_TRACKER.md when done."
-```
-
-### Monday 10:05 AM - Worker:
-
-1. Opens PROMPT_QUEUE.md
-2. Sees Task 1 ([QUEUED] QUEUED)
-3. Changes to [WIP] IN PROGRESS
-4. Creates 4 files (auth endpoints)
-5. Runs 5 verification tests (all pass)
-6. Updates IMPLEMENTATION_TRACKER.md Week 3
-7. Moves Task 1 to TASK_HISTORY.md
-8. Deletes Task 1 from PROMPT_QUEUE.md
-9. Notifies: "Task 1 complete. Auth endpoints ready."
-
-### Monday 10:30 AM - Human reviews:
-
-- PROMPT_QUEUE.md: Task 1 gone [DONE]
-- TASK_HISTORY.md: Task 1 shows completion (210 lines, 4 hours)
-- IMPLEMENTATION_TRACKER.md: Week 3 shows [DONE] COMPLETE
-- Tests implementation: Login works [DONE]
-
 ---
 
 ## Benefits
@@ -235,66 +203,106 @@ c:\temp\AI\MedReg\
 | **Perfect Handshake** | Worker adds next task before completing current one - NO WORK LOST |
 | **Parallel Work** | Multiple workers can take different tasks |
 | **Error Recovery** | If worker crashes, task still in queue with all details |
+| **Self-Healing** | Agents can autonomously report, debug, and resolve failures |
 
 ---
 
 ## Best Practices
 
-### For Human (Task Definition)
+### For Human (Task Definition & Coordination)
 
 [DONE] **DO:**
-- Write detailed "Self-Contained Execution Instructions"
-- Include exact file paths to create/modify
-- Provide code patterns and examples
-- List verification commands (bash/PowerShell)
-- Specify acceptance criteria (checklist)
-- Reference AGENTS.md sections
+- Write detailed "Self-Contained Execution Instructions" for new tasks.
+- Include exact file paths, code patterns, and verification commands.
+- **Act as a simple relay:** When a worker provides a prompt for the next worker, copy and paste it exactly as given.
 
 [FAILED] **DON'T:**
-- Write vague requirements ("implement auth")
-- Assume worker knows file locations
-- Skip verification steps
-- Forget to update IMPLEMENTATION_TRACKER.md template
+- Write vague requirements ("implement auth").
+- Assume a worker knows file locations.
+- **Intervene in the debugging process.** Do not write your own commands to fix a rejected task. Let the agents handle it.
 
 ### For Worker (Task Execution)
 
 [DONE] **DO:**
-- Read ALL steps before starting
-- Change status to [WIP] IN PROGRESS when starting
-- Follow steps IN ORDER (1 -> 7)
-- Run ALL verification commands
-- Update files in specified order
-- Copy completion details to TASK_HISTORY.md
-- Delete task ONLY after all criteria checked
+- Read ALL steps before starting.
+- Change status to [WIP] IN PROGRESS when starting.
+- Follow steps IN ORDER (1 -> 7).
+- Run ALL verification commands.
+- **If verification fails, immediately follow the "Handling Verification Failures" protocol.**
+- If successful, update files in the specified order and perform the Perfect Handshake.
 
 [FAILED] **DON'T:**
-- Skip verification steps
-- Delete task before updating IMPLEMENTATION_TRACKER.md
-- Work on Task 2 if Task 1 still queued
-- Modify task requirements (ask human if unclear)
+- Skip verification steps.
+- **Move a task with failed verification to `TASK_HISTORY.md`.**
+- Modify task requirements (ask human if unclear, or handle via the rejection process if it causes a failure).
 
 ---
 
 ## Troubleshooting
 
 ### "I can't find PROMPT_QUEUE.md"
-- File is in repository root: `c:\temp\AI\MedReg\PROMPT_QUEUE.md`
-- If missing, create it from template in AGENTS.md
+- File is in the repository root: `c:\temp\AI\MedReg\PROMPT_QUEUE.md`.
 
 ### "Task is blocked, what do I do?"
-1. Change status to [WARNING] BLOCKED
-2. Document blocker in task notes
-3. Leave task in PROMPT_QUEUE.md
-4. Notify human with details
+1. Change status to `[WARNING] BLOCKED`.
+2. Document the blocker in the task notes.
+3. Leave the task in `PROMPT_QUEUE.md`.
+4. Notify the human with details.
 
-### "Task took longer than estimated"
-- Update duration in TASK_HISTORY.md with actual time
-- Add note in "Challenges Encountered" section
-- Human can adjust future estimates
+### "A verification command failed, what do I do?"
+- Follow the protocol in the **"Handling Verification Failures (Agent-Centric Protocol)"** section. Do not proceed with the normal success workflow.
 
 ### "Multiple tasks are queued, which one first?"
-- Always execute FIRST task marked [QUEUED] QUEUED
-- Tasks are ordered by priority (top = highest)
+- Always execute the FIRST task in `PROMPT_QUEUE.md`. Priority is determined by order.
+
+---
+
+## Handling Verification Failures (Agent-Centric Protocol)
+
+This protocol ensures that task failures are handled autonomously by agents, maintaining the integrity of the system and requiring zero cognitive load from the human coordinator.
+
+### Part 1: The Failing Worker (Worker A)
+
+If a mandatory verification command fails, the task is **REJECTED**.
+
+1.  **STOP:** Do not proceed with the normal success workflow (updating tracker, moving to history, etc.).
+2.  **Update Status:** In `PROMPT_QUEUE.md`, change the task's status from `[WIP] IN PROGRESS` to `[REJECTED] FAILED`.
+3.  **Create Rejection Report:** Inside the task's section in `PROMPT_QUEUE.md`, add a new H2 heading: `## Rejection Report`. Under it, provide:
+    *   **Timestamp:** The UTC timestamp of the failure.
+    *   **Failing Worker:** The name of the worker that encountered the failure (e.g., Worker A).
+    *   **Failed Command:** The exact command that failed.
+    *   **Output Log:** The complete `stdout` and `stderr` from the command.
+    *   **Worker Analysis:** A brief, structured analysis of the likely cause.
+4.  **Generate Handoff Prompt:** The worker's final action is to generate the precise, self-contained prompt for the next worker.
+5.  **Notify Human:** The worker presents its final notification, which includes the generated prompt for the human to relay.
+
+#### Example Notification from Worker A:
+> Task 12 has been REJECTED. A Rejection Report has been added to `PROMPT_QUEUE.md`.
+>
+> **Please copy and paste the following command for the next worker:**
+>
+> `A task has been rejected. Refer to the first task in PROMPT_QUEUE.md, review its Rejection Report, and implement a fix. After fixing, you must re-run all verification steps from the original task description to ensure it is fully resolved.`
+
+### Part 2: The Human Coordinator
+
+The human's role is simple and mechanical:
+1.  Receive the notification from Worker A.
+2.  Copy the generated prompt.
+3.  Paste the prompt to activate the next worker (Worker B).
+
+### Part 3: The Debugging Worker (Worker B)
+
+1.  **Receive Command:** Worker B is activated with the specific directive to fix the rejected task.
+2.  **Analyze and Fix:** The worker reads the original task instructions AND the `Rejection Report`. It analyzes the logs and code to implement a fix.
+3.  **Full Re-Verification:** Worker B must re-run **all** verification commands from the original task description to confirm the fix and check for regressions.
+4.  **Complete the Task:** If all verifications pass, Worker B follows the standard success protocol:
+    *   Updates `IMPLEMENTATION_TRACKER.md`.
+    *   Moves the entire task block (including the original instructions and the `Rejection Report`) to `TASK_HISTORY.md`.
+    *   Deletes the task from `PROMPT_QUEUE.md`.
+    *   Performs the **Perfect Handshake**: If the task was part of a sequence, it creates the next task in `PROMPT_QUEUE.md`.
+    *   **Generates the standard system prompt** for the human to relay for the next task in the queue.
+
+This autonomous, self-healing loop ensures that failures are handled efficiently by the agents themselves, preserving the system's core philosophy.
 
 ---
 

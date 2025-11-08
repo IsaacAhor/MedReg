@@ -36,57 +36,96 @@ See **AGENTS.md** "Documentation Creation Rule (MANDATORY)" section for full pro
 
 ```
 MedReg/
+├── IMPLEMENTATION_TRACKER.md ⭐ SOURCE OF TRUTH
+│   ├── Week 1: Foundation ✅
+│   ├── Week 2-3: Patient Registration ✅
+│   ├── Week 4-5: NHIE Patient Sync ✅
+│   └── Week 6-11: OPD Workflow 🔄
+│
+├── AGENTS.md (Ghana domain rules, NHIE architecture, code patterns)
+├── README.md (Project overview, quick start)
+│
+└── docs/
+    ├── api/ (NEW)
+    │   └── rest-api-reference.md (Consolidated REST API documentation)
+    │
+    ├── db/
+    │   ├── data-dictionary.md (NEW - Data model and relationships)
+    │   └── liquibase-schema.md
+    │
+    ├── development/ (NEW)
+    │   └── cookbook.md (Step-by-step recipes for common tasks)
+    │
+    ├── training/
+    │   ├── roles/ (NEW)
+    │   │   ├── doctor.md
+    │   │   └── pharmacist.md
+    │   └── user-manual.md
+    │
+    ├── setup/ (Setup and operational guides)
+    │   ├── week1-setup-guide.md
+    │   └── nhie-mock-guide.md
+    │
+    ├── specs/ (Feature specifications)
+    │   ├── registration-form-spec.md
+    │   └── consultation-spec.md
+    │
+    └── ... (Other doc categories)
+```
+
+```
+MedReg/
 +-- IMPLEMENTATION_TRACKER.md ? SOURCE OF TRUTH
-�   +-- Week 1: Foundation [DONE]
-�   +-- Week 2-3: Patient Registration [DONE]
-�   +-- Week 4-5: NHIE Patient Sync [ACTIVE] 75%
-�   �   +-- Quick Dashboard (embedded)
-�   �   +-- Code Statistics (embedded)
-�   �   +-- Next Tasks (embedded)
-�   �   +-- Links to detailed docs ?
-�   +-- Week 6-11: OPD Workflow [PENDING]
-�
+�   +-- Week 1: Foundation [DONE]
+�   +-- Week 2-3: Patient Registration [DONE]
+�   +-- Week 4-5: NHIE Patient Sync [ACTIVE] 75%
+�   �   +-- Quick Dashboard (embedded)
+�   �   +-- Code Statistics (embedded)
+�   �   +-- Next Tasks (embedded)
+�   �   +-- Links to detailed docs ?
+�   +-- Week 6-11: OPD Workflow [PENDING]
+�
 +-- AGENTS.md (Ghana domain rules, NHIE architecture, code patterns)
 +-- README.md (Project overview, quick start)
-�
+�
 +-- docs/
     +-- EXTERNAL_RESOURCES.md ?? (ALL external links consolidated - NEW!)
-    �   +-- OpenMRS Documentation (REST API, FHIR, O3, Docker)
-    �   +-- FHIR & HL7 Resources (R4 specs, HAPI FHIR, ICD-10, LOINC)
-    �   +-- Ghana Health System (NHIA, GHS, MoH, Ghana Card, 16 regions)
-    �   +-- African Regional Context (Uganda EMR, Kenya HIE, Rwanda)
-    �   +-- Development Tools & Libraries (Next.js, React, shadcn/ui, TanStack Query)
-    �   +-- Community & Support (OpenMRS Talk, Slack, GitHub)
-    �   +-- Quick Bookmarks (12 daily-use links + local endpoints)
-    �
+    �   +-- OpenMRS Documentation (REST API, FHIR, O3, Docker)
+    �   +-- FHIR & HL7 Resources (R4 specs, HAPI FHIR, ICD-10, LOINC)
+    �   +-- Ghana Health System (NHIA, GHS, MoH, Ghana Card, 16 regions)
+    �   +-- African Regional Context (Uganda EMR, Kenya HIE, Rwanda)
+    �   +-- Development Tools & Libraries (Next.js, React, shadcn/ui, TanStack Query)
+    �   +-- Community & Support (OpenMRS Talk, Slack, GitHub)
+    �   +-- Quick Bookmarks (12 daily-use links + local endpoints)
+    �
     +-- UGANDA_EMR_REFERENCE.md (Uganda EMR code adaptation - 1000+ lines)
     +-- QUICK_REFERENCE.md (Commands and code snippets)
-    �
+    �
     +-- setup/ (Setup and operational guides)
-    �   +-- week1-setup-guide.md (Initial environment setup)
-    �   +-- nhie-mock-guide.md (NHIE mock server guide - 1000+ lines)
-    �   +-- openmrs-docker-setup.md (OpenMRS configuration)
-    �   +-- MCP_GUIDE.md (Model Context Protocol servers: OpenMRS REST + Admin)
-    �   +-- week1-implementation-summary.md (Week 1 deep dive)
-    �   +-- TASK8_COMPLETION_SUMMARY.md (NHIEIntegrationService technical reference)
-    �
+    �   +-- week1-setup-guide.md (Initial environment setup)
+    �   +-- nhie-mock-guide.md (NHIE mock server guide - 1000+ lines)
+    �   +-- openmrs-docker-setup.md (OpenMRS configuration)
+    �   +-- MCP_GUIDE.md (Model Context Protocol servers: OpenMRS REST + Admin)
+    �   +-- week1-implementation-summary.md (Week 1 deep dive)
+    �   +-- TASK8_COMPLETION_SUMMARY.md (NHIEIntegrationService technical reference)
+    �
     +-- specs/ (Feature specifications)
-    �   +-- registration-form-spec.md
-    �   +-- triage-form-spec.md
-    �   +-- consultation-spec.md
-    �   +-- ... (8 total spec files)
-    �
+    �   +-- registration-form-spec.md
+    �   +-- triage-form-spec.md
+    �   +-- consultation-spec.md
+    �   +-- ... (8 total spec files)
+    �
     +-- mapping/ (FHIR mapping guides)
-    �   +-- patient-fhir-mapping.md
-    �   +-- encounter-observation-fhir-mapping.md
-    �
+    �   +-- patient-fhir-mapping.md
+    �   +-- encounter-observation-fhir-mapping.md
+    �
     +-- security/ (Security policies)
-    �   +-- audit-policy.md
-    �   +-- privileges-matrix.md
+    �   +-- audit-policy.md
+    �   +-- privileges-matrix.md
     
     runbooks/ (Operational runbooks for isolated incidents)
       OPENMRS_REST_LOGIN_RECOVERY_TASKBOOK.md (single-document task system for the REST/login incident; mirrors AGENTS.md workflow locally without touching project-wide queues)
-    �
+    �
     +-- ... (Other doc categories)
 ```
 
@@ -211,7 +250,7 @@ MedReg/
 **Create when:**
 - 🔧 New infrastructure component added (Docker, database, etc.)
 - 🚀 Deployment process established
-- �(TM)️ Configuration is non-trivial
+- �(TM)️ Configuration is non-trivial
 - 🧪 Testing infrastructure needs documentation
 
 **Examples:**
@@ -416,7 +455,7 @@ If doc becomes obsolete:
 
 ---
 
-## Update � Nov 2, 2025: New/Updated Documentation Entries
+## Update � Nov 2, 2025: New/Updated Documentation Entries
 
 - Added: NHIE transaction logging reference
   - Path: ackend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/README-TRANSACTION-LOGGING.md
@@ -431,11 +470,11 @@ If doc becomes obsolete:
   - Purpose: Document NHIEIntegrationService test suite, coverage target, run commands
 
 - Updated: AGENTS.md
-  - New section: �NHIE Transaction Logging (Implementation Note � Nov 2, 2025)�
+  - New section: �NHIE Transaction Logging (Implementation Note � Nov 2, 2025)�
   - Purpose: Team guidance for using NHIETransactionLogger, table name, PII masking expectations
 
 - Tracker: IMPLEMENTATION_TRACKER.md
-  - Week 4�5 update block summarizing tests + logger abstraction
+  - Week 4�5 update block summarizing tests + logger abstraction
 ## Related Documents
 
 - [IMPLEMENTATION_TRACKER.md](../../IMPLEMENTATION_TRACKER.md) - Single source of truth

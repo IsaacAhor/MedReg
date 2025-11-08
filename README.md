@@ -13,11 +13,11 @@
 
 ### ⚠️ MANDATORY TECHNOLOGY VERSIONS (DO NOT CHANGE)
 
-This project has **HARD REQUIREMENTS** due to OpenMRS 2.6.0 compatibility:
+This project has **HARD REQUIREMENTS** due to OpenMRS 2.4.0 compatibility:
 
 | Technology | Required Version | ❌ DO NOT USE | Why Locked |
 |------------|------------------|---------------|------------|
-| **Java** | **8 (1.8.0_472)** | Java 11, 17, 21 | OpenMRS 2.6.0 breaks with Java 11+ |
+| **Java** | **8 (1.8.0_472)** | Java 11, 17, 21 | OpenMRS 2.4.0 breaks with Java 11+ |
 | **MySQL** | **5.7.x** | MySQL 8.0+ | Connector/J incompatibility |
 | **OpenMRS** | **2.6.0** | OpenMRS 3.x (O3) | 4-6 week migration effort |
 | **Mockito** | **3.12.4** | Mockito 5.x | Requires Java 11+ |
@@ -353,7 +353,7 @@ docker-compose up -d mysql
 
 ### Before You Start
 1. **Read AGENTS.md** - Architecture rules, Ghana domain knowledge
-2. **Verify environment** - Java 8, MySQL 5.7, OpenMRS 2.6.0
+2. **Verify environment** - Java 8, MySQL 5.7, OpenMRS 2.4.0
 3. **Check PROMPT_QUEUE.md** - See if there's an active task
 
 ### Workflow
@@ -375,7 +375,7 @@ docker-compose up -d mysql
 
 ### ✅ Week 1-2: Foundation (COMPLETE)
 - [x] Docker environment setup
-- [x] OpenMRS 2.6.0 + MySQL 5.7 running
+- [x] OpenMRS 2.4.0 + MySQL 5.7 running
 - [x] REST API verified
 - [x] Custom module builds successfully
 - [x] 30+ compilation errors fixed
@@ -461,3 +461,4 @@ docker-compose down -v && docker-compose up -d
 
 **Built with ❤️ for Ghana's healthcare system**  
 **Target: Win MoH pilot facility Q1 2026** 🇬🇭
+

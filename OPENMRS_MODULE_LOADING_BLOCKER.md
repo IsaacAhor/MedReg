@@ -286,7 +286,7 @@ mysql:
 - **Name:** Ghana EMR
 - **Module ID:** ghanaemr
 - **Version:** 0.1.0-SNAPSHOT
-- **Platform Requirement:** OpenMRS 2.6.0+
+- **Platform Requirement:** OpenMRS 2.4.0
 - **Dependencies:** webservices.rest (aware_of)
 - **Size:** 110KB
 
@@ -727,7 +727,7 @@ docker exec medreg-test-openmrs grep "Ghana EMR Module started successfully" /us
 **Estimated Time:** 30-60 minutes
 
 **Files to Read First:**
-- [AGENTS.md](AGENTS.md) - Project constraints (Java 8, MySQL 5.7, OpenMRS 2.6.0)
+- [AGENTS.md](AGENTS.md) - Project constraints (Java 8, MySQL 5.7, OpenMRS 2.4.0)
 - This file - Platform 2.6.0 Upgrade Task section
 
 **Files to Update After Success:**
@@ -740,3 +740,4 @@ docker exec medreg-test-openmrs grep "Ghana EMR Module started successfully" /us
 **Last Updated:** November 5, 2025 02:15 AM
 **Investigated By:** Claude (AI Assistant)
 **Status:** ⏳ IN PROGRESS (75% Complete) - Final step: Platform upgrade
+

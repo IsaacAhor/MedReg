@@ -34,7 +34,7 @@ curl -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session
 - **What Matters**: REST API works perfectly (verified)
 
 #### 2. MySQL 5.7 Required (Not 8.0)
-- **Issue**: OpenMRS 2.6.0 uses MySQL Connector/J 5.1.x
+- **Issue**: OpenMRS 2.4.0 uses MySQL Connector/J 5.1.x
 - **Problem**: MySQL 8.0 removed `storage_engine` variable, breaks old connector
 - **Solution**: Use MySQL 5.7 (configured in docker-compose.yml)
 
@@ -174,7 +174,7 @@ OpenMRS: openmrs/openmrs-reference-application-distro:2.11.0
 
 ### Issue: MySQL connection errors
 **Status:** Fixed  
-**Root Cause:** MySQL 8.0 incompatible with OpenMRS 2.6.0  
+**Root Cause:** MySQL 8.0 incompatible with OpenMRS 2.4.0  
 **Solution:** Switched to MySQL 5.7
 
 ---
@@ -242,3 +242,4 @@ OpenMRS: openmrs/openmrs-reference-application-distro:2.11.0
 **Commit:** d0de8cc  
 **Branch:** main  
 **Repository:** https://github.com/IsaacAhor/MedReg
+

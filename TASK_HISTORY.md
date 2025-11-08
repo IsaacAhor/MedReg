@@ -1,9 +1,9 @@
-# Task Completion History
+﻿# Task Completion History
 
 **Purpose:** Audit trail of completed tasks. DO NOT delete entries from this file.
 
-**Last Updated:** 2025-11-03 12:45 UTC  
-**Total Completed Tasks:** 5
+**Last Updated:** 2025-11-07 19:09 UTC  
+**Total Completed Tasks:** 7
 ---
 
 ## [DONE] Task 10: User Journey Alignment & Navigation Improvements (Priority: CRITICAL)
@@ -80,10 +80,10 @@
   - Action required: restart agent and retry session verification
 
 ### Files Created/Updated
-- frontend/.env.local – added NEXT_PUBLIC_* location UUIDs and NEXT_PUBLIC_QUEUE_POLL_INTERVAL
-- mcp-servers/openmrs/.env – OPENMRS_BASE_URL set to 8081 REST base
-- mcp-servers/openmrs-admin/.env – OPENMRS_BASE_URL set to 8081 REST base
-- IMPLEMENTATION_TRACKER.md – added Runtime Validation log with UUIDs and results
+- frontend/.env.local â added NEXT_PUBLIC_* location UUIDs and NEXT_PUBLIC_QUEUE_POLL_INTERVAL
+- mcp-servers/openmrs/.env â OPENMRS_BASE_URL set to 8081 REST base
+- mcp-servers/openmrs-admin/.env â OPENMRS_BASE_URL set to 8081 REST base
+- IMPLEMENTATION_TRACKER.md â added Runtime Validation log with UUIDs and results
 
 ### Migration Proposal
 - Name: 20251105T222449_ensure_standard_locations
@@ -119,7 +119,7 @@
 
 ### Verification Results:
 - ESLint: SUCCESS (warnings only, no errors)
-- TypeScript: PARTIAL � our added files type-check clean; a pre-existing error in src/app/patients/[uuid]/page.tsx prevented full 	sc pass. Lint and Next build remain unaffected.
+- TypeScript: PARTIAL ï¿½ our added files type-check clean; a pre-existing error in src/app/patients/[uuid]/page.tsx prevented full 	sc pass. Lint and Next build remain unaffected.
 - Manual: Not executed here (no backend available); endpoints conform to expected paths and patterns.
 
 ### Files Created:
@@ -131,7 +131,7 @@
 - frontend/src/app/triage/page.tsx
 
 ### Files Updated:
-- IMPLEMENTATION_TRACKER.md � Week 6 updated to reflect Triage frontend completion
+- IMPLEMENTATION_TRACKER.md ï¿½ Week 6 updated to reflect Triage frontend completion
 
 ### Challenges Encountered:
 - No 	ype-check npm script existed; used the local TypeScript compiler directly. Found unrelated pre-existing TS errors in src/app/patients/[uuid]/page.tsx. Did not modify unrelated code.
@@ -307,7 +307,7 @@ When you complete a task from PROMPT_QUEUE.md:
 - End-to-end test with OpenMRS running and verify encounter creation + NHIE submission
 
 ### Perfect Handshake:
-- [WARNING] No follow-up task added — awaiting next queued item
+- [WARNING] No follow-up task added â awaiting next queued item
 
 ## [DONE] Task 5: NHIE Patient Sync Integration (Week 4-5)
 **Completed by:** Claude Sonnet 4.5
@@ -599,8 +599,8 @@ Warnings in unrelated files (reports/page.tsx, location-selector.tsx)
 npm run build
 [DONE] PASSED - Build completed successfully
 Route (app)                              Size     First Load JS
-├ ƒ /patients                            3.74 kB         139 kB (uses TanStack Query)
-└ ƒ /dashboard                           2.42 kB         137 kB
+â Æ /patients                            3.74 kB         139 kB (uses TanStack Query)
+â Æ /dashboard                           2.42 kB         137 kB
 Total: 34 routes compiled
 ```
 
@@ -626,10 +626,10 @@ Total: 34 routes compiled
 **Benefits:**
 - [LAUNCH] **Better UX**: Loading states, error handling, toast notifications
 - [ACTIVE] **Auto-refresh**: Mutations invalidate queries (data always fresh)
-- 📦 **Caching**: Stale times reduce unnecessary API calls
-- 🛡️ **Type Safety**: Full TypeScript coverage (API + hooks)
-- 🔧 **Maintainability**: Centralized API clients, reusable hooks
-- 🎯 **Developer Experience**: TanStack Query patterns established
+- ð¦ **Caching**: Stale times reduce unnecessary API calls
+- ð¡ï¸ **Type Safety**: Full TypeScript coverage (API + hooks)
+- ð§ **Maintainability**: Centralized API clients, reusable hooks
+- ð¯ **Developer Experience**: TanStack Query patterns established
 
 **Ready for Week 4:**
 - NHIE integration can use same patterns (useNHIESync hook)
@@ -694,5 +694,74 @@ Total: 34 routes compiled
 
 ### Perfect Handshake:
 - Next logical task: Frontend integration for Consultation UI (forms for complaint, diagnoses, drugs, labs) with API wiring
+
+---
+
+
+## [DONE] Task 11: Wire Queues into UI using Location UUIDs (Priority: HIGH)
+**Completed by:** Codex CLI Worker  
+**Started:** 2025-11-07 00:00 UTC  
+**Completed:** 2025-11-07 00:10 UTC  
+**Duration:** ~10 minutes  
+**Status:** [DONE] SUCCESS
+
+### Summary
+- Wired OPD queue pages to use env-driven polling interval `NEXT_PUBLIC_QUEUE_POLL_INTERVAL`.
+- Confirmed all queue pages read location UUIDs from env and added UX notice if missing.
+- No backend changes required; existing BFF routes already filter by location.
+
+### Verification Results
+- [INFO] Backend build (Maven): Not executed in this environment; no backend changes in this task.
+- [INFO] REST session endpoint: Not executed here.
+- [INFO] Frontend build (Next.js): Not executed here; static TypeScript pages updated minimally.
+
+### Files Modified
+- frontend/src/app/opd/triage-queue/page.tsx  use env polling interval; missing-location notice
+- frontend/src/app/opd/consultation-queue/page.tsx  use env polling interval; missing-location notice
+- frontend/src/app/opd/pharmacy-queue/page.tsx  use env polling interval; missing-location notice
+- PROMPT_QUEUE.md  queue header updated (no active tasks)
+- IMPLEMENTATION_TRACKER.md  Week 3 note added for Task 11
+
+### Challenges Encountered
+- PROMPT_QUEUE.md referenced Task 11 but had no task block; completed task and updated queue header to reflect zero active tasks.
+
+### Next Steps
+- Optional: add dashboard controls to tweak polling interval at runtime.
+
+### Perfect Handshake
+- No follow-up task needed  sequence complete for queue wiring.
+
+---
+
+
+## [DONE] Task 11: Implement OPD Consultation Frontend (Priority: HIGH)
+**Completed by:** Codex CLI Worker  
+**Started:** 2025-11-07 18:50 UTC  
+**Completed:** 2025-11-07 19:09 UTC  
+**Duration:** ~19 minutes  
+**Status:** [DONE] SUCCESS
+
+### Summary
+- Enforced consultation validation (chief complaint min 10 chars; at least one diagnosis).
+- Confirmed OPD Consultation page, BFF API route, and mutation hook are in place and working.
+- Added unit tests for the consultation schema (Zod) and ensured existing tests pass.
+
+### Verification Results
+- [DONE] npm run lint — SUCCESS
+- [DONE] npm run type-check — SUCCESS
+- [DONE] npm run test — SUCCESS (3 files, 43 tests)
+- [DONE] mvn clean package -Dmaven.test.skip=true — SUCCESS
+
+### Files Created
+- frontend/src/lib/validators/consultation.ts — re-export for schema usage consistency
+- frontend/src/lib/schemas/consultation.test.ts — schema validation unit tests
+
+### Files Modified
+- frontend/src/lib/schemas/consultation.ts — chief complaint min length set to 10
+- frontend/package.json — added type-check script
+- IMPLEMENTATION_TRACKER.md — Week 8-9 marked COMPLETED with details
+
+### Next Steps
+- Proceed to Task 12: NHIE Encounter Sync (ensure encounter submissions are queued/retried and auditable).
 
 ---

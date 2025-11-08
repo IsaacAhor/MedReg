@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +38,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Login failed: no session cookie' }, { status: 500 });
     }
     const jsessionId = jsessMatch[1];
-    const session = await sessionResponse.json();
+    // Some OpenMRS versions return 200 with empty body on POST /session.
+    // After capturing JSESSIONID, perform a GET /session to retrieve details.
+    const controllerGet = new AbortController();
+    const tGet = setTimeout(() => controllerGet.abort(), 10_000);
+    const sessionCheck = await fetch(`${OPENMRS_BASE_URL}/session`, {
+      method: 'GET',
+      headers: { Accept: 'application/json', Cookie: `JSESSIONID=${jsessionId}` },
+      cache: 'no-store',
+      signal: controllerGet.signal,
+    }).finally(() => clearTimeout(tGet));
+
+    if (!sessionCheck.ok) {
+      return NextResponse.json({ message: 'Authentication failed' }, { status: 401 });
+    }
+
+    const session = await sessionCheck.json();
     if (!session?.authenticated) {
       return NextResponse.json({ message: 'Authentication failed' }, { status: 401 });
     }
@@ -75,19 +89,11 @@ export async function POST(request: NextRequest) {
       : roles.includes('NHIS Officer') ? 'nhis'
       : 'user';
 
-    const cookieStore = cookies();
     const secure = process.env.NODE_ENV === 'production';
     const baseCookie = { httpOnly: true, secure, sameSite: 'lax' as const, maxAge: 60 * 60 * 8, path: '/' };
 
-    // Persist OpenMRS session ID for server-side calls
-    cookieStore.set('omrsSession', jsessionId, baseCookie);
-    // Auth flags + role/location/provider context
-    cookieStore.set('omrsAuth', '1', baseCookie);
-    cookieStore.set('omrsRole', primaryRole, baseCookie);
-    if (selectedLocation) cookieStore.set('omrsLocation', selectedLocation, baseCookie);
-    if (session.currentProvider?.uuid) cookieStore.set('omrsProvider', session.currentProvider.uuid, baseCookie);
-
-    return NextResponse.json({
+    // Build response and attach cookies explicitly to ensure the browser receives them
+    const res = NextResponse.json({
       success: true,
       user: {
         uuid: session.user?.uuid,
@@ -98,6 +104,17 @@ export async function POST(request: NextRequest) {
       },
       sessionLocation: session.sessionLocation || null,
     });
+
+    res.cookies.set('omrsSession', jsessionId, baseCookie);
+    res.cookies.set('omrsAuth', '1', baseCookie);
+    res.cookies.set('omrsRole', primaryRole, baseCookie);
+    if (selectedLocation) res.cookies.set('omrsLocation', selectedLocation, baseCookie);
+    if (session.currentProvider?.uuid) res.cookies.set('omrsProvider', session.currentProvider.uuid, baseCookie);
+
+    // Temporary debug cookie (client-visible) to confirm cookie delivery
+    res.cookies.set('omrsDbg', '1', { httpOnly: false, sameSite: 'lax', maxAge: 300, path: '/' });
+
+    return res;
   } catch (error: any) {
     console.error('Login error:', error?.message || String(error));
     return NextResponse.json({ message: 'Login failed' }, { status: 500 });
