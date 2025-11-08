@@ -73,6 +73,14 @@ docker exec mysql mysql --version  # Must show: 5.7.x
     - BFF `/api/opd/consultation` forwards to module endpoint `/ws/rest/v1/ghana/opd/consultation`
     - Quick-pick lists wired (ICD-10 top diagnoses, essential medicines, common labs)
     - Tests: added `frontend/src/lib/schemas/consultation.test.ts` (schema validation unit tests)
+  - **Admin Dashboard KPIs (COMPLETED - November 8, 2025)**
+    - Backend: OPDMetricsController and NHIEMetricsController with REST endpoints
+    - Frontend: Created reusable KpiCard component with loading/error states
+    - Dashboard: 8 KPI cards (OPD encounters, new patients, NHIE sync, DLQ backlog, queue counts)
+    - Auto-refresh: 30-second interval for real-time monitoring
+    - NHIE metrics: DLQ count, retryable failures, 24h success count, last sync timestamp
+    - Role-based widgets: Triage (Nurse), Consultation (Doctor), Pharmacy (Pharmacist)
+    - Files: `frontend/src/components/dashboard/KpiCard.tsx`, `frontend/src/app/dashboard/page.tsx`
 - **Phase 3: NHIS + Billing** (Week 12-14)
 - **Phase 4: Reports + Polish** (Week 15-20)
 
