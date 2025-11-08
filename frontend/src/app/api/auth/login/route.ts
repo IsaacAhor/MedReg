@@ -10,10 +10,15 @@ const OPENMRS_BASE_URL =
 const OPENMRS_ROOT_URL = OPENMRS_BASE_URL.replace(/\/ws\/rest\/v1\/?$/, '');
 
 export async function POST(request: NextRequest) {
+  console.log('========================================');
+  console.log('[LOGIN] Login endpoint called');
+  console.log('[LOGIN] OPENMRS_BASE_URL:', OPENMRS_BASE_URL);
   try {
     const { username, password, locationUuid, location } = await request.json();
+    console.log('[LOGIN] Credentials received - username:', username, 'location:', locationUuid || location);
 
     if (!username || !password) {
+      console.error('[LOGIN] Missing username or password');
       return NextResponse.json({ message: 'Username and password are required' }, { status: 400 });
     }
 
