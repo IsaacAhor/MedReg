@@ -6,6 +6,20 @@
 
 ---
 
+## Related Security Documentation
+
+This comprehensive repository review is part of a complete security assessment. Additional detailed documents:
+
+1. **SECURITY_REVIEW_INDEX.md** - Start here for navigation guide
+2. **IMPLEMENTATION_ROADMAP.md** - 8-week step-by-step implementation plan with code examples (25 KB) ⭐
+3. **SECURITY_REVIEW_REPORT.md** - Technical deep-dive with vulnerability analysis (37 KB)
+4. **SECURITY_ISSUES_CHECKLIST.md** - Actionable remediation tracking checklist (11 KB)
+5. **SECURITY_EXECUTIVE_SUMMARY.txt** - Executive summary for stakeholders (12 KB)
+
+**Quick Start:** Read SECURITY_REVIEW_INDEX.md to understand which document to read based on your role.
+
+---
+
 ## Executive Summary
 
 MedReg is a Ghana Electronic Medical Records (EMR) system built on OpenMRS 2.4.0 with a Next.js frontend, designed to win Ghana's Ministry of Health pilot contract by Q1 2026. The project shows **strong architectural planning and documentation**, but has **critical security vulnerabilities that must be addressed before production deployment**.

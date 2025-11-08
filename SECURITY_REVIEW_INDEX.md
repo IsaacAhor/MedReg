@@ -8,9 +8,10 @@
 - Read: `SECURITY_EXECUTIVE_SUMMARY.txt` (287 lines)
 - Key Points: 22 vulnerabilities found, DO NOT deploy to production, 150 hours remediation effort
 
-**Developers** (1-2 hours)
-- Start: `SECURITY_ISSUES_CHECKLIST.md` (295 lines)
-- Then: `SECURITY_REVIEW_REPORT.md` sections relevant to your code
+**Developers** (1-2 hours to read, 175 hours to implement)
+- Start: `IMPLEMENTATION_ROADMAP.md` (step-by-step implementation guide)
+- Track: `SECURITY_ISSUES_CHECKLIST.md` (check off completed items)
+- Reference: `SECURITY_REVIEW_REPORT.md` (detailed technical analysis)
 - Use: Code examples and remediation steps provided
 
 **Security Team** (2-3 hours)
@@ -26,6 +27,22 @@
 ---
 
 ## Documents Overview
+
+### 0. IMPLEMENTATION_ROADMAP.md (NEW - 25 KB)
+**Best for**: Developers implementing fixes, step-by-step guidance
+
+**Contains**:
+- Week-by-week implementation schedule (8 weeks)
+- Step-by-step code examples for each fix
+- SQL injection remediation with code snippets
+- Credential externalization procedures
+- SSL/TLS configuration guides
+- Testing checkpoints after each phase
+- Deployment gates checklist
+
+**When to use**: Starting remediation work, need concrete implementation steps
+
+---
 
 ### 1. SECURITY_EXECUTIVE_SUMMARY.txt (12 KB)
 **Best for**: Quick overview, stakeholder communication
@@ -302,8 +319,9 @@
 Refer to specific document:
 - **"Why can't we deploy?"** → SECURITY_EXECUTIVE_SUMMARY.txt
 - **"What do I fix first?"** → SECURITY_ISSUES_CHECKLIST.md (Phase 1)
-- **"How do I fix X?"** → SECURITY_REVIEW_REPORT.md (specific finding)
+- **"How do I fix X?"** → IMPLEMENTATION_ROADMAP.md (step-by-step code examples)
 - **"What are the line numbers?"** → SECURITY_ISSUES_CHECKLIST.md or SECURITY_REVIEW_REPORT.md
+- **"What's the weekly schedule?"** → IMPLEMENTATION_ROADMAP.md (week-by-week breakdown)
 
 ---
 

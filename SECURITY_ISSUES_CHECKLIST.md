@@ -1,5 +1,11 @@
 # MedReg Security Issues - Quick Reference Checklist
 
+**For step-by-step implementation instructions, see IMPLEMENTATION_ROADMAP.md**
+
+This checklist provides a quick reference for tracking progress. Each item links to detailed implementation steps in the roadmap.
+
+---
+
 ## CRITICAL ISSUES (Fix Immediately - Before Any Production Deployment)
 
 - [ ] **SQL Injection in AuditLogger** (CRITICAL)
