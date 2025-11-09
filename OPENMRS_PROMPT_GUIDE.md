@@ -31,12 +31,14 @@
 |----|------|--------|----------|--------------|
 | OPM-000 | Complete OpenMRS Module Loading Fix | DONE | CRITICAL | None |
 | OPM-001 | Queue Management Database Schema | DONE | CRITICAL | OPM-000 |
-| OPM-002 | Queue Service Spring Bean Registration | TODO | CRITICAL | OPM-001 |
-| OPM-003 | Patient Registration Auto-Queue Addition | TODO | HIGH | OPM-001, OPM-002 |
+| OPM-002 | Queue Service Spring Bean Registration | DONE | CRITICAL | OPM-001 |
+| OPM-003 | Patient Registration Auto-Queue Addition | DONE | HIGH | OPM-001, OPM-002 |
 | OPM-004 | Location UUIDs Configuration | DONE | HIGH | None |
 | OPM-005 | Pharmacy Service Layer (Service + DAO) | TODO | HIGH | OPM-001 |
 | OPM-006 | Pharmacy REST Controller | TODO | HIGH | OPM-005 |
 | OPM-007 | Pharmacy Service Unit Tests | TODO | MEDIUM | OPM-005 |
+| OPM-008 | Billing Type Concepts & Payment Obs Metadata | TODO | CRITICAL | Phase 2 Closure Plan |
+| OPM-009 | NHIS Eligibility Attribute & Global Properties | TODO | CRITICAL | OPM-008 |
 
 **NOTE:** OPM-000 and OPM-001 completed on November 5, 2025. Module successfully loads on Platform 2.4.0 with all database tables created. Production environment now running on Reference Application 2.12.0 (Platform 2.4.0).
 
@@ -1332,6 +1334,163 @@ Mark this task as **DONE** when:
 - Builds: `cd frontend && npm run lint && npm run type-check`, `cd backend/openmrs-module-ghanaemr && mvn clean package -Dmaven.test.skip=true` (all SUCCESS).
 
 **Notes:** Existing OpenMRS instances should execute the documented REST commands (or run the SQL snippet) to sync their global properties if they predate this change.
+
+### ✂️ COPY TO HERE ✂️
+
+---
+
+## OPM-008: Billing Type Concepts & Payment Obs Metadata
+
+**Status:** TODO  
+**Priority:** CRITICAL  
+**Created:** 2025-11-09  
+**Dependencies:** Phase 2 Closure Plan, OPM-001  
+**Related Files:** Concept Dictionary, `docs/config/billing-concepts.md`, `docs/implementation/phase2-closure-plan.md`
+
+### Context
+
+Phase 2 cannot close until the system has authoritative OpenMRS concepts for Billing Type (NHIS vs Cash) plus obs concepts for payment amount and receipt number. These concepts will be consumed by the Next.js dispense API and NHIS vs Cash reporting. This task provisions the metadata and documents the resulting UUIDs.
+
+**Deliverables:**
+1. Coded concept `Billing Type`
+2. Answer concepts `NHIS Payment`, `Cash Payment`
+3. Supporting numeric/text concepts for payment amount (decimal) and receipt number (text)
+4. Documentation of UUIDs + recommended global property/env names
+
+### ✂️ COPY FROM HERE ✂️
+
+## Self-Contained Prompt for OpenMRS Worker
+
+**Task:** Create Billing Type concepts and payment obs metadata for Phase 2 closure.
+
+**Context:** The frontend dispense form needs authoritative concept UUIDs to store payment type (NHIS vs Cash), payment amount, and receipt number. Record everything in `docs/config/billing-concepts.md` so non-MCP workers can wire the frontend/API.
+
+**Prerequisites:**
+- OpenMRS 2.4.0 environment running (medreg-openmrs container)
+- Concept Dictionary admin privileges
+- Reference: `docs/implementation/phase2-closure-plan.md`
+
+**Steps to Execute:**
+
+### 1. Create Billing Type Concept & Answers
+```bash
+# Example via REST (adjust payloads as needed)
+curl -u admin:Admin123 -H \"Content-Type: application/json\" \\
+  -d '{\"names\":[{\"name\":\"Billing Type\",\"locale\":\"en\"}],\"datatype\":\"Coded\",\"conceptClass\":\"Misc\"}' \\
+  http://localhost:8080/openmrs/ws/rest/v1/concept
+
+# Capture returned UUID as BILLING_TYPE_UUID
+```
+Repeat for answer concepts “NHIS Payment” and “Cash Payment” (datatype: N/A, class: Misc). Use the Concept Dictionary UI or REST to set these as allowable answers on Billing Type.
+
+### 2. Create Payment Amount & Receipt Concepts
+```bash
+# Payment Amount (numeric)
+curl -u admin:Admin123 -H \"Content-Type: application/json\" \\
+  -d '{\"names\":[{\"name\":\"Payment Amount\",\"locale\":\"en\"}],\"datatype\":\"Numeric\",\"conceptClass\":\"Misc\"}' \\
+  http://localhost:8080/openmrs/ws/rest/v1/concept
+
+# Receipt Number (text)
+curl -u admin:Admin123 -H \"Content-Type: application/json\" \\
+  -d '{\"names\":[{\"name\":\"Receipt Number\",\"locale\":\"en\"}],\"datatype\":\"Text\",\"conceptClass\":\"Misc\"}' \\
+  http://localhost:8080/openmrs/ws/rest/v1/concept
+```
+
+### 3. Document UUIDs
+Record all UUIDs + display names in `docs/config/billing-concepts.md` with recommended env/global property names:
+- `OPENMRS_CONCEPT_BILLING_TYPE_UUID`
+- `OPENMRS_CONCEPT_BILLING_TYPE_NHIS_UUID`
+- `OPENMRS_CONCEPT_BILLING_TYPE_CASH_UUID`
+- `OPENMRS_CONCEPT_PAYMENT_AMOUNT_UUID`
+- `OPENMRS_CONCEPT_RECEIPT_NUMBER_UUID`
+
+### 4. Suggested Global Properties
+Create (or update) global properties under `ghanaemr.payment.*` naming scheme if required.
+
+### 5. Verification
+```bash
+# List concepts to confirm creation
+curl -u admin:Admin123 \"http://localhost:8080/openmrs/ws/rest/v1/concept?q=Billing%20Type\"
+
+# Verify allowable answers
+curl -u admin:Admin123 \"http://localhost:8080/openmrs/ws/rest/v1/concept/{BILLING_TYPE_UUID}?v=full\"
+```
+Attach command output when reporting.
+
+### 6. Report Back
+- Update `docs/config/billing-concepts.md` with UUID table + env/global property guidance.
+- Note completion in `docs/implementation/phase2-closure-plan.md`.
+
+### ✂️ COPY TO HERE ✂️
+
+---
+
+## OPM-009: NHIS Eligibility Attribute & Global Properties
+
+**Status:** TODO  
+**Priority:** CRITICAL  
+**Created:** 2025-11-09  
+**Dependencies:** OPM-008  
+**Related Files:** `docs/config/billing-concepts.md`, `docs/implementation/phase2-closure-plan.md`
+
+### Context
+
+Frontline staff must run NHIS eligibility checks and persist the result (ACTIVE/EXPIRED/NOT_FOUND) with expiry dates. This task creates the person attribute (or encounter obs) plus associated global properties so the frontend can read/write NHIS status consistently.
+
+**Deliverables:**
+1. Person Attribute Type `NHIS Status` (text or coded) storing status + optional expiry date attribute/obs
+2. Optional `NHIS Status Last Checked` datetime obs/attribute
+3. Global properties exposing the attribute UUIDs (e.g., `ghanaemr.nhis.status.attribute.uuid`)
+4. Documentation updates
+
+### ✂️ COPY FROM HERE ✂️
+
+## Self-Contained Prompt for OpenMRS Worker
+
+**Task:** Provision NHIS eligibility metadata and global properties for Phase 2 closure.
+
+**Context:** Registration UI will call `/api/coverage` and needs to store NHIS status + expiry back into OpenMRS. Provide attributes/obs + global properties so non-MCP workers can integrate.
+
+**Prerequisites:**
+- OPM-008 completed (concepts recorded in `docs/config/billing-concepts.md`)
+- OpenMRS MCP access
+
+**Steps to Execute:**
+
+### 1. Create Person Attribute Type (or Obs)
+```bash
+curl -u admin:Admin123 -H \"Content-Type: application/json\" \\
+  -d '{\"name\":\"NHIS Status\",\"description\":\"ACTIVE/EXPIRED/NOT_FOUND\",\"format\":\"java.lang.String\",\"searchable\":true}' \\
+  http://localhost:8080/openmrs/ws/rest/v1/personattributetype
+```
+Capture UUID as `NHIS_STATUS_ATTRIBUTE_UUID`.
+
+### 2. Optional Expiry/Last-Checked Attributes
+Create additional attribute types (e.g., `NHIS Status Expiry Date`, `NHIS Status Last Checked`) or use obs concepts if preferred. Document decisions.
+
+### 3. Create Global Properties
+```bash
+curl -u admin:Admin123 -H \"Content-Type: application/json\" \\
+  -d '{\"property\":\"ghanaemr.nhis.status.attribute.uuid\",\"value\":\"{NHIS_STATUS_ATTRIBUTE_UUID}\"}' \\
+  http://localhost:8080/openmrs/ws/rest/v1/systemsetting
+```
+Repeat for expiry/last-checked properties if added.
+
+### 4. Document
+Add all UUIDs + instructions to `docs/config/billing-concepts.md` (or dedicated section) so frontend/backend workers know how to read/write NHIS status.
+
+### 5. Verification
+```bash
+# Confirm attribute type exists
+curl -u admin:Admin123 \"http://localhost:8080/openmrs/ws/rest/v1/personattributetype/{UUID}\"
+
+# Confirm system settings
+curl -u admin:Admin123 \"http://localhost:8080/openmrs/ws/rest/v1/systemsetting?q=ghanaemr.nhis\"
+```
+
+### 6. Report Back
+- Update `docs/implementation/phase2-closure-plan.md` and `docs/config/billing-concepts.md`.
+- Provide REST output/logs showing attributes + systemsettings.
 
 ### ✂️ COPY TO HERE ✂️
 

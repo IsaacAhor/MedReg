@@ -57,7 +57,8 @@ MedReg/
     │   └── cookbook.md (Step-by-step recipes for common tasks)
     │
     ├── config/ (Environment + deployment constants)
-    │   └── location-uuids.md (Canonical OPD workflow location UUIDs)
+    │   ├── location-uuids.md (Canonical OPD workflow location UUIDs)
+    │   └── billing-concepts.md (Billing/NHIS concept + global property reference)
     │
     ├── training/
     │   ├── roles/ (NEW)
