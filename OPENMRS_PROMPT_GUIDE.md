@@ -1466,11 +1466,11 @@ When you receive a prompt:
 
 ## Status Summary
 
-**Last Updated:** 2025-11-05
+**Last Updated:** 2025-11-09
 
 | Status | Count | Task IDs |
 |--------|-------|----------|
-| TODO | 3 | OPM-002, OPM-003, OPM-004 |
+| TODO | 6 | OPM-002, OPM-003, OPM-004, OPM-005, OPM-006, OPM-007 |
 | IN_PROGRESS | 0 | - |
 | BLOCKED | 0 | - |
 | DONE | 2 | OPM-000, OPM-001 |
