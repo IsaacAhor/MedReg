@@ -3,7 +3,7 @@
 **Active Tasks:** 0
 **Next Task:** None (Add next task as needed)
 
-**For Workers:** No active tasks. Add new tasks as needed following the template below.
+**For Workers:** Execute tasks in FIFO order (First In, First Out). Use the command: "Refer to PROMPT_QUEUE.md pending task and complete it. Follow AGENTS.md rules, update IMPLEMENTATION_TRACKER.md when done."
 
 **Important:**
 - Holistic Build & Integration Rule (MANDATORY): Every task must ensure the backend, frontend, REST, and app UI still work together end-to-end. Do not break the app.

@@ -122,6 +122,37 @@ Phase 3 completed:
 
 ---
 
+## Task 12: Admin Dashboard KPIs (Progress Update: 2025-11-08)
+
+Status: COMPLETED
+
+Summary of changes implemented:
+- **Backend Controllers:** Verified existing OPDMetricsController and NHIEMetricsController provide all required KPI fields
+  - OPDMetricsController returns: `opdEncountersToday`, `newPatientsToday`
+  - NHIEMetricsController returns: `dlqCount`, `lastUpdatedAt` (last sync timestamp), `failedRetryable`, `success24h`
+  - QueueController provides queue counts via existing GET endpoint
+- **Frontend Component:** Created reusable KpiCard component
+  - File: `frontend/src/components/dashboard/KpiCard.tsx`
+  - Features: Loading states, error handling, customizable colors, optional links
+- **Dashboard Enhancements:** Refactored dashboard page with improved UX
+  - File: `frontend/src/app/dashboard/page.tsx`
+  - Auto-refresh every 45 seconds for real-time KPI updates
+  - Individual loading/error states for each metric
+  - 7 KPI cards: OPD Encounters, New Patients, NHIE Sync Status, DLQ Count, Triage Queue, Consultation Queue, Pharmacy Queue
+  - Last sync timestamp display for NHIE metrics
+  - Color-coded status indicators (green=connected, amber=degraded, gray=checking)
+
+Verification Results:
+- Frontend lint: ✅ PASSED (0 errors, 0 warnings)
+- Frontend type-check: ✅ PASSED
+- Backend build: ⚠️ SKIPPED (network connectivity issue with Maven Central - not a code issue)
+
+Phase 2 Progress:
+- Admin Dashboard KPIs completed as part of Phase 2 enhancement
+- Ready for demo day presentation with real-time metrics
+
+---
+
 ## Runtime Validation – Standard Locations & Env (2025-11-05)
 
 Summary:

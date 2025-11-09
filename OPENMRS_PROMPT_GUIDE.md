@@ -34,6 +34,9 @@
 | OPM-002 | Queue Service Spring Bean Registration | TODO | CRITICAL | OPM-001 |
 | OPM-003 | Patient Registration Auto-Queue Addition | TODO | HIGH | OPM-001, OPM-002 |
 | OPM-004 | Location UUIDs Configuration | TODO | HIGH | None |
+| OPM-005 | Pharmacy Service Layer (Service + DAO) | TODO | HIGH | OPM-001 |
+| OPM-006 | Pharmacy REST Controller | TODO | HIGH | OPM-005 |
+| OPM-007 | Pharmacy Service Unit Tests | TODO | MEDIUM | OPM-005 |
 
 **NOTE:** OPM-000 and OPM-001 completed on November 5, 2025. Module successfully loads on Platform 2.4.0 with all database tables created. Production environment now running on Reference Application 2.12.0 (Platform 2.4.0).
 
@@ -1492,3 +1495,1033 @@ When you receive a prompt:
 3. **OPM-002** (Spring beans) - Next priority
 4. **OPM-004** (Location UUIDs) - Can run in parallel with OPM-002
 5. **OPM-003** (Auto-queue on registration) - Depends on all above
+## OPM-005: Pharmacy Service Layer (Service + DAO)
+
+**Status:** TODO
+**Priority:** HIGH
+**Created:** 2025-11-08
+**Dependencies:** OPM-001 (Queue table exists for pharmacy queue filtering)
+**Related Files:**
+- `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/pharmacy/PharmacyService.java` (to be created)
+- `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/pharmacy/impl/PharmacyServiceImpl.java` (to be created)
+- `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/pharmacy/db/PharmacyDAO.java` (to be created)
+- `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/pharmacy/db/hibernate/HibernatePharmacyDAO.java` (to be created)
+- `backend/openmrs-module-ghanaemr/api/src/main/resources/moduleApplicationContext.xml` (update to register beans)
+
+### Context
+
+Week 9 of the MVP requires a Pharmacy Module for dispensing workflow. This task creates the service layer that:
+1. Retrieves pending prescriptions (DrugOrders) for a location
+2. Marks prescriptions as dispensed with timestamp
+3. Queries patient prescription history
+
+**Current State:**
+- ✅ Consultation module creates DrugOrders (Week 7-8 complete)
+- ✅ Patient queue table exists (OPM-001 complete)
+- ❌ No PharmacyService implementation yet
+- ❌ No DAO for pharmacy operations yet
+
+**What This Task Does:**
+1. Create PharmacyService interface with 3 methods:
+   - `getPendingPrescriptions(locationUuid, status)` - Get dispensing queue
+   - `dispensePrescription(drugOrderUuid, dispensedBy, notes)` - Mark as dispensed
+   - `getPatientPrescriptionHistory(patientUuid, limit)` - View history
+2. Implement PharmacyServiceImpl using OpenMRS OrderService
+3. Create PharmacyDAO interface and HibernatePharmacyDAO implementation
+4. Register Spring beans in moduleApplicationContext.xml
+5. Build and deploy module
+
+### Related Frontend Context
+
+**Frontend pages that depend on this:**
+- `frontend/src/app/opd/pharmacy/page.tsx` - Pharmacy queue page (Task 14)
+- `frontend/src/app/api/pharmacy/queue/[location]/route.ts` - BFF API (Task 13)
+- `frontend/src/app/api/pharmacy/dispense/route.ts` - Dispense endpoint (Task 13)
+
+**NOTE:** Inventory/stock tracking is deferred to v2 per 08_MVP_Build_Strategy.md line 174
+
+---
+
+### ✂️ COPY FROM HERE ✂️
+
+## Self-Contained Prompt for OpenMRS Worker
+
+**Task:** Create PharmacyService layer for dispensing workflow
+
+**Context:** You have OpenMRS MCP access. Week 9 MVP requires pharmacy dispensing. This task creates the service layer that interacts with OpenMRS OrderService to manage drug prescriptions.
+
+**Prerequisites:**
+- OPM-001 completed (patient queue table exists)
+- Java 8, OpenMRS 2.4.0, Maven installed
+- Docker container `medreg-openmrs` running
+
+**Architecture Overview:**
+```
+Frontend BFF API
+     ↓
+PharmacyController (REST)
+     ↓
+PharmacyService (business logic)
+     ↓
+OpenMRS OrderService + PharmacyDAO
+     ↓
+Database (order, drug_order, patient_queue tables)
+```
+
+**Steps to Execute:**
+
+### 1. Create PharmacyService Interface
+
+```bash
+# Create directory if needed
+mkdir -p backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/pharmacy
+```
+
+**File:** `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/pharmacy/PharmacyService.java`
+
+```java
+package org.openmrs.module.ghanaemr.api.pharmacy;
+
+import org.openmrs.DrugOrder;
+import org.openmrs.api.OpenmrsService;
+import java.util.List;
+import java.util.Date;
+
+/**
+ * Pharmacy service for managing medication dispensing
+ * MVP Scope: Dispensing workflow only (no inventory tracking)
+ */
+public interface PharmacyService extends OpenmrsService {
+
+    /**
+     * Get pending prescriptions for a location
+     * @param locationUuid Location UUID (e.g., Pharmacy location)
+     * @param status Order status filter (e.g., "ACTIVE")
+     * @return List of pending DrugOrders
+     */
+    List<DrugOrder> getPendingPrescriptions(String locationUuid, String status);
+
+    /**
+     * Mark a prescription as dispensed
+     * @param drugOrderUuid UUID of the DrugOrder
+     * @param dispensedBy User UUID who dispensed
+     * @param notes Optional dispensing notes
+     * @param dispensedAt Timestamp of dispensing
+     * @return Updated DrugOrder
+     */
+    DrugOrder dispensePrescription(String drugOrderUuid, String dispensedBy, String notes, Date dispensedAt);
+
+    /**
+     * Get prescription history for a patient
+     * @param patientUuid Patient UUID
+     * @param limit Maximum number of records
+     * @return List of DrugOrders (recent first)
+     */
+    List<DrugOrder> getPatientPrescriptionHistory(String patientUuid, int limit);
+}
+```
+
+### 2. Create PharmacyServiceImpl
+
+**File:** `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/pharmacy/impl/PharmacyServiceImpl.java`
+
+```java
+package org.openmrs.module.ghanaemr.api.pharmacy.impl;
+
+import org.openmrs.DrugOrder;
+import org.openmrs.Order;
+import org.openmrs.api.OrderService;
+import org.openmrs.api.impl.BaseOpenmrsService;
+import org.openmrs.module.ghanaemr.api.pharmacy.PharmacyService;
+import org.openmrs.module.ghanaemr.api.pharmacy.db.PharmacyDAO;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.Date;
+
+@Transactional
+public class PharmacyServiceImpl extends BaseOpenmrsService implements PharmacyService {
+
+    private PharmacyDAO dao;
+    private OrderService orderService;
+
+    public void setDao(PharmacyDAO dao) {
+        this.dao = dao;
+    }
+
+    public void setOrderService(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DrugOrder> getPendingPrescriptions(String locationUuid, String status) {
+        if (locationUuid == null || locationUuid.trim().isEmpty()) {
+            throw new IllegalArgumentException("Location UUID cannot be null or empty");
+        }
+        return dao.getPendingDrugOrders(locationUuid, status);
+    }
+
+    @Override
+    @Transactional
+    public DrugOrder dispensePrescription(String drugOrderUuid, String dispensedBy, String notes, Date dispensedAt) {
+        if (drugOrderUuid == null || drugOrderUuid.trim().isEmpty()) {
+            throw new IllegalArgumentException("DrugOrder UUID cannot be null or empty");
+        }
+
+        // Get the DrugOrder
+        Order order = orderService.getOrderByUuid(drugOrderUuid);
+        if (order == null || !(order instanceof DrugOrder)) {
+            throw new IllegalArgumentException("DrugOrder not found: " + drugOrderUuid);
+        }
+
+        DrugOrder drugOrder = (DrugOrder) order;
+
+        // Mark as COMPLETED using OpenMRS OrderService
+        // NOTE: OpenMRS 2.4.0 uses discontinueOrder for this
+        Order discontinueOrder = orderService.discontinueOrder(
+            drugOrder,
+            "Dispensed",
+            dispensedAt,
+            orderService.getOrderByUuid(dispensedBy), // dispensedBy as provider
+            drugOrder.getEncounter()
+        );
+
+        // Store dispensing notes in obs or custom table if needed
+        // For MVP, we just use the discontinue reason
+
+        return (DrugOrder) discontinueOrder;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DrugOrder> getPatientPrescriptionHistory(String patientUuid, int limit) {
+        if (patientUuid == null || patientUuid.trim().isEmpty()) {
+            throw new IllegalArgumentException("Patient UUID cannot be null or empty");
+        }
+        return dao.getPatientDrugOrderHistory(patientUuid, limit);
+    }
+}
+```
+
+### 3. Create PharmacyDAO Interface
+
+**File:** `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/pharmacy/db/PharmacyDAO.java`
+
+```java
+package org.openmrs.module.ghanaemr.api.pharmacy.db;
+
+import org.openmrs.DrugOrder;
+import java.util.List;
+
+/**
+ * DAO for pharmacy operations
+ */
+public interface PharmacyDAO {
+
+    /**
+     * Get pending drug orders for a location
+     */
+    List<DrugOrder> getPendingDrugOrders(String locationUuid, String status);
+
+    /**
+     * Get patient drug order history
+     */
+    List<DrugOrder> getPatientDrugOrderHistory(String patientUuid, int limit);
+}
+```
+
+### 4. Create HibernatePharmacyDAO Implementation
+
+**File:** `backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/pharmacy/db/hibernate/HibernatePharmacyDAO.java`
+
+```java
+package org.openmrs.module.ghanaemr.api.pharmacy.db.hibernate;
+
+import org.hibernate.Criteria;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.openmrs.DrugOrder;
+import org.openmrs.module.ghanaemr.api.pharmacy.db.PharmacyDAO;
+import java.util.List;
+
+public class HibernatePharmacyDAO implements PharmacyDAO {
+
+    private SessionFactory sessionFactory;
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<DrugOrder> getPendingDrugOrders(String locationUuid, String status) {
+        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(DrugOrder.class);
+
+        // Filter by status (ACTIVE orders only)
+        criteria.add(Restrictions.eq("voided", false));
+
+        // Join with encounter to filter by location
+        criteria.createAlias("encounter", "enc");
+        criteria.createAlias("enc.location", "loc");
+        criteria.add(Restrictions.eq("loc.uuid", locationUuid));
+
+        // Order by date created (oldest first - FIFO queue)
+        criteria.addOrder(Order.asc("dateActivated"));
+
+        return criteria.list();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<DrugOrder> getPatientDrugOrderHistory(String patientUuid, int limit) {
+        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(DrugOrder.class);
+
+        // Filter by patient
+        criteria.createAlias("patient", "pat");
+        criteria.add(Restrictions.eq("pat.uuid", patientUuid));
+        criteria.add(Restrictions.eq("voided", false));
+
+        // Order by date (recent first)
+        criteria.addOrder(Order.desc("dateActivated"));
+
+        // Limit results
+        if (limit > 0) {
+            criteria.setMaxResults(limit);
+        }
+
+        return criteria.list();
+    }
+}
+```
+
+### 5. Register Spring Beans
+
+**File:** `backend/openmrs-module-ghanaemr/api/src/main/resources/moduleApplicationContext.xml`
+
+**Add these beans inside the `<beans>` element:**
+
+```xml
+<!-- Pharmacy Service -->
+<bean id="pharmacyService"
+      class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="target">
+        <bean class="org.openmrs.module.ghanaemr.api.pharmacy.impl.PharmacyServiceImpl">
+            <property name="dao" ref="pharmacyDAO"/>
+            <property name="orderService" ref="orderService"/>
+        </bean>
+    </property>
+    <property name="transactionAttributes">
+        <props>
+            <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+    </property>
+</bean>
+
+<!-- Pharmacy DAO -->
+<bean id="pharmacyDAO"
+      class="org.openmrs.module.ghanaemr.api.pharmacy.db.hibernate.HibernatePharmacyDAO">
+    <property name="sessionFactory" ref="sessionFactory"/>
+</bean>
+```
+
+### 6. Build OpenMRS Module
+
+```bash
+cd backend/openmrs-module-ghanaemr
+
+# Clean build
+mvn clean package -Dmaven.test.skip=true
+
+# Expected: BUILD SUCCESS
+# Expected output should show:
+# [INFO] BUILD SUCCESS
+# [INFO] Total time: ~45 seconds
+```
+
+### 7. Deploy Updated Module
+
+```bash
+# Copy new OMOD to OpenMRS
+docker cp omod/target/ghanaemr-1.0.0-SNAPSHOT.omod medreg-openmrs:/openmrs/data/modules/
+
+# Restart OpenMRS
+docker restart medreg-openmrs
+
+# Wait 2-3 minutes for restart
+sleep 180
+
+# Check logs for successful startup
+docker logs medreg-openmrs 2>&1 | tail -50 | grep -i "Started OpenMRS"
+```
+
+### 8. Verify Spring Beans Loaded
+
+```bash
+# Check for pharmacy service bean initialization
+docker logs medreg-openmrs 2>&1 | grep -i "pharmacyService\|pharmacyDAO"
+
+# Expected output (similar to):
+# INFO: Creating bean 'pharmacyDAO'
+# INFO: Creating bean 'pharmacyService'
+# INFO: Autowiring by type from bean name 'pharmacyService'
+```
+
+### 9. Test Service via MCP (If Available)
+
+```bash
+# Use OpenMRS MCP to verify service is available
+# Query: "Check if PharmacyService bean is registered in Spring context"
+
+# Or use Groovy console at: http://localhost:8080/openmrs/admin/maintenance/groovyConsole.form
+```
+
+**Groovy test code:**
+
+```groovy
+import org.openmrs.api.context.Context
+
+// Get the service bean
+def pharmacyService = Context.getService("org.openmrs.module.ghanaemr.api.pharmacy.PharmacyService")
+
+// Verify it's not null
+assert pharmacyService != null : "PharmacyService not found in Spring context"
+
+// Verify methods exist
+assert pharmacyService.metaClass.respondsTo(pharmacyService, "getPendingPrescriptions")
+assert pharmacyService.metaClass.respondsTo(pharmacyService, "dispensePrescription")
+assert pharmacyService.metaClass.respondsTo(pharmacyService, "getPatientPrescriptionHistory")
+
+println "✅ PharmacyService successfully loaded in Spring context"
+println "✅ Service class: ${pharmacyService.class.name}"
+```
+
+### Success Criteria
+
+Mark this task as **DONE** when:
+- ✅ All 4 Java files created (Service interface, ServiceImpl, DAO interface, DAO impl)
+- ✅ Spring beans registered in moduleApplicationContext.xml
+- ✅ Module builds successfully without errors
+- ✅ Module deploys to OpenMRS without errors
+- ✅ OpenMRS logs show pharmacyService and pharmacyDAO beans initialized
+- ✅ No ClassNotFoundException or BeanCreationException errors
+- ✅ (Optional) Groovy console test passes
+
+### Troubleshooting
+
+**Problem:** `ClassNotFoundException` for PharmacyService
+
+**Solution:**
+```bash
+# Verify class files are in the OMOD JAR
+jar -tf omod/target/ghanaemr-1.0.0-SNAPSHOT.omod | grep -i pharmacy
+
+# Expected output:
+# org/openmrs/module/ghanaemr/api/pharmacy/PharmacyService.class
+# org/openmrs/module/ghanaemr/api/pharmacy/impl/PharmacyServiceImpl.class
+# org/openmrs/module/ghanaemr/api/pharmacy/db/PharmacyDAO.class
+# org/openmrs/module/ghanaemr/api/pharmacy/db/hibernate/HibernatePharmacyDAO.class
+```
+
+**Problem:** `UnsatisfiedDependencyException` - orderService not found
+
+**Solution:**
+- Verify `orderService` is referenced correctly (lowercase 'o')
+- This is a core OpenMRS service, Spring provides it automatically
+- Do NOT define orderService bean yourself
+
+**Problem:** Hibernate query fails with "could not resolve property: location"
+
+**Solution:**
+- Check OpenMRS 2.4.0 data model - Encounter has `location` property
+- Verify alias names in Criteria API match entity relationships
+- Use `createAlias("encounter.location", "loc")` syntax
+
+### Update Status After Completion
+
+1. In OPENMRS_PROMPT_GUIDE.md, change status:
+   ```markdown
+   **Status:** ✅ DONE (Completed: 2025-11-XX)
+   ```
+
+2. Add completion report:
+   ```markdown
+   ### Completion Report (OPM-005)
+
+   **Completed:** 2025-11-XX
+   **Completed By:** [Worker name]
+
+   **Verification Output:**
+   [Paste Maven build output showing BUILD SUCCESS]
+   [Paste Docker logs showing bean initialization]
+   [Paste Groovy test output if available]
+
+   **Notes:** [Any deviations or issues encountered]
+   ```
+
+3. Update Active Task Summary table - change status to DONE
+
+### ✂️ COPY TO HERE ✂️
+
+---
+
+## OPM-006: Pharmacy REST Controller
+
+**Status:** TODO
+**Priority:** HIGH
+**Created:** 2025-11-08
+**Dependencies:** OPM-005 (PharmacyService must exist)
+**Related Files:**
+- `backend/openmrs-module-ghanaemr/omod/src/main/java/org/openmrs/module/ghanaemr/web/PharmacyController.java` (to be created)
+
+### Context
+
+This task creates the REST API endpoints that the frontend will call for pharmacy operations.
+
+**Current State:**
+- ✅ Consultation creates DrugOrders (Week 7-8)
+- ❌ No REST endpoints for pharmacy yet (Task OPM-005 creates service)
+
+**What This Task Does:**
+1. Create PharmacyController with 3 endpoints:
+   - `GET /ws/rest/v1/ghana/pharmacy/queue/{locationUuid}` - Pending prescriptions
+   - `POST /ws/rest/v1/ghana/pharmacy/dispense` - Dispense a prescription
+   - `GET /ws/rest/v1/ghana/pharmacy/patient/{patientUuid}/history` - Prescription history
+2. Add authentication checks
+3. Add error handling
+4. Return JSON responses
+
+### Related Frontend Context
+
+**Frontend BFF routes that call these endpoints:**
+- `frontend/src/app/api/pharmacy/queue/[location]/route.ts` (Task 13)
+- `frontend/src/app/api/pharmacy/dispense/route.ts` (Task 13)
+
+---
+
+### ✂️ COPY FROM HERE ✂️
+
+## Self-Contained Prompt for OpenMRS Worker
+
+**Task:** Create PharmacyController REST endpoints
+
+**Context:** You have OpenMRS MCP access. OPM-005 created the PharmacyService. This task exposes it via REST API.
+
+**Prerequisites:**
+- OPM-005 completed (PharmacyService bean exists)
+- Module can build and deploy
+
+**Steps to Execute:**
+
+### 1. Create PharmacyController
+
+**File:** `backend/openmrs-module-ghanaemr/omod/src/main/java/org/openmrs/module/ghanaemr/web/PharmacyController.java`
+
+```java
+package org.openmrs.module.ghanaemr.web;
+
+import org.openmrs.DrugOrder;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.ghanaemr.api.pharmacy.PharmacyService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Controller
+@RequestMapping("/rest/v1/ghana/pharmacy")
+public class PharmacyController {
+
+    /**
+     * GET /rest/v1/ghana/pharmacy/queue/{locationUuid}
+     * Get pending prescriptions for pharmacy queue
+     */
+    @RequestMapping(value = "/queue/{locationUuid}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> getQueue(@PathVariable String locationUuid,
+                                       @RequestParam(defaultValue = "ACTIVE") String status) {
+        try {
+            if (!Context.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse("Authentication required"));
+            }
+
+            PharmacyService pharmacyService = Context.getService(PharmacyService.class);
+            List<DrugOrder> drugOrders = pharmacyService.getPendingPrescriptions(locationUuid, status);
+
+            // Transform to JSON-friendly format
+            List<Map<String, Object>> queue = drugOrders.stream().map(this::serializeDrugOrder).collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("count", queue.size());
+            response.put("queue", queue);
+            response.put("location", locationUuid);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse("Failed to retrieve pharmacy queue: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * POST /rest/v1/ghana/pharmacy/dispense
+     * Mark a prescription as dispensed
+     */
+    @RequestMapping(value = "/dispense", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<?> dispensePrescription(@RequestBody Map<String, String> payload) {
+        try {
+            if (!Context.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse("Authentication required"));
+            }
+
+            String drugOrderUuid = payload.get("drugOrderUuid");
+            String dispensedBy = Context.getAuthenticatedUser().getUuid();
+            String notes = payload.get("notes");
+
+            if (drugOrderUuid == null || drugOrderUuid.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(errorResponse("drugOrderUuid is required"));
+            }
+
+            PharmacyService pharmacyService = Context.getService(PharmacyService.class);
+            DrugOrder dispensed = pharmacyService.dispensePrescription(
+                drugOrderUuid,
+                dispensedBy,
+                notes,
+                new Date()
+            );
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("drugOrder", serializeDrugOrder(dispensed));
+            response.put("message", "Prescription dispensed successfully");
+
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(errorResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse("Failed to dispense prescription: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * GET /rest/v1/ghana/pharmacy/patient/{patientUuid}/history
+     * Get patient's prescription history
+     */
+    @RequestMapping(value = "/patient/{patientUuid}/history", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> getPatientHistory(@PathVariable String patientUuid,
+                                                @RequestParam(defaultValue = "10") int limit) {
+        try {
+            if (!Context.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse("Authentication required"));
+            }
+
+            PharmacyService pharmacyService = Context.getService(PharmacyService.class);
+            List<DrugOrder> history = pharmacyService.getPatientPrescriptionHistory(patientUuid, limit);
+
+            List<Map<String, Object>> prescriptions = history.stream()
+                .map(this::serializeDrugOrder)
+                .collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("patientUuid", patientUuid);
+            response.put("count", prescriptions.size());
+            response.put("prescriptions", prescriptions);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse("Failed to retrieve patient history: " + e.getMessage()));
+        }
+    }
+
+    // Helper methods
+
+    private Map<String, Object> serializeDrugOrder(DrugOrder drugOrder) {
+        Map<String, Object> dto = new HashMap<>();
+        dto.put("uuid", drugOrder.getUuid());
+        dto.put("orderNumber", drugOrder.getOrderNumber());
+        dto.put("drug", drugOrder.getDrug() != null ? drugOrder.getDrug().getDisplayName() : "Unknown");
+        dto.put("dose", drugOrder.getDose());
+        dto.put("doseUnits", drugOrder.getDoseUnits() != null ? drugOrder.getDoseUnits().getDisplayString() : "");
+        dto.put("frequency", drugOrder.getFrequency() != null ? drugOrder.getFrequency().getConcept().getDisplayString() : "");
+        dto.put("duration", drugOrder.getDuration());
+        dto.put("durationUnits", drugOrder.getDurationUnits() != null ? drugOrder.getDurationUnits().getDisplayString() : "");
+        dto.put("quantity", drugOrder.getQuantity());
+        dto.put("quantityUnits", drugOrder.getQuantityUnits() != null ? drugOrder.getQuantityUnits().getDisplayString() : "");
+        dto.put("instructions", drugOrder.getDosingInstructions());
+        dto.put("dateActivated", drugOrder.getDateActivated());
+        dto.put("status", drugOrder.getAction().toString());
+
+        // Patient info
+        if (drugOrder.getPatient() != null) {
+            Map<String, String> patient = new HashMap<>();
+            patient.put("uuid", drugOrder.getPatient().getUuid());
+            patient.put("name", drugOrder.getPatient().getPersonName().getFullName());
+            patient.put("identifier", drugOrder.getPatient().getPatientIdentifier().getIdentifier());
+            dto.put("patient", patient);
+        }
+
+        // Encounter info
+        if (drugOrder.getEncounter() != null) {
+            Map<String, String> encounter = new HashMap<>();
+            encounter.put("uuid", drugOrder.getEncounter().getUuid());
+            encounter.put("date", drugOrder.getEncounter().getEncounterDatetime().toString());
+            dto.put("encounter", encounter);
+        }
+
+        return dto;
+    }
+
+    private Map<String, Object> errorResponse(String message) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("error", true);
+        error.put("message", message);
+        return error;
+    }
+}
+```
+
+### 2. Build Module
+
+```bash
+cd backend/openmrs-module-ghanaemr
+mvn clean package -Dmaven.test.skip=true
+
+# Expected: BUILD SUCCESS
+```
+
+### 3. Deploy Module
+
+```bash
+docker cp omod/target/ghanaemr-1.0.0-SNAPSHOT.omod medreg-openmrs:/openmrs/data/modules/
+docker restart medreg-openmrs
+sleep 180
+```
+
+### 4. Test Endpoints
+
+```bash
+# Test 1: Get pharmacy queue (should return empty list if no prescriptions)
+curl -X GET \
+  'http://localhost:8080/openmrs/ws/rest/v1/ghana/pharmacy/queue/2b3c4d5e-6f70-4a81-9b01-2c3d4e5f6a7b' \
+  -H 'Authorization: Basic QWRtaW46QWRtaW4xMjM=' \
+  -H 'Content-Type: application/json'
+
+# Expected: {"count": 0, "queue": [], "location": "..."}
+
+# Test 2: Get patient history (use a real patient UUID from your system)
+curl -X GET \
+  'http://localhost:8080/openmrs/ws/rest/v1/ghana/pharmacy/patient/PATIENT_UUID/history?limit=5' \
+  -H 'Authorization: Basic QWRtaW46QWRtaW4xMjM=' \
+  -H 'Content-Type: application/json'
+
+# Expected: {"patientUuid": "...", "count": N, "prescriptions": [...]}
+```
+
+### Success Criteria
+
+- ✅ PharmacyController.java created with 3 endpoints
+- ✅ Module builds successfully
+- ✅ Module deploys without errors
+- ✅ GET /queue endpoint returns JSON response
+- ✅ GET /patient/{uuid}/history endpoint returns JSON response
+- ✅ POST /dispense endpoint accepts requests (full test requires DrugOrder to exist)
+- ✅ Authentication checks prevent unauthenticated access
+
+### Troubleshooting
+
+**Problem:** 404 Not Found when calling endpoints
+
+**Solution:**
+- Verify URL path: `/openmrs/ws/rest/v1/ghana/pharmacy/...`
+- Check OpenMRS logs for controller registration
+- Ensure `@Controller` and `@RequestMapping` annotations present
+
+**Problem:** 500 Internal Server Error
+
+**Solution:**
+- Check OpenMRS logs: `docker logs medreg-openmrs | tail -100`
+- Verify PharmacyService bean is loaded (from OPM-005)
+- Check for NullPointerException in stack trace
+
+### Update Status After Completion
+
+1. Change status to DONE in OPENMRS_PROMPT_GUIDE.md
+2. Add completion report with curl test outputs
+3. Update Active Task Summary table
+
+### ✂️ COPY TO HERE ✂️
+
+---
+
+## OPM-007: Pharmacy Service Unit Tests
+
+**Status:** TODO
+**Priority:** MEDIUM
+**Created:** 2025-11-08
+**Dependencies:** OPM-005 (PharmacyService implementation)
+**Related Files:**
+- `backend/openmrs-module-ghanaemr/api/src/test/java/org/openmrs/module/ghanaemr/api/pharmacy/PharmacyServiceTest.java` (to be created)
+
+### Context
+
+Add unit tests for PharmacyService to ensure dispensing logic works correctly.
+
+**Current State:**
+- ✅ PharmacyService implementation exists (OPM-005)
+- ❌ No unit tests yet
+
+**What This Task Does:**
+1. Create PharmacyServiceTest with JUnit + Mockito
+2. Test getPendingPrescriptions()
+3. Test dispensePrescription()
+4. Test getPatientPrescriptionHistory()
+5. Run tests and verify all pass
+
+### Related Frontend Context
+
+Tests ensure backend logic is correct before frontend integration (Tasks 13-16).
+
+---
+
+### ✂️ COPY FROM HERE ✂️
+
+## Self-Contained Prompt for OpenMRS Worker
+
+**Task:** Create unit tests for PharmacyService
+
+**Context:** OPM-005 created PharmacyService. Add unit tests to verify logic.
+
+**Prerequisites:**
+- OPM-005 completed
+- JUnit 4.x and Mockito 3.12.4 in pom.xml (already configured)
+
+**Steps to Execute:**
+
+### 1. Create Test Class
+
+**File:** `backend/openmrs-module-ghanaemr/api/src/test/java/org/openmrs/module/ghanaemr/api/pharmacy/PharmacyServiceTest.java`
+
+```java
+package org.openmrs.module.ghanaemr.api.pharmacy;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.openmrs.DrugOrder;
+import org.openmrs.Order;
+import org.openmrs.api.OrderService;
+import org.openmrs.module.ghanaemr.api.pharmacy.db.PharmacyDAO;
+import org.openmrs.module.ghanaemr.api.pharmacy.impl.PharmacyServiceImpl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class PharmacyServiceTest {
+
+    @Mock
+    private PharmacyDAO dao;
+
+    @Mock
+    private OrderService orderService;
+
+    @InjectMocks
+    private PharmacyServiceImpl pharmacyService;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void testGetPendingPrescriptions_Success() {
+        // Arrange
+        String locationUuid = "pharmacy-location-uuid";
+        String status = "ACTIVE";
+        List<DrugOrder> mockOrders = new ArrayList<>();
+        DrugOrder order1 = new DrugOrder();
+        order1.setUuid("order-1");
+        mockOrders.add(order1);
+
+        when(dao.getPendingDrugOrders(locationUuid, status)).thenReturn(mockOrders);
+
+        // Act
+        List<DrugOrder> result = pharmacyService.getPendingPrescriptions(locationUuid, status);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("order-1", result.get(0).getUuid());
+        verify(dao, times(1)).getPendingDrugOrders(locationUuid, status);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetPendingPrescriptions_NullLocation() {
+        // Act
+        pharmacyService.getPendingPrescriptions(null, "ACTIVE");
+
+        // Assert - expects IllegalArgumentException
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetPendingPrescriptions_EmptyLocation() {
+        // Act
+        pharmacyService.getPendingPrescriptions("", "ACTIVE");
+
+        // Assert - expects IllegalArgumentException
+    }
+
+    @Test
+    public void testDispensePrescription_Success() {
+        // Arrange
+        String drugOrderUuid = "drug-order-uuid";
+        String dispensedBy = "pharmacist-uuid";
+        String notes = "Dispensed at 10:30 AM";
+        Date dispensedAt = new Date();
+
+        DrugOrder mockOrder = new DrugOrder();
+        mockOrder.setUuid(drugOrderUuid);
+
+        when(orderService.getOrderByUuid(drugOrderUuid)).thenReturn(mockOrder);
+        when(orderService.discontinueOrder(any(DrugOrder.class), anyString(), any(Date.class), any(), any()))
+            .thenReturn(mockOrder);
+
+        // Act
+        DrugOrder result = pharmacyService.dispensePrescription(drugOrderUuid, dispensedBy, notes, dispensedAt);
+
+        // Assert
+        assertNotNull(result);
+        verify(orderService, times(1)).getOrderByUuid(drugOrderUuid);
+        verify(orderService, times(1)).discontinueOrder(any(), anyString(), any(), any(), any());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDispensePrescription_NullUuid() {
+        // Act
+        pharmacyService.dispensePrescription(null, "user", "notes", new Date());
+
+        // Assert - expects IllegalArgumentException
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDispensePrescription_OrderNotFound() {
+        // Arrange
+        when(orderService.getOrderByUuid("non-existent-uuid")).thenReturn(null);
+
+        // Act
+        pharmacyService.dispensePrescription("non-existent-uuid", "user", "notes", new Date());
+
+        // Assert - expects IllegalArgumentException
+    }
+
+    @Test
+    public void testGetPatientPrescriptionHistory_Success() {
+        // Arrange
+        String patientUuid = "patient-uuid";
+        int limit = 10;
+        List<DrugOrder> mockHistory = new ArrayList<>();
+        DrugOrder order1 = new DrugOrder();
+        order1.setUuid("order-1");
+        mockHistory.add(order1);
+
+        when(dao.getPatientDrugOrderHistory(patientUuid, limit)).thenReturn(mockHistory);
+
+        // Act
+        List<DrugOrder> result = pharmacyService.getPatientPrescriptionHistory(patientUuid, limit);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("order-1", result.get(0).getUuid());
+        verify(dao, times(1)).getPatientDrugOrderHistory(patientUuid, limit);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetPatientPrescriptionHistory_NullPatient() {
+        // Act
+        pharmacyService.getPatientPrescriptionHistory(null, 10);
+
+        // Assert - expects IllegalArgumentException
+    }
+}
+```
+
+### 2. Run Tests
+
+```bash
+cd backend/openmrs-module-ghanaemr
+
+# Run only PharmacyServiceTest
+mvn test -Dtest=PharmacyServiceTest
+
+# Expected output:
+# Tests run: 8, Failures: 0, Errors: 0, Skipped: 0
+# BUILD SUCCESS
+```
+
+### 3. Run All API Tests
+
+```bash
+# Run all tests in api module
+mvn test -pl api
+
+# Verify no regressions in other tests
+```
+
+### Success Criteria
+
+- ✅ PharmacyServiceTest.java created with 8 test methods
+- ✅ All 8 tests pass
+- ✅ Code coverage for PharmacyServiceImpl methods: getPendingPrescriptions, dispensePrescription, getPatientPrescriptionHistory
+- ✅ Tests verify null/empty input validation
+- ✅ Tests verify DAO method calls
+- ✅ No regressions in existing tests
+
+### Troubleshooting
+
+**Problem:** MockitoAnnotations.initMocks() deprecated warning
+
+**Solution:**
+- Mockito 3.12.4 supports initMocks()
+- Ignore warning for Java 8 compatibility
+- Alternative: Use @RunWith(MockitoJUnitRunner.class) annotation
+
+**Problem:** Tests fail with NullPointerException
+
+**Solution:**
+- Ensure @Mock and @InjectMocks annotations present
+- Verify initMocks() called in @Before method
+- Check mock setup uses correct method signatures
+
+### Update Status After Completion
+
+1. Change status to DONE
+2. Add completion report with test output
+3. Update Active Task Summary table
+
+### ✂️ COPY TO HERE ✂️
+
