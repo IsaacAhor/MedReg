@@ -33,7 +33,7 @@
 | OPM-001 | Queue Management Database Schema | DONE | CRITICAL | OPM-000 |
 | OPM-002 | Queue Service Spring Bean Registration | TODO | CRITICAL | OPM-001 |
 | OPM-003 | Patient Registration Auto-Queue Addition | TODO | HIGH | OPM-001, OPM-002 |
-| OPM-004 | Location UUIDs Configuration | TODO | HIGH | None |
+| OPM-004 | Location UUIDs Configuration | DONE | HIGH | None |
 | OPM-005 | Pharmacy Service Layer (Service + DAO) | TODO | HIGH | OPM-001 |
 | OPM-006 | Pharmacy REST Controller | TODO | HIGH | OPM-005 |
 | OPM-007 | Pharmacy Service Unit Tests | TODO | MEDIUM | OPM-005 |
@@ -1132,29 +1132,25 @@ UPDATE ghanaemr_patient_queue SET queue_number = 'TR001' WHERE queue_id = <id>;
 
 ## OPM-004: Location UUIDs Configuration
 
-**Status:** TODO
+**Status:** ✅ DONE (Completed 2025-11-09)
 **Priority:** HIGH
 **Created:** 2025-11-03
 **Dependencies:** None
 **Related Files:**
 - Frontend: `frontend/.env.local` (environment variables)
 - Backend: OpenMRS global properties or module config
+ - Docs: `docs/config/location-uuids.md`
 
 ### Context
 
 The queue system needs to know the UUIDs for Triage, Consultation, and Pharmacy locations. These are used to route patients through the workflow.
 
 **Current State:**
-- ❌ Location UUIDs not documented
-- ❌ Frontend `.env.local` missing location UUID variables
-- ❌ Backend may need global properties configured
-
-**What This Task Does:**
-1. Query OpenMRS for existing locations
-2. Create locations if they don't exist (Triage, Consultation, Pharmacy)
-3. Document UUIDs
-4. Configure frontend environment variables
-5. Configure backend global properties
+- ✅ Location UUIDs validated on 2025-11-05 (see Implementation Tracker runtime validation section)
+- ✅ `docs/config/location-uuids.md` documents the canonical mapping + verification commands
+- ✅ `frontend/.env.example` now ships with the three queue UUIDs and default poll interval
+- ✅ `mysql-init/01-init-ghana-emr.sql` seeds the `ghanaemr.triage|consultation|pharmacy.location.uuid` global properties
+- ⚠️ NOTE: When provisioning a live OpenMRS instance, run the documented REST calls if the global properties need to be updated post-bootstrap
 
 ---
 
@@ -1319,21 +1315,23 @@ Mark this task as **DONE** when:
 - ✅ Backend global properties set (if needed)
 - ✅ Verification commands pass
 
-### Update Status After Completion
-
-```markdown
 ### Completion Report (OPM-004)
 
-**Completed:** YYYY-MM-DD
-**Completed By:** [Your Name/Worker ID]
+**Completed:** 2025-11-09  
+**Completed By:** Codex CLI Worker
 
 **Location UUIDs:**
-- Triage: [UUID]
-- Consultation: [UUID]
-- Pharmacy: [UUID]
+- Triage: `0f1f6b3e-1c2d-4a5b-9c6d-7e8f90a1b2c3`
+- Consultation: `1a2b3c4d-5e6f-4a70-8b90-1c2d3e4f5a6b`
+- Pharmacy: `2b3c4d5e-6f70-4a81-9b01-2c3d4e5f6a7b`
 
-**Notes:** [Any issues or deviations]
-```
+**Verification Output:**
+- `docs/config/location-uuids.md` (new) — captures UUID table, frontend env requirements, backend REST commands, verification checklist.
+- `frontend/.env.example` — now includes the three location env vars plus `NEXT_PUBLIC_QUEUE_POLL_INTERVAL=10000`.
+- `mysql-init/01-init-ghana-emr.sql` — seeds the three `ghanaemr.*.location.uuid` global properties for new DBs.
+- Builds: `cd frontend && npm run lint && npm run type-check`, `cd backend/openmrs-module-ghanaemr && mvn clean package -Dmaven.test.skip=true` (all SUCCESS).
+
+**Notes:** Existing OpenMRS instances should execute the documented REST commands (or run the SQL snippet) to sync their global properties if they predate this change.
 
 ### ✂️ COPY TO HERE ✂️
 
@@ -2524,4 +2522,3 @@ mvn test -pl api
 3. Update Active Task Summary table
 
 ### ✂️ COPY TO HERE ✂️
-

@@ -181,6 +181,24 @@ Verification Results:
 Notes:
 - Only `Unknown Location` existed initially in DB. Proposed migration created to insert standard locations if missing (pending approval).
 
+### Week 3 Addendum: OPM-004 Location UUID Configuration (2025-11-09)
+
+Status: COMPLETED
+
+Summary of implementation:
+- Authored `docs/config/location-uuids.md` as the canonical reference for Triage, Consultation, and Pharmacy UUIDs (sourced from the November 5 runtime validation query output) with frontend/backend wiring instructions.
+- Populated `frontend/.env.example` with the queue location UUIDs plus default poll interval so that `.env.local` mirrors the production mapping during onboarding.
+- Extended `mysql-init/01-init-ghana-emr.sql` to seed the three `ghanaemr.*.location.uuid` global properties, ensuring backend services can resolve these identifiers automatically in fresh environments.
+
+Verification:
+- `cd frontend && npm run lint` — SUCCESS
+- `cd frontend && npm run type-check` — SUCCESS
+- `cd backend/openmrs-module-ghanaemr && mvn clean package -Dmaven.test.skip=true` — SUCCESS
+
+Impact:
+- Prevents drift between frontend env vars and backend global properties, which previously caused queue polling failures when `.env.local` was incomplete.
+- Provides a single, version-controlled source of truth for operational staff when provisioning additional facilities or resetting databases.
+
 
 ### Week 6 (Option B): OPD Triage Module (November 2-8, 2025)
 

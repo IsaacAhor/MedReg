@@ -2,8 +2,40 @@
 
 This file contains the history of completed tasks from PROMPT_QUEUE.md.
 
-**Last Updated:** 2025-11-08 21:25 UTC
-**Total Completed Tasks:** 9
+**Last Updated:** 2025-11-09 02:45 UTC
+**Total Completed Tasks:** 10
+---
+
+## [DONE] Task: OPM-004 Location UUIDs Configuration (Priority: HIGH)
+**Completed by:** Codex CLI Worker  
+**Started:** 2025-11-09 02:05 UTC  
+**Completed:** 2025-11-09 02:45 UTC  
+**Duration:** ~40 minutes  
+**Status:** [DONE] SUCCESS
+
+### Summary
+- Authored `docs/config/location-uuids.md` to centralize the canonical Triage/Consultation/Pharmacy UUIDs, wiring guidance, and verification commands.
+- Updated `frontend/.env.example` so every `.env.local` inherits the queue location UUIDs plus polling interval needed by dashboard + queue pages.
+- Seeded the `ghanaemr.triage|consultation|pharmacy.location.uuid` global properties through `mysql-init/01-init-ghana-emr.sql`, ensuring fresh databases expose these settings automatically.
+
+### Verification Results
+- [DONE] `cd frontend && npm run lint` — SUCCESS
+- [DONE] `cd frontend && npm run type-check` — SUCCESS
+- [DONE] `cd backend/openmrs-module-ghanaemr && mvn clean package -Dmaven.test.skip=true` — SUCCESS
+
+### Files Created
+- docs/config/location-uuids.md — Canonical OPD workflow location reference.
+
+### Files Modified
+- frontend/.env.example — Added queue location UUID values + poll interval.
+- mysql-init/01-init-ghana-emr.sql — Seeds ghanaemr.* location global properties.
+- docs/DOCUMENTATION_STRUCTURE.md — Documented new `docs/config` catalog entry.
+- OPENMRS_PROMPT_GUIDE.md — Marked OPM-004 complete with verification log.
+- IMPLEMENTATION_TRACKER.md — Added Week 3 addendum summarizing OPM-004.
+
+### Next Steps
+- For existing OpenMRS instances, run the REST commands in `docs/config/location-uuids.md` to update global properties if they pre-date this change.
+
 ---
 
 ## [DONE] Task 12: Admin Dashboard KPIs (Priority: HIGH)

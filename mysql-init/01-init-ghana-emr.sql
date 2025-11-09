@@ -95,3 +95,10 @@ INSERT INTO global_property (property, property_value, description, uuid) VALUES
 ('ghana.facility.region', 'GA', 'Ghana region code', UUID()),
 ('ghana.facility.name', 'Korle Bu Teaching Hospital', 'Facility name', UUID())
 ON DUPLICATE KEY UPDATE property_value = VALUES(property_value);
+
+-- Ensure OPD workflow location UUIDs are discoverable by backend services
+INSERT INTO global_property (property, property_value, description, uuid) VALUES
+('ghanaemr.triage.location.uuid', '0f1f6b3e-1c2d-4a5b-9c6d-7e8f90a1b2c3', 'OPD triage station location UUID', UUID()),
+('ghanaemr.consultation.location.uuid', '1a2b3c4d-5e6f-4a70-8b90-1c2d3e4f5a6b', 'OPD consultation station location UUID', UUID()),
+('ghanaemr.pharmacy.location.uuid', '2b3c4d5e-6f70-4a81-9b01-2c3d4e5f6a7b', 'OPD pharmacy station location UUID', UUID())
+ON DUPLICATE KEY UPDATE property_value = VALUES(property_value), description = VALUES(description);

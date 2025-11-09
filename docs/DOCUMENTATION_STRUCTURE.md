@@ -56,6 +56,9 @@ MedReg/
     ├── development/ (NEW)
     │   └── cookbook.md (Step-by-step recipes for common tasks)
     │
+    ├── config/ (Environment + deployment constants)
+    │   └── location-uuids.md (Canonical OPD workflow location UUIDs)
+    │
     ├── training/
     │   ├── roles/ (NEW)
     │   │   ├── doctor.md
@@ -486,4 +489,3 @@ If doc becomes obsolete:
 ---
 
 **Questions?** Check IMPLEMENTATION_TRACKER.md first. If you need deeper technical details, follow the links to task completion summaries.
-
