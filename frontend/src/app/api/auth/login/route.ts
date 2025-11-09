@@ -10,25 +10,39 @@ const OPENMRS_BASE_URL =
 const OPENMRS_ROOT_URL = OPENMRS_BASE_URL.replace(/\/ws\/rest\/v1\/?$/, '');
 
 export async function POST(request: NextRequest) {
+  console.log('========================================');
+  console.log('[LOGIN] Login endpoint called');
+  console.log('[LOGIN] OPENMRS_BASE_URL:', OPENMRS_BASE_URL);
   try {
     const { username, password, locationUuid, location } = await request.json();
+    console.log('[LOGIN] Credentials received - username:', username, 'location:', locationUuid || location);
 
     if (!username || !password) {
+      console.error('[LOGIN] Missing username or password');
       return NextResponse.json({ message: 'Username and password are required' }, { status: 400 });
     }
 
     // Establish OpenMRS session via POST /session (captures JSESSIONID)
+    // OpenMRS requires Basic Authentication header to authenticate the session
+    const credentials = Buffer.from(`${username}:${password}`).toString('base64');
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10_000);
     const sessionResponse = await fetch(`${OPENMRS_BASE_URL}/session`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Basic ${credentials}`
+      },
       body: JSON.stringify({ username, password }),
       cache: 'no-store',
       signal: controller.signal,
     }).finally(() => clearTimeout(timeout));
 
+    console.log('[LOGIN] POST /session status:', sessionResponse.status);
+
     if (!sessionResponse.ok) {
+      console.error('[LOGIN] POST /session failed:', sessionResponse.status, sessionResponse.statusText);
       return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
 
@@ -49,12 +63,19 @@ export async function POST(request: NextRequest) {
       signal: controllerGet.signal,
     }).finally(() => clearTimeout(tGet));
 
+    console.log('[LOGIN] GET /session status:', sessionCheck.status);
+
     if (!sessionCheck.ok) {
+      console.error('[LOGIN] GET /session failed:', sessionCheck.status);
       return NextResponse.json({ message: 'Authentication failed' }, { status: 401 });
     }
 
     const session = await sessionCheck.json();
+    console.log('[LOGIN] Session authenticated:', session?.authenticated);
+    console.log('[LOGIN] Session user:', session?.user?.username);
+
     if (!session?.authenticated) {
+      console.error('[LOGIN] Session not authenticated. Full session:', JSON.stringify(session));
       return NextResponse.json({ message: 'Authentication failed' }, { status: 401 });
     }
 
