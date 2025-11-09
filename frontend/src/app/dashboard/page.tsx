@@ -2,32 +2,49 @@
 import { Button } from '@/components/ui/button';
 import * as React from 'react';
 import { useLogout } from '@/hooks/useAuth';
+import { KpiCard } from '@/components/dashboard/KpiCard';
+
+interface MetricsState {
+  data: any;
+  loading: boolean;
+  error: string | null;
+}
 
 export default function DashboardPage() {
   const logout = useLogout();
-  const [nhieConnected, setNhieConnected] = React.useState<boolean | null>(null);
-  const [metrics, setMetrics] = React.useState<{ dlqCount?: number } | null>(null);
-  const [opd, setOpd] = React.useState<{ opdEncountersToday?: number, newPatientsToday?: number } | null>(null);
-  const [queueCounts, setQueueCounts] = React.useState<{ triage?: number; consult?: number; pharmacy?: number }>({});
+  const [nhieStatus, setNhieStatus] = React.useState<MetricsState>({ data: null, loading: true, error: null });
+  const [nhieMetrics, setNhieMetrics] = React.useState<MetricsState>({ data: null, loading: true, error: null });
+  const [opdMetrics, setOpdMetrics] = React.useState<MetricsState>({ data: null, loading: true, error: null });
+  const [queueCounts, setQueueCounts] = React.useState<MetricsState>({ data: {}, loading: true, error: null });
 
-  React.useEffect(() => {
-    let mounted = true;
+  const fetchMetrics = React.useCallback(() => {
+    // Fetch NHIE Status
+    setNhieStatus(prev => ({ ...prev, loading: true, error: null }));
     fetch('/api/nhie/status', { cache: 'no-store' })
       .then(r => r.json())
-      .then(d => { if (mounted) setNhieConnected(!!d?.connected); })
-      .catch(() => { if (mounted) setNhieConnected(false); });
+      .then(d => setNhieStatus({ data: d, loading: false, error: null }))
+      .catch(() => setNhieStatus({ data: null, loading: false, error: 'Failed to fetch NHIE status' }));
+
+    // Fetch NHIE Metrics
+    setNhieMetrics(prev => ({ ...prev, loading: true, error: null }));
     fetch('/api/nhie/metrics', { cache: 'no-store' })
       .then(r => r.json())
-      .then(d => { if (mounted) setMetrics(d || {}); })
-      .catch(() => { if (mounted) setMetrics({}); });
+      .then(d => setNhieMetrics({ data: d, loading: false, error: null }))
+      .catch(() => setNhieMetrics({ data: null, loading: false, error: 'Failed to fetch NHIE metrics' }));
+
+    // Fetch OPD Metrics
+    setOpdMetrics(prev => ({ ...prev, loading: true, error: null }));
     fetch('/api/opd/metrics', { cache: 'no-store' })
       .then(r => r.json())
-      .then(d => { if (mounted) setOpd(d || {}); })
-      .catch(() => { if (mounted) setOpd({}); });
-    // Queue widgets (best-effort)
+      .then(d => setOpdMetrics({ data: d, loading: false, error: null }))
+      .catch(() => setOpdMetrics({ data: null, loading: false, error: 'Failed to fetch OPD metrics' }));
+
+    // Fetch Queue Counts
+    setQueueCounts(prev => ({ ...prev, loading: true, error: null }));
     const triageLoc = process.env.NEXT_PUBLIC_TRIAGE_LOCATION_UUID || '';
     const consultLoc = process.env.NEXT_PUBLIC_CONSULTATION_LOCATION_UUID || '';
     const pharmLoc = process.env.NEXT_PUBLIC_PHARMACY_LOCATION_UUID || '';
+
     const loadQueue = async (loc?: string) => {
       if (!loc) return 0;
       try {
@@ -36,11 +53,23 @@ export default function DashboardPage() {
         return Array.isArray(j?.results) ? j.results.length : 0;
       } catch { return 0; }
     };
-    Promise.all([loadQueue(triageLoc), loadQueue(consultLoc), loadQueue(pharmLoc)]).then(([t, c, p]) => {
-      if (mounted) setQueueCounts({ triage: t, consult: c, pharmacy: p });
-    });
-    return () => { mounted = false; };
+
+    Promise.all([loadQueue(triageLoc), loadQueue(consultLoc), loadQueue(pharmLoc)])
+      .then(([triage, consult, pharmacy]) => {
+        setQueueCounts({ data: { triage, consult, pharmacy }, loading: false, error: null });
+      })
+      .catch(() => setQueueCounts({ data: {}, loading: false, error: 'Failed to fetch queue counts' }));
   }, []);
+
+  React.useEffect(() => {
+    fetchMetrics();
+    // Auto-refresh every 45 seconds
+    const interval = setInterval(fetchMetrics, 45000);
+    return () => clearInterval(interval);
+  }, [fetchMetrics]);
+
+  const nhieConnected = nhieStatus.data?.connected;
+  const lastSyncTime = nhieMetrics.data?.lastUpdatedAt;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -52,48 +81,88 @@ export default function DashboardPage() {
       </header>
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="text-sm text-gray-500">Today</div>
-            <div className="text-3xl font-bold text-gray-900">OPD Encounters</div>
-            <div className="text-2xl text-teal-600 mt-2">${opd?.opdEncountersToday ?? "—"}</div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="text-sm text-gray-500">Status</div>
-            <div className="text-3xl font-bold text-gray-900">NHIE Sync</div>
-            <div className="mt-2 inline-flex items-center gap-2">
-              <span className={`h-2 w-2 rounded-full ${nhieConnected == null ? 'bg-gray-300' : nhieConnected ? 'bg-green-500' : 'bg-amber-500'}`} />
-              <span className="text-gray-700">{nhieConnected == null ? 'Checking�' : nhieConnected ? 'Connected' : 'Degraded'}</span>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="text-sm text-gray-500">Registration</div>
-            <div className="text-3xl font-bold text-gray-900">Patients</div>
-            <div className="text-gray-600 mt-2">Start with Ghana Card</div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="text-sm text-gray-500">NHIE Queue</div>
-            <div className="text-3xl font-bold text-gray-900">DLQ</div>
-            <div className="text-gray-600 mt-2">{metrics?.dlqCount ?? '-'} pending</div>
-          </div>
-          {/* Role queue widgets */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="text-sm text-gray-500">Nurse</div>
-            <div className="text-3xl font-bold text-gray-900">Triage Queue</div>
-            <div className="text-gray-600 mt-2">{queueCounts.triage ?? 0} waiting</div>
-            <div className="mt-3"><a className="text-indigo-600 hover:underline text-sm" href="/opd/triage-queue">View All</a></div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="text-sm text-gray-500">Doctor</div>
-            <div className="text-3xl font-bold text-gray-900">Consult Queue</div>
-            <div className="text-gray-600 mt-2">{queueCounts.consult ?? 0} waiting</div>
-            <div className="mt-3"><a className="text-indigo-600 hover:underline text-sm" href="/opd/consultation-queue">View All</a></div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="text-sm text-gray-500">Pharmacist</div>
-            <div className="text-3xl font-bold text-gray-900">Pharmacy Queue</div>
-            <div className="text-gray-600 mt-2">{queueCounts.pharmacy ?? 0} waiting</div>
-            <div className="mt-3"><a className="text-indigo-600 hover:underline text-sm" href="/opd/pharmacy-queue">View All</a></div>
-          </div>
+          {/* OPD Encounters Today */}
+          <KpiCard
+            label="Today"
+            title="OPD Encounters"
+            value={opdMetrics.data?.opdEncountersToday ?? '—'}
+            valueColor="text-teal-600"
+            loading={opdMetrics.loading}
+            error={opdMetrics.error}
+          />
+
+          {/* New Patients Today */}
+          <KpiCard
+            label="Registration"
+            title="New Patients"
+            value={opdMetrics.data?.newPatientsToday ?? '—'}
+            valueColor="text-blue-600"
+            loading={opdMetrics.loading}
+            error={opdMetrics.error}
+            subtitle="Start with Ghana Card"
+          />
+
+          {/* NHIE Sync Status */}
+          <KpiCard
+            label="Status"
+            title="NHIE Sync"
+            value={
+              <div className="inline-flex items-center gap-2">
+                <span className={`h-2 w-2 rounded-full ${nhieConnected == null ? 'bg-gray-300' : nhieConnected ? 'bg-green-500' : 'bg-amber-500'}`} />
+                <span className="text-gray-700">{nhieConnected == null ? 'Checking…' : nhieConnected ? 'Connected' : 'Degraded'}</span>
+              </div>
+            }
+            loading={nhieStatus.loading}
+            error={nhieStatus.error}
+            subtitle={lastSyncTime ? `Last sync: ${lastSyncTime}` : undefined}
+          />
+
+          {/* NHIE DLQ Count */}
+          <KpiCard
+            label="NHIE Queue"
+            title="DLQ"
+            value={nhieMetrics.data?.dlqCount ?? '—'}
+            valueColor="text-orange-600"
+            loading={nhieMetrics.loading}
+            error={nhieMetrics.error}
+            subtitle={nhieMetrics.data?.dlqCount ? `${nhieMetrics.data.dlqCount} pending` : 'No items in queue'}
+          />
+
+          {/* Triage Queue */}
+          <KpiCard
+            label="Nurse"
+            title="Triage Queue"
+            value={queueCounts.data?.triage ?? 0}
+            valueColor="text-purple-600"
+            loading={queueCounts.loading}
+            error={queueCounts.error}
+            subtitle={`${queueCounts.data?.triage ?? 0} waiting`}
+            link={{ href: '/opd/triage-queue', label: 'View All' }}
+          />
+
+          {/* Consultation Queue */}
+          <KpiCard
+            label="Doctor"
+            title="Consult Queue"
+            value={queueCounts.data?.consult ?? 0}
+            valueColor="text-indigo-600"
+            loading={queueCounts.loading}
+            error={queueCounts.error}
+            subtitle={`${queueCounts.data?.consult ?? 0} waiting`}
+            link={{ href: '/opd/consultation-queue', label: 'View All' }}
+          />
+
+          {/* Pharmacy Queue */}
+          <KpiCard
+            label="Pharmacist"
+            title="Pharmacy Queue"
+            value={queueCounts.data?.pharmacy ?? 0}
+            valueColor="text-emerald-600"
+            loading={queueCounts.loading}
+            error={queueCounts.error}
+            subtitle={`${queueCounts.data?.pharmacy ?? 0} waiting`}
+            link={{ href: '/opd/pharmacy-queue', label: 'View All' }}
+          />
         </div>
         <div className="mt-6 flex items-center gap-3 text-sm">
           <a className="border rounded px-3 py-2" href={`/api/reports/opd-register?date=${new Date().toISOString().slice(0,10)}&format=csv`}>Download Today’s OPD CSV</a>
