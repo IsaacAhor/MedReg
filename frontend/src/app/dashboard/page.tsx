@@ -4,43 +4,61 @@ import * as React from 'react';
 import { useLogout } from '@/hooks/useAuth';
 import { KpiCard } from '@/components/dashboard/KpiCard';
 
-interface MetricsState {
-  data: any;
-  loading: boolean;
-  error: string | null;
+interface NHIEMetrics {
+  dlqCount?: number;
+  failedRetryable?: number;
+  success24h?: number;
+  lastUpdatedAt?: string;
+}
+
+interface OPDMetrics {
+  opdEncountersToday?: number;
+  newPatientsToday?: number;
+}
+
+interface QueueCounts {
+  triage?: number;
+  consult?: number;
+  pharmacy?: number;
 }
 
 export default function DashboardPage() {
   const logout = useLogout();
-  const [nhieStatus, setNhieStatus] = React.useState<MetricsState>({ data: null, loading: true, error: null });
-  const [nhieMetrics, setNhieMetrics] = React.useState<MetricsState>({ data: null, loading: true, error: null });
-  const [opdMetrics, setOpdMetrics] = React.useState<MetricsState>({ data: null, loading: true, error: null });
-  const [queueCounts, setQueueCounts] = React.useState<MetricsState>({ data: {}, loading: true, error: null });
+  const [loading, setLoading] = React.useState(true);
+  const [nhieConnected, setNhieConnected] = React.useState<boolean | null>(null);
+  const [metrics, setMetrics] = React.useState<NHIEMetrics | null>(null);
+  const [opd, setOpd] = React.useState<OPDMetrics | null>(null);
+  const [queueCounts, setQueueCounts] = React.useState<QueueCounts>({});
+  const [error, setError] = React.useState<string | null>(null);
 
-  const fetchMetrics = React.useCallback(() => {
-    // Fetch NHIE Status
-    setNhieStatus(prev => ({ ...prev, loading: true, error: null }));
-    fetch('/api/nhie/status', { cache: 'no-store' })
-      .then(r => r.json())
-      .then(d => setNhieStatus({ data: d, loading: false, error: null }))
-      .catch(() => setNhieStatus({ data: null, loading: false, error: 'Failed to fetch NHIE status' }));
+  const REFRESH_INTERVAL = 30000; // 30 seconds
 
-    // Fetch NHIE Metrics
-    setNhieMetrics(prev => ({ ...prev, loading: true, error: null }));
-    fetch('/api/nhie/metrics', { cache: 'no-store' })
-      .then(r => r.json())
-      .then(d => setNhieMetrics({ data: d, loading: false, error: null }))
-      .catch(() => setNhieMetrics({ data: null, loading: false, error: 'Failed to fetch NHIE metrics' }));
+  const loadMetrics = React.useCallback(async () => {
+    try {
+      setError(null);
+      const [nhieStatusRes, nhieMetricsRes, opdMetricsRes] = await Promise.all([
+        fetch('/api/nhie/status', { cache: 'no-store' }),
+        fetch('/api/nhie/metrics', { cache: 'no-store' }),
+        fetch('/api/opd/metrics', { cache: 'no-store' }),
+      ]);
 
-    // Fetch OPD Metrics
-    setOpdMetrics(prev => ({ ...prev, loading: true, error: null }));
-    fetch('/api/opd/metrics', { cache: 'no-store' })
-      .then(r => r.json())
-      .then(d => setOpdMetrics({ data: d, loading: false, error: null }))
-      .catch(() => setOpdMetrics({ data: null, loading: false, error: 'Failed to fetch OPD metrics' }));
+      const [nhieStatus, nhieMetrics, opdMetrics] = await Promise.all([
+        nhieStatusRes.json().catch(() => ({})),
+        nhieMetricsRes.json().catch(() => ({})),
+        opdMetricsRes.json().catch(() => ({})),
+      ]);
 
-    // Fetch Queue Counts
-    setQueueCounts(prev => ({ ...prev, loading: true, error: null }));
+      setNhieConnected(!!nhieStatus?.connected);
+      setMetrics(nhieMetrics || {});
+      setOpd(opdMetrics || {});
+    } catch (err) {
+      setError('Failed to load metrics');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadQueues = React.useCallback(async () => {
     const triageLoc = process.env.NEXT_PUBLIC_TRIAGE_LOCATION_UUID || '';
     const consultLoc = process.env.NEXT_PUBLIC_CONSULTATION_LOCATION_UUID || '';
     const pharmLoc = process.env.NEXT_PUBLIC_PHARMACY_LOCATION_UUID || '';
@@ -54,22 +72,29 @@ export default function DashboardPage() {
       } catch { return 0; }
     };
 
-    Promise.all([loadQueue(triageLoc), loadQueue(consultLoc), loadQueue(pharmLoc)])
-      .then(([triage, consult, pharmacy]) => {
-        setQueueCounts({ data: { triage, consult, pharmacy }, loading: false, error: null });
-      })
-      .catch(() => setQueueCounts({ data: {}, loading: false, error: 'Failed to fetch queue counts' }));
+    const [t, c, p] = await Promise.all([
+      loadQueue(triageLoc),
+      loadQueue(consultLoc),
+      loadQueue(pharmLoc)
+    ]);
+
+    setQueueCounts({ triage: t, consult: c, pharmacy: p });
   }, []);
 
   React.useEffect(() => {
-    fetchMetrics();
-    // Auto-refresh every 45 seconds
-    const interval = setInterval(fetchMetrics, 45000);
-    return () => clearInterval(interval);
-  }, [fetchMetrics]);
+    loadMetrics();
+    loadQueues();
 
-  const nhieConnected = nhieStatus.data?.connected;
-  const lastSyncTime = nhieMetrics.data?.lastUpdatedAt;
+    // Auto-refresh metrics every 30 seconds
+    const metricsInterval = setInterval(() => {
+      loadMetrics();
+      loadQueues();
+    }, REFRESH_INTERVAL);
+
+    return () => {
+      clearInterval(metricsInterval);
+    };
+  }, [loadMetrics, loadQueues]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -80,94 +105,130 @@ export default function DashboardPage() {
         </div>
       </header>
       <main className="max-w-7xl mx-auto px-6 py-8">
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            {error}
+          </div>
+        )}
+
         <div className="grid md:grid-cols-3 gap-6">
-          {/* OPD Encounters Today */}
           <KpiCard
             label="Today"
             title="OPD Encounters"
-            value={opdMetrics.data?.opdEncountersToday ?? '—'}
-            valueColor="text-teal-600"
-            loading={opdMetrics.loading}
-            error={opdMetrics.error}
+            value={opd?.opdEncountersToday ?? '—'}
+            loading={loading}
           />
 
-          {/* New Patients Today */}
           <KpiCard
-            label="Registration"
+            label="Today"
             title="New Patients"
-            value={opdMetrics.data?.newPatientsToday ?? '—'}
-            valueColor="text-blue-600"
-            loading={opdMetrics.loading}
-            error={opdMetrics.error}
-            subtitle="Start with Ghana Card"
+            value={opd?.newPatientsToday ?? '—'}
+            loading={loading}
           />
 
-          {/* NHIE Sync Status */}
           <KpiCard
             label="Status"
             title="NHIE Sync"
+            loading={loading}
             value={
               <div className="inline-flex items-center gap-2">
-                <span className={`h-2 w-2 rounded-full ${nhieConnected == null ? 'bg-gray-300' : nhieConnected ? 'bg-green-500' : 'bg-amber-500'}`} />
-                <span className="text-gray-700">{nhieConnected == null ? 'Checking…' : nhieConnected ? 'Connected' : 'Degraded'}</span>
+                <span className={`h-2 w-2 rounded-full ${
+                  nhieConnected == null ? 'bg-gray-300' :
+                  nhieConnected ? 'bg-green-500' : 'bg-amber-500'
+                }`} />
+                <span className="text-gray-700">
+                  {nhieConnected == null ? 'Checking' :
+                   nhieConnected ? 'Connected' : 'Degraded'}
+                </span>
               </div>
             }
-            loading={nhieStatus.loading}
-            error={nhieStatus.error}
-            subtitle={lastSyncTime ? `Last sync: ${lastSyncTime}` : undefined}
+            footer={
+              metrics?.lastUpdatedAt && (
+                <div className="text-xs text-gray-500">
+                  Last sync: {new Date(metrics.lastUpdatedAt).toLocaleString()}
+                </div>
+              )
+            }
           />
 
-          {/* NHIE DLQ Count */}
           <KpiCard
             label="NHIE Queue"
-            title="DLQ"
-            value={nhieMetrics.data?.dlqCount ?? '—'}
-            valueColor="text-orange-600"
-            loading={nhieMetrics.loading}
-            error={nhieMetrics.error}
-            subtitle={nhieMetrics.data?.dlqCount ? `${nhieMetrics.data.dlqCount} pending` : 'No items in queue'}
+            title="DLQ Backlog"
+            value={`${metrics?.dlqCount ?? 0} pending`}
+            loading={loading}
+            footer={
+              metrics?.failedRetryable !== undefined && metrics.failedRetryable > 0 && (
+                <div className="text-xs text-amber-600">
+                  {metrics.failedRetryable} retryable
+                </div>
+              )
+            }
           />
 
-          {/* Triage Queue */}
+          <KpiCard
+            label="NHIE Success"
+            title="Last 24 Hours"
+            value={`${metrics?.success24h ?? 0} synced`}
+            loading={loading}
+          />
+
+          {/* Role queue widgets */}
           <KpiCard
             label="Nurse"
             title="Triage Queue"
-            value={queueCounts.data?.triage ?? 0}
-            valueColor="text-purple-600"
-            loading={queueCounts.loading}
-            error={queueCounts.error}
-            subtitle={`${queueCounts.data?.triage ?? 0} waiting`}
-            link={{ href: '/opd/triage-queue', label: 'View All' }}
+            value={`${queueCounts.triage ?? 0} waiting`}
+            loading={loading}
+            footer={
+              <a className="text-indigo-600 hover:underline text-sm" href="/opd/triage-queue">
+                View All
+              </a>
+            }
           />
 
-          {/* Consultation Queue */}
           <KpiCard
             label="Doctor"
             title="Consult Queue"
-            value={queueCounts.data?.consult ?? 0}
-            valueColor="text-indigo-600"
-            loading={queueCounts.loading}
-            error={queueCounts.error}
-            subtitle={`${queueCounts.data?.consult ?? 0} waiting`}
-            link={{ href: '/opd/consultation-queue', label: 'View All' }}
+            value={`${queueCounts.consult ?? 0} waiting`}
+            loading={loading}
+            footer={
+              <a className="text-indigo-600 hover:underline text-sm" href="/opd/consultation-queue">
+                View All
+              </a>
+            }
           />
 
-          {/* Pharmacy Queue */}
           <KpiCard
             label="Pharmacist"
             title="Pharmacy Queue"
-            value={queueCounts.data?.pharmacy ?? 0}
-            valueColor="text-emerald-600"
-            loading={queueCounts.loading}
-            error={queueCounts.error}
-            subtitle={`${queueCounts.data?.pharmacy ?? 0} waiting`}
-            link={{ href: '/opd/pharmacy-queue', label: 'View All' }}
+            value={`${queueCounts.pharmacy ?? 0} waiting`}
+            loading={loading}
+            footer={
+              <a className="text-indigo-600 hover:underline text-sm" href="/opd/pharmacy-queue">
+                View All
+              </a>
+            }
           />
         </div>
-        <div className="mt-6 flex items-center gap-3 text-sm">
-          <a className="border rounded px-3 py-2" href={`/api/reports/opd-register?date=${new Date().toISOString().slice(0,10)}&format=csv`}>Download Today’s OPD CSV</a>
-          <a className="border rounded px-3 py-2" href={`/api/reports/nhis-vs-cash?date=${new Date().toISOString().slice(0,10)}&format=csv`}>Download Today’s NHIS/Cash CSV</a>
-          <a className="border rounded px-3 py-2" href={`/api/reports/top-diagnoses?from=${new Date().toISOString().slice(0,10)}&to=${new Date().toISOString().slice(0,10)}&format=csv`}>Download Today’s Top Diagnoses CSV</a>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm">
+          <a
+            className="border rounded px-3 py-2 hover:bg-gray-50"
+            href={`/api/reports/opd-register?date=${new Date().toISOString().slice(0,10)}&format=csv`}
+          >
+            Download Today&apos;s OPD CSV
+          </a>
+          <a
+            className="border rounded px-3 py-2 hover:bg-gray-50"
+            href={`/api/reports/nhis-vs-cash?date=${new Date().toISOString().slice(0,10)}&format=csv`}
+          >
+            Download Today&apos;s NHIS/Cash CSV
+          </a>
+          <a
+            className="border rounded px-3 py-2 hover:bg-gray-50"
+            href={`/api/reports/top-diagnoses?from=${new Date().toISOString().slice(0,10)}&to=${new Date().toISOString().slice(0,10)}&format=csv`}
+          >
+            Download Today&apos;s Top Diagnoses CSV
+          </a>
         </div>
       </main>
     </div>

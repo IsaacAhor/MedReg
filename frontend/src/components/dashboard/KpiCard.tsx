@@ -1,65 +1,40 @@
 import * as React from 'react';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export interface KpiCardProps {
+interface KpiCardProps {
+  label: string;
   title: string;
-  value: string | number | React.ReactNode;
-  label?: string;
-  subtitle?: string | React.ReactNode;
+  value?: string | number | React.ReactNode;
   loading?: boolean;
-  error?: string | null;
-  icon?: React.ReactNode;
-  valueColor?: string;
-  link?: {
-    href: string;
-    label: string;
-  };
+  error?: string;
+  className?: string;
+  footer?: React.ReactNode;
 }
 
-export function KpiCard({
-  title,
-  value,
-  label,
-  subtitle,
-  loading = false,
-  error = null,
-  icon,
-  valueColor = 'text-gray-900',
-  link,
-}: KpiCardProps) {
+export function KpiCard({ label, title, value, loading, error, className, footer }: KpiCardProps) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
-      {label && <div className="text-sm text-gray-500">{label}</div>}
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="text-3xl font-bold text-gray-900">{title}</div>
-          <div className={`text-2xl ${valueColor} mt-2`}>
-            {loading ? (
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 border-2 border-gray-300 border-t-teal-600 rounded-full animate-spin" />
-                <span className="text-gray-400">Loading...</span>
-              </div>
-            ) : error ? (
-              <div className="text-sm text-red-500">Error: {error}</div>
-            ) : (
-              value
-            )}
-          </div>
-          {subtitle && !loading && !error && (
-            <div className="text-gray-600 mt-2">{subtitle}</div>
-          )}
-          {link && !loading && !error && (
-            <div className="mt-3">
-              <a
-                className="text-indigo-600 hover:underline text-sm"
-                href={link.href}
-              >
-                {link.label}
-              </a>
-            </div>
+    <Card className={`p-6 ${className || ''}`}>
+      <div className="text-sm text-gray-500">{label}</div>
+      <div className="text-3xl font-bold text-gray-900 mt-1">{title}</div>
+
+      {loading ? (
+        <div className="mt-3">
+          <Skeleton className="h-8 w-24" />
+        </div>
+      ) : error ? (
+        <div className="text-sm text-red-600 mt-2">{error}</div>
+      ) : (
+        <div className="mt-2">
+          {typeof value === 'string' || typeof value === 'number' ? (
+            <div className="text-2xl text-teal-600">{value}</div>
+          ) : (
+            value
           )}
         </div>
-        {icon && <div className="ml-4">{icon}</div>}
-      </div>
-    </div>
+      )}
+
+      {footer && <div className="mt-3">{footer}</div>}
+    </Card>
   );
 }
