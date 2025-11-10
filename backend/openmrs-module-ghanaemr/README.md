@@ -2,7 +2,7 @@
 
 **Module ID**: ghanaemr
 **Version**: 0.1.0-SNAPSHOT
-**Required Platform**: OpenMRS 2.6.0+
+**Required Platform**: OpenMRS 2.4.0 (Reference Application 2.12.0)
 
 ---
 
@@ -101,7 +101,7 @@ openmrs-module-ghanaemr/
     <name>Ghana EMR</name>
     <version>${project.version}</version>
     <activator>org.openmrs.module.ghanaemr.GhanaEMRActivator</activator>
-    <require_version>2.6.0</require_version>
+    <require_version>2.4.0</require_version>
     ...
 </module>
 ```
@@ -194,8 +194,8 @@ openmrs-module-ghanaemr/
         Ghana Card validation, NHIS verification, and regulatory compliance features.
     </description>
 
-    <!-- Require OpenMRS Platform 2.6.0 -->
-    <require_version>2.6.0</require_version>
+    <!-- Require OpenMRS Platform 2.4.0 -->
+    <require_version>2.4.0</require_version>
 
     <!-- Module activator for startup/shutdown logic -->
     <activator>org.openmrs.module.ghanaemr.GhanaEMRActivator</activator>
@@ -303,7 +303,7 @@ After module loads successfully, these endpoints are available:
 ## Dependencies
 
 ### Core Dependencies
-- **OpenMRS Platform**: 2.6.0
+- **OpenMRS Platform**: 2.4.0
 - **HAPI FHIR R4**: 5.5.3 (FHIR resource mapping)
 - **Gson**: 2.8.9 (JSON serialization)
 - **OkHttp**: 4.9.3 (HTTP client for NHIE)

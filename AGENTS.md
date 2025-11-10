@@ -57,17 +57,33 @@
 3. [DONE] Deploy to production (Q2 2026)
 4. [ACTIVE] **Then consider:** Migrate to OpenMRS 3.x (O3) + Java 11/17/21 (Q3 2026)
 
+### Java 8 Environment Configuration
+
+**IMPORTANT:** After installing Java 8, set these environment variables for each terminal session:
+
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+```
+
+**To make permanent (add to ~/.bashrc or ~/.zshrc):**
+```bash
+echo 'export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64' >> ~/.bashrc
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+```
+
 ### Pre-Development Checklist
 
 **Before writing ANY code, verify:**
 ```bash
 # 1. Java version
 java -version
-# Expected: openjdk version "1.8.0_472"
+# Expected: openjdk version "1.8.0_472" or "1.8.0_462"
 
-# 2. Maven version
+# 2. Maven version (verify it uses Java 8)
 mvn -version
-# Expected: Apache Maven 3.9.x, Java version: 1.8.0_472
+# Expected: Apache Maven 3.9.x, Java version: 1.8.0_xxx
 
 # 3. MySQL version (if running)
 docker exec mysql mysql --version

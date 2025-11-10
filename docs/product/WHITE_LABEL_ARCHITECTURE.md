@@ -50,7 +50,7 @@ MedReg is designed from Day 1 as a **white-label, multi-tenant EMR platform** wh
 │  - System configuration (NHIE endpoints, global settings)      │
 │  - Branding management (logos, colors per facility - v2)       │
 ├─────────────────────────────────────────────────────────────────┤
-│  BACKEND LAYER (OpenMRS Platform 2.6.0 - Invisible)           │
+│  BACKEND LAYER (OpenMRS Platform 2.4.0 - Invisible)           │
 ├─────────────────────────────────────────────────────────────────┤
 │  OpenMRS REST API (localhost:8080/openmrs/ws/rest/v1)         │
 │  - Pure backend (no UI - by design since v2.0)                 │

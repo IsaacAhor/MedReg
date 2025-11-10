@@ -106,7 +106,7 @@ Observations:
 - **O3 Developer Guide:** https://openmrs.atlassian.net/wiki/spaces/docs/pages/25467860
 - **Reference Application:** https://wiki.openmrs.org/display/projects/Reference+Application+Distribution
 
-**Note:** MedReg uses OpenMRS Platform 2.6.0 + Next.js frontend (not O3). O3 is documented for post-MVP consideration.
+**Note:** MedReg uses OpenMRS Platform 2.4.0 + Next.js frontend (not O3). O3 is documented for post-MVP consideration.
 
 ### Key OpenMRS Concepts
 - **Concept Dictionary:** https://wiki.openmrs.org/display/docs/Concept+Dictionary+Basics
@@ -130,7 +130,7 @@ Observations:
 services:
   openmrs:
     image: openmrs/openmrs-reference-application-distro:2.11.0
-    # Includes OpenMRS Platform 2.6.0 + REST module + 30+ modules
+    # Includes OpenMRS Platform 2.4.0 + REST module + 30+ modules
 ```
 
 ---

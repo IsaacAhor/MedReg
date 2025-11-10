@@ -753,7 +753,7 @@ public class GhanaOPDRegisterReport extends AbstractReport {
 
 #### Decision:
 Per AGENTS.md "OpenMRS 2.x vs O3" decision matrix:
-- **MVP:** Stick with OpenMRS 2.6.0 Platform + Next.js frontend (Option B)
+- **MVP:** Stick with OpenMRS 2.4.0 Platform + Next.js frontend (Option B)
 - **Post-MVP (v2):** Consider migrating frontend to O3 if:
   - Ghana MoH requires O3 UI standards
   - Community adoption increases

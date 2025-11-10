@@ -43,11 +43,11 @@ docker-compose logs -f openmrs
 
 #### Verify Backend Installation
 
-**Important Note**: OpenMRS Platform 2.6.0 has NO built-in UI by design. This is expected and correct for Option B (Next.js frontend).
+**Important Note**: OpenMRS Platform 2.4.0 has NO built-in UI by design. This is expected and correct for Option B (Next.js frontend).
 
 1. **Verify OpenMRS Platform is running**
    - Navigate to http://localhost:8080/openmrs
-   - You should see: "OpenMRS Platform 2.6.0-SNAPSHOT.0 Running!"
+   - You should see: "OpenMRS Platform 2.4.0-SNAPSHOT.0 Running!"
    - Message "no user interface module is installed" is NORMAL - we're using Next.js instead
 
 2. **Verify REST API is working** (CRITICAL - this is what we need!)
@@ -79,12 +79,12 @@ docker-compose logs -f openmrs
 **Common Issues:**
 
 1. **"No user interface module is installed"**
-   - This is NORMAL and EXPECTED for OpenMRS Platform 2.6.0
+   - This is NORMAL and EXPECTED for OpenMRS Platform 2.4.0
    - We're using Next.js frontend (Option B), not OpenMRS UI
    - REST API still works perfectly (test with `/session` endpoint)
 
 2. **MySQL connection errors with MySQL 8.0**
-   - OpenMRS 2.6.0 requires MySQL 5.7 (not 8.0)
+   - OpenMRS 2.4.0 requires MySQL 5.7 (not 8.0)
    - MySQL Connector/J 5.1.x incompatible with MySQL 8.0 storage_engine variable
    - Solution: Use `mysql:5.7` image in docker-compose.yml (already configured)
 

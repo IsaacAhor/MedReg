@@ -4,7 +4,7 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
 [![Java](https://img.shields.io/badge/Java-8-orange)]()
-[![OpenMRS](https://img.shields.io/badge/OpenMRS-2.6.0-blue)]()
+[![OpenMRS](https://img.shields.io/badge/OpenMRS-2.4.0-blue)]()
 [![License](https://img.shields.io/badge/license-MPL%202.0-blue)]()
 
 ---
@@ -19,7 +19,7 @@ This project has **HARD REQUIREMENTS** due to OpenMRS 2.4.0 compatibility:
 |------------|------------------|---------------|------------|
 | **Java** | **8 (1.8.0_472)** | Java 11, 17, 21 | OpenMRS 2.4.0 breaks with Java 11+ |
 | **MySQL** | **5.7.x** | MySQL 8.0+ | Connector/J incompatibility |
-| **OpenMRS** | **2.6.0** | OpenMRS 3.x (O3) | 4-6 week migration effort |
+| **OpenMRS** | **2.4.0** | OpenMRS 3.x (O3) | 4-6 week migration effort |
 | **Mockito** | **3.12.4** | Mockito 5.x | Requires Java 11+ |
 | **Maven** | **3.9.x** | N/A | Current stable |
 
@@ -110,7 +110,7 @@ docker-compose up -d openmrs
 
 # 4. Verify OpenMRS is running
 # Browser: http://localhost:8080/openmrs
-# Expected: "OpenMRS Platform 2.6.0 Running!" (no UI is normal - we use REST API)
+# Expected: "OpenMRS Platform 2.4.0 Running!" (no UI is normal - we use REST API)
 
 # 5. Verify REST API (CRITICAL - this is what we need)
 curl http://localhost:8080/openmrs/ws/rest/v1/session
@@ -169,7 +169,7 @@ npm run dev
 ## 🏗️ Tech Stack
 
 ### Backend
-- **OpenMRS Platform 2.6.0** (EMR engine)
+- **OpenMRS Platform 2.4.0** (EMR engine)
 - **Java 8** (Eclipse Temurin 1.8.0_472)
 - **Spring Framework 4.x** (bundled with OpenMRS)
 - **MySQL 5.7** (database)
@@ -320,7 +320,7 @@ docker-compose up -d mysql
 
 ### Issue 3: OpenMRS Shows "No UI Module Installed"
 
-**This is NORMAL!** OpenMRS Platform 2.6.0 has no UI by design.
+**This is NORMAL!** OpenMRS Platform 2.4.0 has no UI by design.
 
 **What to do:**
 - ✅ Verify REST API works: `curl http://localhost:8080/openmrs/ws/rest/v1/session`
@@ -341,7 +341,7 @@ docker-compose up -d mysql
 # 1. Pull latest code: git pull origin main
 # 2. Check pom.xml has correct versions:
 #    - mockito: 3.12.4 (not 5.x)
-#    - openmrs-api: 2.6.0
+#    - openmrs-api: 2.4.0
 # 3. Clean build: mvn clean install -U
 ```
 

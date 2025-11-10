@@ -11,7 +11,7 @@
 **Every worker starting ANY task MUST complete this checklist:**
 
 1. ✅ **Read [AGENTS.md](../../AGENTS.md)** - Project blueprint with critical constraints
-2. ✅ **Verify technology stack** - Java 8, MySQL 5.7, OpenMRS 2.6.0
+2. ✅ **Verify technology stack** - Java 8, MySQL 5.7, OpenMRS 2.4.0
 3. ✅ **Check [IMPLEMENTATION_TRACKER.md](../../IMPLEMENTATION_TRACKER.md)** - Current sprint status
 4. ✅ **Review [PROMPT_QUEUE.md](../../PROMPT_QUEUE.md)** - Task dependencies
 

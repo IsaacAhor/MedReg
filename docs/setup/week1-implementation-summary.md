@@ -27,13 +27,13 @@
 - `mysql-init/01-init-ghana-emr.sql` - Database initialization script
 
 **Critical Technical Decisions:**
-- **MySQL 5.7** (not 8.0): OpenMRS 2.6.0 MySQL Connector/J incompatible with MySQL 8.0
+- **MySQL 5.7** (not 8.0): OpenMRS 2.4.0 MySQL Connector/J incompatible with MySQL 8.0
 - **reference-application-distro:2.11.0**: Includes REST API modules (vs openmrs-core which is platform-only)
-- **No UI needed**: OpenMRS Platform 2.6.0 has no built-in UI by design - perfect for Option B (Next.js frontend)
+- **No UI needed**: OpenMRS Platform 2.4.0 has no built-in UI by design - perfect for Option B (Next.js frontend)
 
 **Features:**
 - MySQL 5.7 with UTF-8MB4 support, native password auth, InnoDB storage engine
-- OpenMRS Platform 2.6.0 + Reference Application Distribution 2.11.0
+- OpenMRS Platform 2.4.0 + Reference Application Distribution 2.11.0
 - **REST API fully functional**: http://localhost:8080/openmrs/ws/rest/v1
 - Health checks for both services
 - Persistent volumes for data (mysql_data, openmrs_data)
@@ -224,7 +224,7 @@ npm run dev
 
 ### Backend (Docker Images)
 - `mysql:8.0` - Database
-- `openmrs/openmrs-reference-application-distro:2.6.0` - EMR platform
+- `openmrs/openmrs-reference-application-distro:2.4.0` - EMR platform
 
 ### Frontend (npm packages)
 **Production:**
@@ -268,7 +268,7 @@ NEXT_PUBLIC_ENABLE_PHOTO_CAPTURE=false
 ### Docker Configuration
 **Containers:**
 - `medreg-mysql` - MySQL 8.0
-- `medreg-openmrs` - OpenMRS 2.6.0
+- `medreg-openmrs` - OpenMRS 2.4.0
 
 **Volumes:**
 - `mysql_data` - Persistent MySQL data
@@ -332,7 +332,7 @@ npm run test:e2e           # E2E tests
 
 2. **Docker Startup Time**: OpenMRS takes 3-5 minutes to start on first run (module initialization). Subsequent starts are faster (~1 minute).
 
-3. **User Roles Configuration**: Must be done manually in OpenMRS admin panel (cannot be scripted easily in OpenMRS 2.6.0).
+3. **User Roles Configuration**: Must be done manually in OpenMRS admin panel (cannot be scripted easily in OpenMRS 2.4.0).
 
 4. **NHIE Credentials**: Placeholder values in `openmrs-runtime.properties`. Replace with actual credentials once obtained from MoH.
 

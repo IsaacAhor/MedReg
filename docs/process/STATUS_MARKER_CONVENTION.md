@@ -296,7 +296,7 @@ These markers work seamlessly with:
 ```markdown
 ### Week 1: Setup + User Management [DONE] COMPLETE (Nov 1, 2025)
 
-- [DONE] OpenMRS 2.6.0 installation
+- [DONE] OpenMRS 2.4.0 installation
 - [DONE] Next.js 14 project setup
 - [DONE] Authentication flow implemented
 

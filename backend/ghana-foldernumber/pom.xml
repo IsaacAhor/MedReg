@@ -15,7 +15,7 @@
   </modules>
 
   <properties>
-    <openmrs.platform.version>2.6.0</openmrs.platform.version>
+    <openmrs.platform.version>2.4.0</openmrs.platform.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>

@@ -383,7 +383,7 @@ Build a **working EMR in 20 weeks** (Option B: Next.js + shadcn/ui frontend) tha
 ## Technology Stack (Optimized for Speed)
 
 ### Backend
-- **OpenMRS Platform 2.6.0**: Core EMR engine
+- **OpenMRS Platform 2.4.0** (via Reference Application 2.12.0): Core EMR engine
 - **Database**: MySQL 5.7 (required by OpenMRS, non-negotiable)
   - **Note**: OpenMRS is tightly coupled to MySQL and won't run on PostgreSQL/Supabase without major rewrites
   - **Hosting Options**: 

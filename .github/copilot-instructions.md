@@ -54,7 +54,7 @@ When generating code for this project:
 
 ## Quick Reference
 - Project: Ghana EMR MVP, 16-20 week timeline
-- Backend: OpenMRS 2.6.0, Java 8, Spring, MySQL 8.0
+- Backend: OpenMRS 2.4.0, Java 8, Spring, MySQL 5.7
 - Frontend: Next.js 14, TypeScript 5, shadcn/ui, TanStack Query
 - Integration: NHIE middleware (OAuth 2.0, FHIR R4)
 - Target: Win MoH pilot facility + EOI Q1 2026

@@ -1,13 +1,9 @@
 # Extend OpenMRS Reference Application 2.12.0 (Platform 2.4.0) with Ghana EMR module pre-installed
 FROM openmrs/openmrs-reference-application-distro:2.12.0
 
-# Copy Ghana EMR module to a staging location (NOT bundledModules - that gets overwritten by WAR extraction)
-# The entrypoint script will copy it to the Application Data directory before Tomcat starts
-COPY omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod /modules-to-install/
+# Copy Ghana EMR module directly to the modules directory
+# The module will be picked up by OpenMRS on startup
+COPY omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod /usr/local/tomcat/.OpenMRS/modules/
 
-# Copy custom entrypoint that installs modules before starting Tomcat
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-# Use custom entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
+# Note: Using base image's entrypoint which reads OMRS_CONFIG_* environment variables
+# for automated initialization. No custom entrypoint needed.

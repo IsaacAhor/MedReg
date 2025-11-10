@@ -22,7 +22,7 @@ curl -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session
 
 ### [DONE] Technical Stack Running
 - **MySQL 5.7**: Port 3307, healthy, persistent storage
-- **OpenMRS Platform 2.6.0**: Core EMR engine
+- **OpenMRS Platform 2.4.0**: Core EMR engine
 - **Reference Application Distro 2.11.0**: Includes 30+ modules
 - **webservices.rest**: REST API module loaded and functional
 
@@ -39,7 +39,7 @@ curl -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session
 - **Solution**: Use MySQL 5.7 (configured in docker-compose.yml)
 
 #### 3. Use reference-application-distro (Not openmrs-core)
-- **openmrs-core:2.6.0**: Platform ONLY, no REST API module -> 404 errors
+- **openmrs-core:2.4.0**: Platform ONLY, no REST API module -> 404 errors
 - **reference-application-distro:2.11.0**: Platform + REST API + modules -> Working!
 
 ---
@@ -49,7 +49,7 @@ curl -u admin:Admin123 http://localhost:8080/openmrs/ws/rest/v1/session
 ### 1. Check OpenMRS Platform Running
 ```bash
 curl http://localhost:8080/openmrs
-# Expected: HTML page with "OpenMRS Platform 2.6.0-SNAPSHOT.0 Running!"
+# Expected: HTML page with "OpenMRS Platform 2.4.0-SNAPSHOT.0 Running!"
 ```
 
 ### 2. Test REST API Unauthenticated
@@ -164,7 +164,7 @@ OpenMRS: openmrs/openmrs-reference-application-distro:2.11.0
 
 ### Issue: "No user interface module is installed"
 **Status:** Expected and correct  
-**Explanation:** OpenMRS Platform 2.6.0 has no UI by design  
+**Explanation:** OpenMRS Platform 2.4.0 has no UI by design  
 **Solution:** None needed - REST API works fine
 
 ### Issue: REST API returns 404
@@ -214,7 +214,7 @@ OpenMRS: openmrs/openmrs-reference-application-distro:2.11.0
 
 - [DONE] Docker containers running and healthy
 - [DONE] MySQL 5.7 accessible on port 3307
-- [DONE] OpenMRS Platform 2.6.0 running
+- [DONE] OpenMRS Platform 2.4.0 running
 - [DONE] REST API responding to requests
 - [DONE] Authentication working (admin/Admin123)
 - [DONE] 30+ modules loaded successfully
@@ -233,7 +233,7 @@ OpenMRS: openmrs/openmrs-reference-application-distro:2.11.0
 > The REST API is verified working at http://localhost:8080/openmrs/ws/rest/v1  
 > Tested authentication with admin/Admin123 - returns authenticated=true  
 >   
-> Key finding: OpenMRS Platform 2.6.0 has no UI by design (since v2.0) - this is PERFECT for Option B since we're building the Next.js frontend. The REST API is all we need and it's fully functional.  
+> Key finding: OpenMRS Platform 2.4.0 has no UI by design (since v2.0) - this is PERFECT for Option B since we're building the Next.js frontend. The REST API is all we need and it's fully functional.  
 >   
 > Next: Configure 6 user roles and integrate authentication with Next.js frontend.
 
