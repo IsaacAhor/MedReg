@@ -24,6 +24,7 @@
 /workspaces/MedReg/backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/service/impl/GhanaPatientServiceImpl.java
 /workspaces/MedReg/backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/nhie/impl/NHIECoverageServiceImpl.java
 /workspaces/MedReg/backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/fhir/FhirPatientMapper.java
+/workspaces/MedReg/backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/util/DatabaseSequenceProvider.java
 /workspaces/MedReg/backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/queue/impl/PatientQueueServiceImpl.java
 /workspaces/MedReg/backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/api/queue/db/PatientQueueDAO.java
 /workspaces/MedReg/backend/openmrs-module-ghanaemr/api/src/main/java/org/openmrs/module/ghanaemr/validation/NHISValidator.java

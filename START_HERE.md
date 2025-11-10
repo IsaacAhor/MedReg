@@ -28,6 +28,17 @@ If you cannot answer these, **re-read [AGENTS.md](AGENTS.md)**.
 - **[IMPLEMENTATION_TRACKER.md](IMPLEMENTATION_TRACKER.md)** - Current sprint status and progress
 - **[PROMPT_QUEUE.md](PROMPT_QUEUE.md)** - Full task queue
 
+## Step 3.5: [URGENT] Check for Active Incidents
+
+**🚨 ACTIVE INCIDENT (November 10, 2025):**
+- Ghana EMR module fails to load (missing Spring beans)
+- OpenMRS REST API unavailable (HTTP 500)
+- **Fix ready:** [docs/runbooks/GHANAEMR_MODULE_SPRING_BEAN_FIX.md](docs/runbooks/GHANAEMR_MODULE_SPRING_BEAN_FIX.md)
+- **Estimated fix time:** 15-30 minutes
+- **Priority:** CRITICAL - blocks all development
+
+**Before starting ANY other work, check if this needs to be fixed first.**
+
 ## Step 4: Proceed to Your Task
 
 ### For OpenMRS Backend Work:

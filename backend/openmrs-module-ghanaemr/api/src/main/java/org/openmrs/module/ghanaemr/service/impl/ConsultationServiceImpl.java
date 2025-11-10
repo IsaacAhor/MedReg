@@ -7,12 +7,10 @@ import org.openmrs.module.ghanaemr.exception.ValidationException;
 import org.openmrs.module.ghanaemr.service.ConsultationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-@Service
 @Transactional
 public class ConsultationServiceImpl implements ConsultationService {
 

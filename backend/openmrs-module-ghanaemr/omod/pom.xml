@@ -97,6 +97,12 @@
             <artifactId>httpcore</artifactId>
             <version>4.4.13</version>
         </dependency>
+        <!-- Jackson JSR310 (Java 8 Date/Time) - Required by HAPI FHIR -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.11.2</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -181,6 +187,10 @@
                                 httpclient,
                                 httpcore,
                                 j2objc-annotations,
+                                jackson-annotations,
+                                jackson-core,
+                                jackson-databind,
+                                jackson-datatype-jsr310,
                                 jsr305,
                                 listenablefuture,
                                 okhttp,
@@ -192,10 +202,6 @@
                             </includeArtifactIds>
                             <excludeArtifactIds>
                                 openmrs-module-ghanaemr-api,
-                                jackson-annotations,
-                                jackson-core,
-                                jackson-databind,
-                                jackson-datatype-jsr310,
                                 slf4j-api,
                                 jcl-over-slf4j,
                                 commons-logging,
@@ -234,7 +240,7 @@
                                         <include name="commons-logging*.jar"/>
                                         <include name="logback-*.jar"/>
                                         <include name="log4j-*.jar"/>
-                                        <include name="jackson-*.jar"/>
+                                        <!-- Jackson JARs NOT excluded - required by HAPI FHIR -->
                                     </fileset>
                                 </delete>
                             </target>

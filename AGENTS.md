@@ -3027,6 +3027,31 @@ docker-compose up -d
 
 ## Known Limitations & Workarounds
 
+### Ghana EMR Module - Spring Bean Issues [ACTIVE INCIDENT]
+
+**Status:** November 10, 2025 - Root cause identified, fix ready for implementation
+
+**Issue:** Custom Ghana EMR module fails to load due to missing Spring bean definitions for `SequenceProvider` and `NHIETransactionLogger`. This blocks OpenMRS startup and makes REST API unavailable.
+
+**Impact:** CRITICAL - All development work blocked until fixed
+
+**📋 Complete Fix Guide:** [docs/runbooks/GHANAEMR_MODULE_SPRING_BEAN_FIX.md](docs/runbooks/GHANAEMR_MODULE_SPRING_BEAN_FIX.md)
+- Root cause analysis
+- Step-by-step fix (15-30 minutes)
+- Verification checklist
+- Rollback procedures
+
+**Quick Fix Summary:**
+1. Add 3 bean definitions to `moduleApplicationContext.xml`
+2. Remove @Service annotation from `GhanaPatientServiceImpl`
+3. Rebuild module (`mvn clean package`)
+4. Deploy to OpenMRS container
+5. Verify module loads successfully
+
+**Prevention:** Document added to ensure future Spring configuration follows consistent patterns.
+
+---
+
 ### OpenMRS Platform 2.4.0
 - **Java 8 only:** Cannot upgrade to Java 11+ (breaking changes in OpenMRS core)
 - **MySQL 5.7 required:** MySQL 8.0 NOT compatible

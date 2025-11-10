@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- Component scan for @Service, @Controller, etc. -->
-    <context:component-scan base-package="org.openmrs.module.ghanaemr" />
+    <!-- NOTE: Component-scan REMOVED to prevent premature bean initialization conflicts.
+         All beans now explicitly defined below to control initialization order. -->
 
     <!-- Queue DAO and Service wiring -->
     <bean id="patientQueueDAO" class="org.openmrs.module.ghanaemr.api.queue.db.hibernate.HibernatePatientQueueDAO">
@@ -27,6 +25,48 @@
                 <prop key="*">PROPAGATION_REQUIRED</prop>
             </props>
         </property>
+    </bean>
+
+    <!-- SequenceProvider for folder number generation -->
+    <bean id="sequenceProvider" 
+          class="org.openmrs.module.ghanaemr.util.DatabaseSequenceProvider">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+
+    <!-- NHIETransactionLogger for NHIE transaction audit logging -->
+    <bean id="transactionLogger" 
+          class="org.openmrs.module.ghanaemr.api.nhie.DefaultNHIETransactionLogger">
+        <!-- No dependencies - uses JDBC directly via Context.getRuntimeProperties() -->
+    </bean>
+
+    <!-- GhanaPatientService with explicit constructor injection -->
+    <bean id="ghanaPatientService"
+          class="org.openmrs.module.ghanaemr.service.impl.GhanaPatientServiceImpl">
+        <constructor-arg ref="sequenceProvider" />
+    </bean>
+
+    <!-- TriageService - stateless service using Context API -->
+    <bean id="triageService"
+          class="org.openmrs.module.ghanaemr.service.impl.TriageServiceImpl">
+        <!-- No dependencies - uses Context API -->
+    </bean>
+
+    <!-- ConsultationService - stateless service using Context API -->
+    <bean id="consultationService"
+          class="org.openmrs.module.ghanaemr.service.impl.ConsultationServiceImpl">
+        <!-- No dependencies - uses Context API -->
+    </bean>
+
+    <!-- NHIEIntegrationService - uses internal HTTP client and mappers -->
+    <bean id="nhieIntegrationService"
+          class="org.openmrs.module.ghanaemr.api.nhie.impl.NHIEIntegrationServiceImpl">
+        <!-- Uses default no-arg constructor which initializes dependencies internally -->
+    </bean>
+
+    <!-- NHIECoverageService - NHIS coverage verification -->
+    <bean id="nhieCoverageService"
+          class="org.openmrs.module.ghanaemr.api.nhie.impl.NHIECoverageServiceImpl">
+        <!-- No dependencies - uses Context API and NHIEHttpClient internally -->
     </bean>
 
 </beans>

@@ -17,7 +17,6 @@ import org.openmrs.module.ghanaemr.api.nhie.NHIEResponse;
 import org.openmrs.module.ghanaemr.exception.NHIEIntegrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -48,7 +47,6 @@ import java.util.UUID;
  * 
  * @see NHIEIntegrationService
  */
-@Service("nhieIntegrationService")
 @Transactional
 public class NHIEIntegrationServiceImpl implements NHIEIntegrationService {
     

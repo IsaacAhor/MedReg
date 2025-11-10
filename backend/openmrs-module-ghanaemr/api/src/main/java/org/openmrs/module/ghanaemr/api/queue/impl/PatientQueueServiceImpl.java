@@ -9,14 +9,12 @@ import org.openmrs.module.ghanaemr.api.queue.PatientQueueService;
 import org.openmrs.module.ghanaemr.api.queue.db.PatientQueueDAO;
 import org.openmrs.module.ghanaemr.api.queue.model.PatientQueue;
 import org.openmrs.module.ghanaemr.api.queue.model.QueueStatus;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-@Service("patientQueueService")
 @Transactional
 public class PatientQueueServiceImpl extends BaseOpenmrsService implements PatientQueueService {
 

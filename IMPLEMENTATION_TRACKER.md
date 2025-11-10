@@ -225,6 +225,29 @@ Deliverables:
 
 **Achievement:** Successfully built OpenMRS Ghana EMR module after resolving 30+ compilation errors. Production-ready .omod artifact generated.
 
+---
+
+### [WARNING] Module Deployment Issue (November 10, 2025)
+
+**Status:** Root cause identified, fix documented, ready for implementation
+
+**Issue:** Ghana EMR module fails to load with missing Spring bean errors, blocking OpenMRS startup.
+
+**Root Cause:** Missing Spring bean definitions for `SequenceProvider` and `NHIETransactionLogger` components.
+
+**📋 COMPLETE FIX GUIDE:** See [docs/runbooks/GHANAEMR_MODULE_SPRING_BEAN_FIX.md](docs/runbooks/GHANAEMR_MODULE_SPRING_BEAN_FIX.md)
+- Comprehensive root cause analysis
+- Step-by-step implementation instructions
+- Verification checklist
+- Rollback procedures
+- Estimated fix time: 15-30 minutes
+
+**Impact:** CRITICAL - Blocks OpenMRS REST API access, prevents all development work
+
+**Next Worker:** Read runbook and execute fix - all context provided for permanent resolution.
+
+---
+
 ### Critical Issues Resolved
 
 #### Java/Maven Environment Setup [DONE]

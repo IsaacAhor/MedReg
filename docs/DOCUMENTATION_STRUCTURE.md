@@ -127,8 +127,9 @@ MedReg/
     �   +-- audit-policy.md
     �   +-- privileges-matrix.md
     
-    runbooks/ (Operational runbooks for isolated incidents)
-      OPENMRS_REST_LOGIN_RECOVERY_TASKBOOK.md (single-document task system for the REST/login incident; mirrors AGENTS.md workflow locally without touching project-wide queues)
+    +-- runbooks/ (Operational runbooks for isolated incidents)
+        +-- OPENMRS_REST_LOGIN_RECOVERY_TASKBOOK.md (REST/login incident recovery)
+        +-- GHANAEMR_MODULE_SPRING_BEAN_FIX.md (Ghana EMR Spring bean dependency fix - ACTIVE)
     �
     +-- ... (Other doc categories)
 ```

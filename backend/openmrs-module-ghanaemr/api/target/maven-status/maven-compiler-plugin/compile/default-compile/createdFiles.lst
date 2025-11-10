@@ -1,3 +1,4 @@
+org/openmrs/module/ghanaemr/util/DatabaseSequenceProvider.class
 org/openmrs/module/ghanaemr/util/FolderNumberGenerator.class
 org/openmrs/module/ghanaemr/api/nhie/NHIEHttpClient$OAuthToken.class
 org/openmrs/module/ghanaemr/api/nhie/NHIEHttpClient.class
