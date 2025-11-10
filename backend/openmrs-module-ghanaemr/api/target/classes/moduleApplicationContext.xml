@@ -14,13 +14,19 @@
         <property name="sessionFactory" ref="sessionFactory" />
     </bean>
 
-    <bean id="patientQueueServiceTarget" class="org.openmrs.module.ghanaemr.api.queue.impl.PatientQueueServiceImpl">
-        <property name="dao" ref="patientQueueDAO" />
-    </bean>
-
-    <!-- Expose service bean (proxied by OpenMRS transaction AOP) -->
-    <bean id="patientQueueService" parent="serviceContext">
-        <property name="serviceTarget" ref="patientQueueServiceTarget" />
+    <bean id="patientQueueService"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target">
+            <bean class="org.openmrs.module.ghanaemr.api.queue.impl.PatientQueueServiceImpl">
+                <property name="dao" ref="patientQueueDAO"/>
+            </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
     </bean>
 
 </beans>

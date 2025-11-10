@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "ghana-emr-openmrs": {
+      "command": "node",
+      "args": [
+        "/workspaces/MedReg/mcp-servers/openmrs/dist/index.js"
+      ]
+    },
+    "ghana-emr-mysql": {
+      "command": "node",
+      "args": [
+        "/workspaces/MedReg/mcp-servers/mysql/dist/index.js"
+      ]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
+    }
+  }
+}

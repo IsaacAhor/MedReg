@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="maven-antrun-" default="main">
   <target name="main">
-    <move file="/workspaces/MedReg/backend/openmrs-module-ghanaemr/omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.jar" tofile="/workspaces/MedReg/backend/openmrs-module-ghanaemr/omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod" />
+    <copy file="/workspaces/MedReg/backend/openmrs-module-ghanaemr/omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.jar" tofile="/workspaces/MedReg/backend/openmrs-module-ghanaemr/omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod" />
     <copy file="/workspaces/MedReg/backend/openmrs-module-ghanaemr/omod/target/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod" tofile="/workspaces/MedReg/backend/openmrs-module-ghanaemr/omod/../../openmrs-modules/openmrs-module-ghanaemr-0.1.0-SNAPSHOT.omod" overwrite="true" />
   </target>
 </project>
